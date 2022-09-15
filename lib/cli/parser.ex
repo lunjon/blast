@@ -6,16 +6,16 @@ defmodule Blast.CLI.ArgParser do
   blast - load test the APIs you love (or hate)!
 
   Required:
-    --url   the URL to the API to target
+    -u/--url       the URL to the API to target
 
   Options:
     -w/--workers   number of concurrent workers to run
-                (integer: default 1)
-    --timeout   how many milliseconds to run
-                (integer: default l0000)
+                   (integer: default 1)
+    --timeout      how many milliseconds to run
+                   (integer: default l0000)
     -v/--verbose   output logs
-                (boolean: default false)
-    --help      display this help message
+                   (boolean: default false)
+    --help         display this help message
   """
 
   def parse([]) do
@@ -42,7 +42,9 @@ defmodule Blast.CLI.ArgParser do
   end
 
   defp parse_args({args, [], []}) do
-    if not Keyword.get(args, :verbose, false) do
+    verbose = Keyword.get(args, :verbose, false)
+
+    if not verbose do
       Logger.configure(level: :none)
     end
 
@@ -52,7 +54,8 @@ defmodule Blast.CLI.ArgParser do
       args = %{
         url: Keyword.get(args, :url),
         workers: Keyword.get(args, :workers, @worker_count),
-        timeout: Keyword.get(args, :timeout, @timeout)
+        timeout: Keyword.get(args, :timeout, @timeout),
+        verbose: verbose
       }
 
       {:ok, args}
