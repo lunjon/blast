@@ -3,8 +3,9 @@ defmodule Blast.CLI do
 
   @timeout 10_000
   @worker_count 1
+
   @help """
-  blast - loadtest and API you love (or hate)!
+  blast - load test the APIs you love (or hate)!
 
   Required:
     --url   the URL to the API to target
@@ -18,7 +19,6 @@ defmodule Blast.CLI do
     -v/--verbose   output logs
                 (boolean: default false)
     --help      display this help message
-
   """
 
   def main([]) do
