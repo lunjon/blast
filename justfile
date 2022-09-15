@@ -9,3 +9,6 @@ fmt:
 
 test:
     mix test
+
+install: build
+    cp blast ~/.local/bin/blast
