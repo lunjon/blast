@@ -7,7 +7,7 @@
 - [x] --help option 
 - [x] workers
 - [x] timeout
-- [ ] method
+- [x] method
 - [ ] body
 - [ ] headers
 - [ ] output format
@@ -18,4 +18,4 @@
   - Should be using the builtin `Code.require_file`
 
 ## Tests
-- [ ] Add tests
+- [x] Arg parsing

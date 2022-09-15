@@ -18,14 +18,14 @@ defmodule Blast.CLI do
   end
 
   defp handle({:ok, args}) do
-    run(args.url, args.timeout, args.workers)
+    run(args.method, args.url, args.timeout, args.workers)
   end
 
-  defp run(url, timeout, workers) do
+  defp run(method, url, timeout, workers) do
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
-      {Blast.Gatherer, {url, workers, self()}}
+      {Blast.Gatherer, {method, url, workers, self()}}
     ]
 
     opts = [strategy: :one_for_all, name: Blast.Supervisor]

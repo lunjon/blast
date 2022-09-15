@@ -3,24 +3,29 @@ defmodule Blast.Worker do
   alias Blast.Results
   require Logger
 
-  def start_link(url) do
-    GenServer.start_link(__MODULE__, url)
+  def start_link({method, url}) do
+    req = %HTTPoison.Request{
+      method: method,
+      url: url
+    }
+
+    GenServer.start_link(__MODULE__, req)
   end
 
-  def init(url) do
+  def init(req) do
     Process.send_after(self(), :run, 0)
-    {:ok, url}
+    {:ok, req}
   end
 
-  def handle_info(:run, url) do
-    HTTPoison.get(url)
-    |> add_result(url)
+  def handle_info(:run, req) do
+    HTTPoison.request(req)
+    |> add_result(req)
   end
 
-  def add_result({:ok, response}, url) do
+  def add_result({:ok, response}, req) do
     Results.put(response.request_url, response.status_code)
     send(self(), :run)
 
-    {:noreply, url}
+    {:noreply, req}
   end
 end

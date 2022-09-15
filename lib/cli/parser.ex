@@ -1,4 +1,5 @@
 defmodule Blast.CLI.ArgParser do
+  @method "GET"
   @timeout 10_000
   @worker_count 1
 
@@ -9,10 +10,12 @@ defmodule Blast.CLI.ArgParser do
     -u/--url       the URL to the API to target
 
   Options:
+    -m/--method    HTTP method
+                   (string: default #{@method})
     -w/--workers   number of concurrent workers to run
-                   (integer: default 1)
+                   (integer: default #{@worker_count})
     --timeout      how many milliseconds to run
-                   (integer: default l0000)
+                   (integer: default #{@timeout})
     -v/--verbose   output logs
                    (boolean: default false)
     --help         display this help message
@@ -26,12 +29,14 @@ defmodule Blast.CLI.ArgParser do
     OptionParser.parse(args,
       strict: [
         url: :string,
+        method: :string,
         workers: :integer,
         timeout: :integer,
         verbose: :boolean,
         help: :boolean
       ],
       aliases: [
+        m: :method,
         u: :url,
         w: :workers,
         v: :verbose,
@@ -53,6 +58,7 @@ defmodule Blast.CLI.ArgParser do
     else
       args = %{
         url: Keyword.get(args, :url),
+        method: Keyword.get(args, :url, @method),
         workers: Keyword.get(args, :workers, @worker_count),
         timeout: Keyword.get(args, :timeout, @timeout),
         verbose: verbose
