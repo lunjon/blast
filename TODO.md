@@ -4,12 +4,6 @@
 - [ ] Bad error message if invalid URL
 
 ## Options/Flags
-- [x] --help option 
-- [x] workers
-- [x] timeout
-- [x] method
-- [x] headers
-- [x] body
 - [ ] output
 - Output format
   - [x] JSON

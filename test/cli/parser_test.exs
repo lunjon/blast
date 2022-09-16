@@ -30,7 +30,7 @@ defmodule Cli.ParserTest do
       assert(args.url == @url)
       assert(args.method == "GET")
       assert(args.workers == 1)
-      assert(args.timeout == 10_000)
+      assert(args.duration == 10_000)
       assert not args.verbose
     end
 

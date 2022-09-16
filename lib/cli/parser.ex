@@ -1,7 +1,7 @@
 defmodule Blast.CLI.Parser do
   @methods ["GET", "POST", "PUT", "DELETE"]
   @method "GET"
-  @timeout 10_000
+  @duration 10_000
   @workers 1
 
   @help """
@@ -25,8 +25,8 @@ defmodule Blast.CLI.Parser do
                           (string)
     -w/--workers N        number of concurrent workers to run
                           (integer: default #{@workers})
-    --timeout N           how many milliseconds to run
-                          (integer: default #{@timeout})
+    --duration N          how many milliseconds to run
+                          (integer: default #{@duration})
     -v/--verbose          output logs
                           (boolean: default false)
     --help                display this help message
@@ -43,7 +43,7 @@ defmodule Blast.CLI.Parser do
         method: :string,
         header: [:string, :keep],
         workers: :integer,
-        timeout: :integer,
+        duration: :integer,
         verbose: :boolean,
         data: :string,
         data_file: :string,
@@ -80,7 +80,7 @@ defmodule Blast.CLI.Parser do
           headers: headers,
           body: data,
           workers: Keyword.get(args, :workers, @workers),
-          timeout: Keyword.get(args, :timeout, @timeout),
+          duration: Keyword.get(args, :duration, @duration),
           verbose: Keyword.get(args, :verbose, false)
         }
 

@@ -33,10 +33,10 @@ defmodule Blast.CLI do
       body: args.body
     }
 
-    run(req, args.timeout, args.workers)
+    run(req, args.duration, args.workers)
   end
 
-  defp run(req, timeout, workers) do
+  defp run(req, duration, workers) do
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
@@ -51,7 +51,7 @@ defmodule Blast.CLI do
       {:done} ->
         Logger.info("Received done")
     after
-      timeout ->
+      duration ->
         Logger.info("Stopping workers...")
         Blast.WorkerSupervisor.stop_workers()
     end
