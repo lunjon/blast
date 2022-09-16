@@ -1,7 +1,8 @@
 # TODO
 
 ## Fix
-- [ ] Bad error message if invalid URL
+- [ ] Shutdown if invalid URL
+- [ ] Shutdown if missing --url but giving other flags
 
 ## Options/Flags
 - [ ] output
