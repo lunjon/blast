@@ -33,7 +33,13 @@ defmodule Blast.CLI.Parser do
   """
 
   def parse_args([]) do
-    {:error, "Missing required parameter: --url"}
+    msg = """
+    error: missing required parameter: --url
+
+    #{@help}
+    """
+
+    {:error, msg}
   end
 
   def parse_args(args) do
