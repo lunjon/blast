@@ -143,7 +143,13 @@ defmodule Blast.CLI.Parser do
 
   defp parse_datas(data, nil, []), do: {:ok, data}
 
-  defp parse_datas(nil, data_file, []), do: {:ok, {:file, data_file}}
+  defp parse_datas(nil, data_file, []) do
+    if File.exists?(data_file) do
+      {:ok, {:file, data_file}}
+    else
+      {:error, "file not found: #{data_file}"}
+    end
+  end
 
   defp parse_datas(nil, nil, data_form) do
     case parse_keyword_pairs(data_form, %{}) do

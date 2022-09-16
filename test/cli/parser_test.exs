@@ -3,6 +3,7 @@ defmodule Cli.ParserTest do
   alias Blast.CLI.Parser
 
   @url "http://localhost"
+  @valid_filepath "mix.exs"
 
   describe "errors" do
     test "no args" do
@@ -110,17 +111,18 @@ defmodule Cli.ParserTest do
     end
 
     test "--data-file" do
-      {:ok, args} = Parser.parse_args(["--url", @url, "--data-file", "/some/path"])
+      {:ok, args} = Parser.parse_args(["--url", @url, "--data-file", @valid_filepath])
       {:file, _} = args.body
     end
 
     test "--data & --data-form" do
       {:error, _} =
-        Parser.parse_args(["--url", @url, "--data", "/some/path", "--data-form", "key: value"])
+        Parser.parse_args(["--url", @url, "--data", @valid_filepath, "--data-form", "key: value"])
     end
 
     test "--data & --data-file" do
-      {:error, _} = Parser.parse_args(["--url", @url, "--data", "string", "--data-file", "/path"])
+      {:error, _} =
+        Parser.parse_args(["--url", @url, "--data", "string", "--data-file", @valid_filepath])
     end
 
     test "--data-form & --data-file" do
@@ -129,7 +131,7 @@ defmodule Cli.ParserTest do
           "--url",
           @url,
           "--data-file",
-          "/some/path",
+          @valid_filepath,
           "--data-form",
           "key: value"
         ])
@@ -143,7 +145,7 @@ defmodule Cli.ParserTest do
           "--data",
           "string",
           "--data-file",
-          "/some/path",
+          @valid_filepath,
           "--data-form",
           "key: value"
         ])
