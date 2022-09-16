@@ -1,25 +1,86 @@
 defmodule Cli.ParserTest do
   use ExUnit.Case
-  alias Blast.CLI.ArgParser
+  alias Blast.CLI.Parser
 
   @url "http://localhost"
 
-  test "no args" do
-    {:error, _} = ArgParser.parse([])
+  describe "errors" do
+    test "no args" do
+      {:error, _} = Parser.parse_args([])
+    end
+
+    test "invalid method" do
+      {:error, _msg} = Parser.parse_args(["--url", @url, "--method", "no"])
+    end
   end
 
-  test "help" do
-    {:help, _msg} = ArgParser.parse(["--help"])
-    {:help, _msg} = ArgParser.parse(["-h"])
+  describe "defaults" do
+    test "no args" do
+      {:error, _} = Parser.parse_args([])
+    end
+
+    test "help" do
+      {:help, _msg} = Parser.parse_args(["--help"])
+      {:help, _msg} = Parser.parse_args(["-h"])
+    end
+
+    test "values" do
+      {:ok, args} = Parser.parse_args(["--url", @url])
+      assert(args.url == @url)
+      assert(args.method == "GET")
+      assert(args.workers == 1)
+      assert(args.timeout == 10_000)
+      assert not (args.verbose)
+    end
+
+    test "verbose" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "--verbose"])
+      assert(args.verbose)
+    end
   end
 
-  test "minimal" do
-    {:ok, args} = ArgParser.parse(["--url", @url])
-    assert(args.url == @url)
+  describe "header parsing" do
+    test "valid header" do
+      {:ok, "name", "value"} = Parser.parse_header("name: value")
+    end
+
+    test "invalid headers" do
+      {:error, _msg} = Parser.parse_header("")
+      {:error, _msg} = Parser.parse_header("name:")
+      {:error, _msg} = Parser.parse_header("name")
+    end
   end
 
-  test "verbose" do
-    {:ok, args} = ArgParser.parse(["--url", @url, "--verbose"])
-    assert(args.verbose)
+  describe "header option" do
+    test "missing value" do
+      {:error, _} = Parser.parse_args(["--url", @url, "--header"])
+    end
+
+    test "invalid value" do
+      {:error, _} = Parser.parse_args(["--url", @url, "--header", "no"])
+    end
+
+    test "single header" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "--header", "name: value"])
+      assert(Map.get(args.headers, "name") == "value")
+    end
+
+    test "short form" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "-H", "name: value"])
+      assert(Map.get(args.headers, "name") == "value")
+    end
+
+    test "multiple unique headers" do
+      {:ok, args} =
+        Parser.parse_args(["--url", @url, "--header", "name: value", "-H", "other: different"])
+
+      assert(Map.get(args.headers, "name") == "value")
+      assert(Map.get(args.headers, "other") == "different")
+    end
+
+    test "multiple occurence of same header" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "-H", "name: v1", "-H", "name: v2"])
+      assert(Map.get(args.headers, "name") == "v1; v2")
+    end
   end
 end

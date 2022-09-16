@@ -1,9 +1,9 @@
 defmodule Blast.CLI do
-  alias Blast.CLI.ArgParser
+  alias Blast.CLI.Parser
   require Logger
 
   def main(args) do
-    ArgParser.parse(args)
+    Parser.parse_args(args)
     |> handle()
   end
 
@@ -18,16 +18,31 @@ defmodule Blast.CLI do
   end
 
   defp handle({:ok, args}) do
-    run(args.method, args.url, args.timeout, args.workers)
+    if not args.verbose do
+      Logger.configure(level: :none)
+    else
+      Logger.configure(level: :info)
+    end
+
+    Logger.debug("Args: #{inspect(args)}")
+
+    req = %HTTPoison.Request{
+      method: args.method,
+      url: args.url,
+      headers: args.headers
+    }
+
+    run(req, args.timeout, args.workers)
   end
 
-  defp run(method, url, timeout, workers) do
+  defp run(req, timeout, workers) do
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
-      {Blast.Gatherer, {method, url, workers, self()}}
+      {Blast.Gatherer, {req, workers, self()}}
     ]
 
+    Logger.info("Starting #{workers} worker(s)")
     opts = [strategy: :one_for_all, name: Blast.Supervisor]
     Supervisor.start_link(children, opts)
 
@@ -40,6 +55,7 @@ defmodule Blast.CLI do
         Blast.WorkerSupervisor.stop_workers()
     end
 
+    Logger.flush()
     IO.puts("Results: #{inspect(Blast.Results.get())}")
   end
 end

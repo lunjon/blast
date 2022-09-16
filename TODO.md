@@ -8,8 +8,8 @@
 - [x] workers
 - [x] timeout
 - [x] method
+- [x] headers
 - [ ] body
-- [ ] headers
 - [ ] output format
 
 ## Features

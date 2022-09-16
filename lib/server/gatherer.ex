@@ -17,21 +17,22 @@ defmodule Blast.Gatherer do
 
   # Server
 
+  # args :: {req, workers, caller}
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: @me)
   end
 
-  def init({method, url, worker_count, caller}) do
-    Process.send_after(self(), {:kickoff, method, url}, 0)
-    {:ok, {worker_count, caller}}
+  def init({request, workers, caller}) do
+    Process.send_after(self(), {:kickoff, request}, 0)
+    {:ok, {workers, caller}}
   end
 
   def handle_cast(:done, {1, caller}) do
     send(caller, :done)
   end
 
-  def handle_cast(:done, {worker_count, caller}) do
-    {:noreply, {worker_count - 1, caller}}
+  def handle_cast(:done, {workers, caller}) do
+    {:noreply, {workers - 1, caller}}
   end
 
   def handle_cast({:result, url, status}, state) do
@@ -39,9 +40,9 @@ defmodule Blast.Gatherer do
     {:noreply, state}
   end
 
-  def handle_info({:kickoff, method, url}, {worker_count, _} = state) do
-    1..worker_count
-    |> Enum.each(fn _ -> Blast.WorkerSupervisor.add_worker(method, url) end)
+  def handle_info({:kickoff, request}, {workers, _} = state) do
+    1..workers
+    |> Enum.each(fn _ -> Blast.WorkerSupervisor.add_worker(request) end)
 
     {:noreply, state}
   end

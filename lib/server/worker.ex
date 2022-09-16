@@ -3,13 +3,8 @@ defmodule Blast.Worker do
   alias Blast.Results
   require Logger
 
-  def start_link({method, url}) do
-    req = %HTTPoison.Request{
-      method: method,
-      url: url
-    }
-
-    GenServer.start_link(__MODULE__, req)
+  def start_link(request) do
+    GenServer.start_link(__MODULE__, request)
   end
 
   def init(req) do

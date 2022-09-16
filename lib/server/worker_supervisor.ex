@@ -11,8 +11,8 @@ defmodule Blast.WorkerSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def add_worker(method, url) do
-    {:ok, _pid} = DynamicSupervisor.start_child(@me, {Blast.Worker, {method, url}})
+  def add_worker(request) do
+    {:ok, _pid} = DynamicSupervisor.start_child(@me, {Blast.Worker, request})
   end
 
   def stop_workers() do
