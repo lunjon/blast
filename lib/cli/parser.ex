@@ -14,7 +14,14 @@ defmodule Blast.CLI.Parser do
     -m/--method METHOD    HTTP method
                           (string: default #{@method})
     -H/--header VALUE     HTTP header, can be specified multiple times.
-                          Value should conform the format: "Name: value"
+                          Value should conform the format: "name: value"
+                          (string)
+    --data VALUE          use as body string
+                          (string)
+    --data-file FILEPATH  read body from file
+                          (string)
+    --data-form VALUE     URL encoded data, can be specied multiple times for each key/ value pair.
+                          Value should conform the format: "name: value"
                           (string)
     -w/--workers N        number of concurrent workers to run
                           (integer: default #{@workers})
@@ -38,6 +45,9 @@ defmodule Blast.CLI.Parser do
         workers: :integer,
         timeout: :integer,
         verbose: :boolean,
+        data: :string,
+        data_file: :string,
+        data_form: [:string, :keep],
         help: :boolean
       ],
       aliases: [
@@ -56,12 +66,19 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, headers} <- parse_headers(Keyword.take(args, [:header]), %{}),
-           {:ok, method} <- parse_method(Keyword.get(args, :method, @method)) do
+      with {:ok, headers} <- parse_keyword_pairs(Keyword.take(args, [:header]), %{}),
+           {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
+           {:ok, data} <-
+             parse_datas(
+               Keyword.get(args, :data),
+               Keyword.get(args, :data_file),
+               Keyword.take(args, [:data_form])
+             ) do
         args = %{
           url: Keyword.get(args, :url),
           method: method,
           headers: headers,
+          body: data,
           workers: Keyword.get(args, :workers, @workers),
           timeout: Keyword.get(args, :timeout, @timeout),
           verbose: Keyword.get(args, :verbose, false)
@@ -88,9 +105,9 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  defp parse_headers([], headers), do: {:ok, headers}
+  defp parse_keyword_pairs([], map), do: {:ok, map}
 
-  defp parse_headers([head | tail], headers) do
+  defp parse_keyword_pairs([head | tail], map) do
     {_, header} = head
 
     case parse_header(header) do
@@ -99,12 +116,12 @@ defmodule Blast.CLI.Parser do
 
       {:ok, name, value} ->
         {_, hs} =
-          Map.get_and_update(headers, name, fn
+          Map.get_and_update(map, name, fn
             nil -> {value, value}
             current -> {value, "#{current}; #{value}"}
           end)
 
-        parse_headers(tail, hs)
+        parse_keyword_pairs(tail, hs)
     end
   end
 
@@ -119,6 +136,25 @@ defmodule Blast.CLI.Parser do
   end
 
   defp handle_header_match(nil) do
-    {:error, "no match"}
+    {:error, "invalid format"}
   end
+
+  defp parse_datas(nil, nil, []), do: {:ok, nil}
+
+  defp parse_datas(data, nil, []), do: {:ok, data}
+
+  defp parse_datas(nil, data_file, []), do: {:ok, {:file, data_file}}
+
+  defp parse_datas(nil, nil, data_form) do
+    case parse_keyword_pairs(data_form, %{}) do
+      {:ok, map} ->
+        form = Enum.map(map, fn {key, value} -> {key, value} end)
+        {:ok, {:form, form}}
+
+      err ->
+        err
+    end
+  end
+
+  defp parse_datas(_, _, _), do: {:error, "invalid combination of data flags"}
 end

@@ -83,4 +83,70 @@ defmodule Cli.ParserTest do
       assert(Map.get(args.headers, "name") == "v1; v2")
     end
   end
+
+  describe "data options" do
+    test "missing" do
+      {:ok, args} = Parser.parse_args(["--url", @url])
+      assert(args.body == nil)
+    end
+
+    test "--data string" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "--data", "string"])
+      assert(args.body == "string")
+    end
+
+    test "--data-form" do
+      {:ok, args} =
+        Parser.parse_args([
+          "--url",
+          @url,
+          "--data-form",
+          "key: value",
+          "--data-form",
+          "other: yes"
+        ])
+
+      {:form, _} = args.body
+    end
+
+    test "--data-file" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "--data-file", "/some/path"])
+      {:file, _} = args.body
+    end
+
+    test "--data & --data-form" do
+      {:error, _} =
+        Parser.parse_args(["--url", @url, "--data", "/some/path", "--data-form", "key: value"])
+    end
+
+    test "--data & --data-file" do
+      {:error, _} = Parser.parse_args(["--url", @url, "--data", "string", "--data-file", "/path"])
+    end
+
+    test "--data-form & --data-file" do
+      {:error, _} =
+        Parser.parse_args([
+          "--url",
+          @url,
+          "--data-file",
+          "/some/path",
+          "--data-form",
+          "key: value"
+        ])
+    end
+
+    test "--data & --data-form & --data-file" do
+      {:error, _} =
+        Parser.parse_args([
+          "--url",
+          @url,
+          "--data",
+          "string",
+          "--data-file",
+          "/some/path",
+          "--data-form",
+          "key: value"
+        ])
+    end
+  end
 end

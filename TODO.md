@@ -9,7 +9,7 @@
 - [x] timeout
 - [x] method
 - [x] headers
-- [ ] body
+- [x] body
 - [ ] output
 - Output format
   - [x] JSON

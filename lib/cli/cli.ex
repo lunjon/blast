@@ -29,7 +29,8 @@ defmodule Blast.CLI do
     req = %HTTPoison.Request{
       method: args.method,
       url: args.url,
-      headers: args.headers
+      headers: args.headers,
+      body: args.body
     }
 
     run(req, args.timeout, args.workers)
