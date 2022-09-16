@@ -139,7 +139,7 @@ defmodule Blast.CLI.Parser do
     {:error, "invalid format"}
   end
 
-  defp parse_datas(nil, nil, []), do: {:ok, nil}
+  defp parse_datas(nil, nil, []), do: {:ok, ""}
 
   defp parse_datas(data, nil, []), do: {:ok, data}
 

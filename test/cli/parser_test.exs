@@ -86,11 +86,6 @@ defmodule Cli.ParserTest do
   end
 
   describe "data options" do
-    test "missing" do
-      {:ok, args} = Parser.parse_args(["--url", @url])
-      assert(args.body == nil)
-    end
-
     test "--data string" do
       {:ok, args} = Parser.parse_args(["--url", @url, "--data", "string"])
       assert(args.body == "string")
