@@ -1,6 +1,7 @@
 defmodule Blast.Results do
   use GenServer
   require Logger
+  alias Blast.Result
 
   @me __MODULE__
 
@@ -9,13 +10,14 @@ defmodule Blast.Results do
   end
 
   def init(nil) do
-    {:ok, %{}}
+    {:ok, %Result{}}
   end
 
   # External API
 
-  def put(url, status) do
-    GenServer.cast(@me, {:put, url, status})
+  @spec put(HTTPoison.Response.t()) :: :ok
+  def put(response) do
+    GenServer.cast(@me, {:put, response})
   end
 
   def get() do
@@ -24,9 +26,8 @@ defmodule Blast.Results do
 
   # Internal API
 
-  def handle_cast({:put, url, _status}, state) do
-    state = Map.update(state, url, 0, fn count -> count + 1 end)
-    {:noreply, state}
+  def handle_cast({:put, response}, state) do
+    {:noreply, Result.update(state, response)}
   end
 
   def handle_call(:get, _from, state) do

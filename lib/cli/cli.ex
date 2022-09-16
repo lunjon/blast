@@ -56,6 +56,9 @@ defmodule Blast.CLI do
     end
 
     Logger.flush()
-    IO.puts("Results: #{inspect(Blast.Results.get())}")
+
+    Blast.Results.get()
+    |> Blast.Format.format_result(:json)
+    |> IO.puts()
   end
 end

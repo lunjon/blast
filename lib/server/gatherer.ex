@@ -1,15 +1,10 @@
 defmodule Blast.Gatherer do
   require Logger
   use GenServer
-  alias Blast.Results
 
   @me Gatherer
 
   # API
-
-  def result(url, status) do
-    GenServer.cast(@me, {:result, url, status})
-  end
 
   def done() do
     GenServer.cast(@me, :done)
@@ -33,11 +28,6 @@ defmodule Blast.Gatherer do
 
   def handle_cast(:done, {workers, caller}) do
     {:noreply, {workers - 1, caller}}
-  end
-
-  def handle_cast({:result, url, status}, state) do
-    Results.put(url, status)
-    {:noreply, state}
   end
 
   def handle_info({:kickoff, request}, {workers, _} = state) do

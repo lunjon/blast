@@ -10,9 +10,14 @@ defmodule BlastTest do
   end
 
   test "puts new result" do
+    res = %HTTPoison.Response{
+      request_url: @url,
+      status_code: 200
+    }
+
     # Arrange
     1..10
-    |> Enum.each(fn _ -> Results.put(@url, 200) end)
+    |> Enum.each(fn _ -> Results.put(res) end)
 
     # Assert
     results = Results.get()

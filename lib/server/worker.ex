@@ -13,12 +13,14 @@ defmodule Blast.Worker do
   end
 
   def handle_info(:run, req) do
+    HTTPoison.Response
+
     HTTPoison.request(req)
     |> add_result(req)
   end
 
   def add_result({:ok, response}, req) do
-    Results.put(response.request_url, response.status_code)
+    Results.put(response)
     send(self(), :run)
 
     {:noreply, req}

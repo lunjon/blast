@@ -10,7 +10,10 @@
 - [x] method
 - [x] headers
 - [ ] body
-- [ ] output format
+- [ ] output
+- Output format
+  - [x] JSON
+  - [ ] Plaintext
 
 ## Features
 - [ ] Web interface in Phoenix
