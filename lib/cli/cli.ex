@@ -34,24 +34,33 @@ defmodule Blast.CLI do
 
     Logger.debug("Args: #{inspect(args)}")
 
-    req = %HTTPoison.Request{
-      method: args.method,
-      url: args.url,
-      headers: args.headers,
-      body: args.body
-    }
+    case args.connect do
+      "" ->
+        req = %HTTPoison.Request{
+          method: args.method,
+          url: args.url,
+          headers: args.headers,
+          body: args.body
+        }
 
-    run(req, args.duration, args.workers)
+        run(:manager, req, args)
+
+      node_name ->
+        run(:worker, String.to_atom(node_name))
+    end
   end
 
-  defp run(req, duration, workers) do
+  defp run(:manager, req, args) do
+    # Start this as a manager node, allowing other nodes connecting
+    # as workers in a distributed cluster: Node.connect(:manager@localhost)
+    Node.start(:manager@localhost)
+
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
-      {Blast.Manager, {req, workers, self()}}
+      {Blast.Manager, {req, args.workers, self()}}
     ]
 
-    Logger.info("Starting #{workers} worker(s)")
     opts = [strategy: :one_for_all, name: Blast.Supervisor]
     Supervisor.start_link(children, opts)
 
@@ -59,16 +68,41 @@ defmodule Blast.CLI do
       {:done} ->
         Logger.info("Received done")
     after
-      duration ->
+      args.duration ->
         Logger.info("Stopping workers...")
         Blast.Manager.stop_all()
-        Blast.WorkerSupervisor.stop_workers()
     end
-
-    Logger.flush()
 
     Blast.Results.get()
     |> Blast.Format.format_result(:json)
     |> IO.puts()
+  end
+
+  defp run(:worker, manager_node) do
+    # Start this as a worker node.
+    Node.start(:worker@localhost)
+
+    children = [
+      Blast.Results,
+      Blast.WorkerSupervisor
+    ]
+
+    Logger.info("Starting worker, connecting to manager node: #{manager_node}")
+
+    case Node.connect(:manager@localhost) do
+      n when n in [:ignored, false] ->
+        IO.puts(:stderr, "failed to connect to manager node")
+        System.stop(1)
+
+      _ ->
+        Logger.info("Connected successfully to manager node")
+    end
+
+    opts = [strategy: :one_for_all, name: Blast.Supervisor]
+    Supervisor.start_link(children, opts)
+
+    receive do
+      {:done} -> Logger.info("Received done")
+    end
   end
 end

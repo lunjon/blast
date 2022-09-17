@@ -18,45 +18,42 @@ defmodule Blast.Manager do
   Instructs to stop all workers.
   """
   def stop_all() do
-    {:ok, _} = GenServer.call(@me, :shutdown)
+    GenServer.call(@me, :shutdown)
   end
 
   # Server
 
   # args :: {req, workers, caller}
   def start_link({request, workers, caller}) do
-    params = %{
+    state = %{
       request: request,
       workers: workers,
       caller: caller,
       nodes: []
     }
 
-    GenServer.start_link(__MODULE__, params, name: @me)
+    GenServer.start_link(__MODULE__, state, name: @me)
   end
 
-  def init(params) do
-    Process.send_after(self(), {:kickoff, params.request}, 0)
-
-    # Start this as a manager node, allowing other nodes connecting
-    # as workers in a distributed cluster: Node.connect(:manager@localhost)
-    Node.start(:manager@localhost)
-
+  def init(state) do
     # Enabling monitoring of nodes.
     # This means that a message will be received when a new node connects.
     # See handle_info({:nodeup, addr}, ...)
     :net_kernel.monitor_nodes(true)
 
-    state = Map.put(params, :nodes, [Node.self()])
-    {:ok, state}
+    Process.send_after(self(), :kickoff, 0)
+
+    {:ok, Map.put(state, :nodes, [Node.self()])}
   end
 
-  def handle_call(:shutdown, state) do
+  def handle_call(:shutdown, _caller, state) do
+    # TODO: call for each node
+    Blast.WorkerSupervisor.stop_workers()
     {:reply, true, state}
   end
 
-  def handle_info({:kickoff, request}, {workers, _, _} = state) do
-    Blast.WorkerSupervisor.add_workers(request, workers)
+  def handle_info(:kickoff, state) do
+    Blast.WorkerSupervisor.add_workers(state.request, state.workers)
 
     {:noreply, state}
   end
