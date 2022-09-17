@@ -21,7 +21,7 @@ defmodule Blast.MixProject do
 
   defp aliases do
     [
-      all: ["format", "escript.build"]
+      all: ["compile", "format", "escript.build"]
     ]
   end
 

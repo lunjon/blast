@@ -16,12 +16,12 @@ defmodule Blast.CLI do
   end
 
   defp handle({:error, msg}) do
-    IO.puts("error: #{msg}")
+    IO.puts(:stderr, "error: #{msg}")
     System.stop(1)
   end
 
   defp handle({:help, msg}) do
-    IO.puts(msg)
+    IO.puts(:stderr, msg)
     System.stop(1)
   end
 

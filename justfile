@@ -1,11 +1,12 @@
-default: fmt build test
+alias t := test
+
+all:
+    mix all
+    mix test
 
 build:
-    mix
+    mix compile
     mix escript.build
-
-fmt:
-    mix format
 
 test:
     mix test
