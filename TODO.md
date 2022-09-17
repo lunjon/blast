@@ -2,7 +2,7 @@
 
 ## Fix
 - [ ] Shutdown if invalid URL
-- [ ] Shutdown if missing --url but giving other flags
+- [x] Shutdown if missing --url but giving other flags
 
 ## Options/Flags
 - [ ] output

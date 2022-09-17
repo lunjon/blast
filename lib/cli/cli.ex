@@ -3,8 +3,16 @@ defmodule Blast.CLI do
   require Logger
 
   def main(args) do
-    Parser.parse_args(args)
-    |> handle()
+    try do
+      Parser.parse_args(args)
+      |> handle()
+    rescue
+      e ->
+        msg = Exception.format(:error, e)
+        Logger.error(msg)
+        IO.puts(:stderr, msg)
+        System.stop(1)
+    end
   end
 
   defp handle({:error, msg}) do

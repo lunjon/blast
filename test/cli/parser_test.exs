@@ -10,6 +10,10 @@ defmodule Cli.ParserTest do
       {:error, _} = Parser.parse_args([])
     end
 
+    test "missing url" do
+      {:error, _} = Parser.parse_args(["--method", "GET"])
+    end
+
     test "invalid method" do
       {:error, _msg} = Parser.parse_args(["--url", @url, "--method", "no"])
     end
@@ -42,13 +46,13 @@ defmodule Cli.ParserTest do
 
   describe "header parsing" do
     test "valid header" do
-      {:ok, "name", "value"} = Parser.parse_header("name: value")
+      {:ok, "name", "value"} = Parser.parse_keyvalue("name: value")
     end
 
     test "invalid headers" do
-      {:error, _msg} = Parser.parse_header("")
-      {:error, _msg} = Parser.parse_header("name:")
-      {:error, _msg} = Parser.parse_header("name")
+      {:error, _msg} = Parser.parse_keyvalue("")
+      {:error, _msg} = Parser.parse_keyvalue("name:")
+      {:error, _msg} = Parser.parse_keyvalue("name")
     end
   end
 

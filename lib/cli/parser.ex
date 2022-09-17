@@ -72,8 +72,9 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, headers} <- parse_keyword_pairs(Keyword.take(args, [:header]), %{}),
+      with {:ok, url} <- parse_url(Keyword.get(args, :url)),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
+           {:ok, headers} <- parse_keyword_pairs(Keyword.take(args, [:header]), %{}),
            {:ok, data} <-
              parse_datas(
                Keyword.get(args, :data),
@@ -81,7 +82,7 @@ defmodule Blast.CLI.Parser do
                Keyword.take(args, [:data_form])
              ) do
         args = %{
-          url: Keyword.get(args, :url),
+          url: url,
           method: method,
           headers: headers,
           body: data,
@@ -97,9 +98,18 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  defp handle_parsed_args({_, _rest_args, _invalid_args}) do
-    {:error, "unknown and/or invalid arguments"}
+  defp handle_parsed_args({_, _rest_args, invalid_args}) do
+    invalid =
+      invalid_args
+      |> Enum.map(fn {arg, _} -> arg end)
+      |> Enum.join(", ")
+
+    {:error, "invalid arguments: #{invalid}"}
   end
+
+  defp parse_url(nil), do: {:error, "missing required option: --url"}
+
+  defp parse_url(url), do: {:ok, url}
 
   defp parse_method(method) do
     m = String.upcase(method)
@@ -116,7 +126,7 @@ defmodule Blast.CLI.Parser do
   defp parse_keyword_pairs([head | tail], map) do
     {_, header} = head
 
-    case parse_header(header) do
+    case parse_keyvalue(header) do
       {:error, _msg} = err ->
         err
 
@@ -131,17 +141,17 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  @header_regex ~r/^([a-zA-Z][a-zA-Z-]*[a-zA-Z]?):\s?(.+)$/
-  def parse_header(header) when is_binary(header) do
-    Regex.run(@header_regex, header)
-    |> handle_header_match()
+  @keyvalue_regex ~r/^([a-zA-Z][a-zA-Z-]*[a-zA-Z]?):\s?(.+)$/
+  def parse_keyvalue(header) when is_binary(header) do
+    Regex.run(@keyvalue_regex, header)
+    |> handle_keyvalue_match()
   end
 
-  defp handle_header_match([_header, name, value]) do
+  defp handle_keyvalue_match([_header, name, value]) do
     {:ok, name, value}
   end
 
-  defp handle_header_match(nil) do
+  defp handle_keyvalue_match(nil) do
     {:error, "invalid format"}
   end
 
