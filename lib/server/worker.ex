@@ -13,8 +13,6 @@ defmodule Blast.Worker do
   end
 
   def handle_info(:run, req) do
-    HTTPoison.Response
-
     HTTPoison.request(req)
     |> add_result(req)
   end

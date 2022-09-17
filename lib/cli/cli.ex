@@ -48,7 +48,7 @@ defmodule Blast.CLI do
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
-      {Blast.Gatherer, {req, workers, self()}}
+      {Blast.Manager, {req, workers, self()}}
     ]
 
     Logger.info("Starting #{workers} worker(s)")
@@ -61,6 +61,7 @@ defmodule Blast.CLI do
     after
       duration ->
         Logger.info("Stopping workers...")
+        Blast.Manager.stop_all()
         Blast.WorkerSupervisor.stop_workers()
     end
 
