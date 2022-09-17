@@ -20,7 +20,7 @@ defmodule Blast.CLI.Parser do
                           (string)
     --data-file FILEPATH  read body from file
                           (string)
-    --data-form VALUE     URL encoded data, can be specied multiple times for each key/ value pair.
+    --data-form VALUE     URL encoded data, can be specied multiple times for each key/value pair.
                           Value should conform the format: "name: value"
                           (string)
     -w/--workers N        number of concurrent workers to run
