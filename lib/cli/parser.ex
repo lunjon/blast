@@ -27,11 +27,6 @@ defmodule Blast.CLI.Parser do
                           (integer: default #{@workers})
     --duration N          how many milliseconds to run
                           (integer: default #{@duration})
-    --distributed         starts as a manager node in a distributed cluster
-                          (boolean: default false)
-    --connect NODE        starts as a worker node in a distributed cluster,
-                          connecting to NODE (manager node)
-                          (string)
     -v/--verbose          output logs
                           (boolean: default false)
     --help                display this help message
@@ -59,8 +54,6 @@ defmodule Blast.CLI.Parser do
         data: :string,
         data_file: :string,
         data_form: [:string, :keep],
-        distributed: :boolean,
-        connect: :string,
         help: :boolean
       ],
       aliases: [
