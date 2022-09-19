@@ -80,9 +80,9 @@ defmodule Blast.CLI.Parser do
     else
       with {:ok, url} <- parse_url(Keyword.get(args, :url)),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
-           {:ok, headers} <- parse_keyword_pairs(Keyword.take(args, [:header]), %{}),
+           {:ok, headers} <- parse_keyvalues(Keyword.take(args, [:header]), %{}),
            {:ok, data} <-
-             parse_datas(
+             parse_data_flags(
                Keyword.get(args, :data),
                Keyword.get(args, :data_file),
                Keyword.take(args, [:data_form])
@@ -130,45 +130,17 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  defp parse_keyword_pairs([], map), do: {:ok, map}
+  defdelegate parse_keyvalues(list, map), to: Blast.CLI.HeaderParser
 
-  defp parse_keyword_pairs([head | tail], map) do
-    {_, header} = head
+  defdelegate parse_keyvalue(value), to: Blast.CLI.HeaderParser
 
-    case parse_keyvalue(header) do
-      {:error, _msg} = err ->
-        err
+  # --data* flag parsing
 
-      {:ok, name, value} ->
-        {_, hs} =
-          Map.get_and_update(map, name, fn
-            nil -> {value, value}
-            current -> {value, "#{current}; #{value}"}
-          end)
+  defp parse_data_flags(nil, nil, []), do: {:ok, ""}
 
-        parse_keyword_pairs(tail, hs)
-    end
-  end
+  defp parse_data_flags(data, nil, []), do: {:ok, data}
 
-  @keyvalue_regex ~r/^([a-zA-Z][a-zA-Z-]*[a-zA-Z]?):\s?(.+)$/
-  def parse_keyvalue(header) when is_binary(header) do
-    Regex.run(@keyvalue_regex, header)
-    |> handle_keyvalue_match()
-  end
-
-  defp handle_keyvalue_match([_header, name, value]) do
-    {:ok, name, value}
-  end
-
-  defp handle_keyvalue_match(nil) do
-    {:error, "invalid format"}
-  end
-
-  defp parse_datas(nil, nil, []), do: {:ok, ""}
-
-  defp parse_datas(data, nil, []), do: {:ok, data}
-
-  defp parse_datas(nil, data_file, []) do
+  defp parse_data_flags(nil, data_file, []) do
     if File.exists?(data_file) do
       {:ok, {:file, data_file}}
     else
@@ -176,8 +148,8 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  defp parse_datas(nil, nil, data_form) do
-    case parse_keyword_pairs(data_form, %{}) do
+  defp parse_data_flags(nil, nil, data_form) do
+    case parse_keyvalues(data_form, %{}) do
       {:ok, map} ->
         form = Enum.map(map, fn {key, value} -> {key, value} end)
         {:ok, {:form, form}}
@@ -187,5 +159,5 @@ defmodule Blast.CLI.Parser do
     end
   end
 
-  defp parse_datas(_, _, _), do: {:error, "invalid combination of data flags"}
+  defp parse_data_flags(_, _, _), do: {:error, "invalid combination of data flags"}
 end

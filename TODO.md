@@ -5,6 +5,7 @@
 - [x] Shutdown if missing --url but giving other flags
 
 ## Features
+- [ ] Decide on distribution: escript or release?
 - Output format flag: `--output`
   - [ ] Add flag
   - [ ] JSON
