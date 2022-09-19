@@ -23,10 +23,10 @@ defmodule Blast.Manager do
 
   # Server
 
-  # args :: {req, workers, caller}
-  def start_link({request, workers, caller}) do
+  # args :: {worker_config, workers, caller}
+  def start_link({worker_config, workers, caller}) do
     state = %{
-      request: request,
+      worker_config: worker_config,
       workers: workers,
       caller: caller,
       nodes: []
@@ -53,17 +53,8 @@ defmodule Blast.Manager do
   end
 
   def handle_info(:kickoff, state) do
-    Blast.WorkerSupervisor.add_workers(state.request, state.workers)
+    Blast.WorkerSupervisor.add_workers(state.worker_config, state.workers)
 
-    {:noreply, state}
-  end
-
-  # Invoked if another node connects as a worker
-  def handle_info({:nodeup, addr}, state) do
-    Logger.info("Node connected: #{addr}")
-    pid = Node.spawn(addr, Blast.WorkerSupervisor, :add_workers, [state.request, state.workers])
-    Logger.info("Spawned more workers on node #{addr} (pid=#{inspect(pid)})")
-    state = Map.put(state, :nodes, [addr, state.nodes])
     {:noreply, state}
   end
 end

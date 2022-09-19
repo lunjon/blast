@@ -11,25 +11,29 @@ defmodule Blast.CLI.Parser do
     -u/--url              the URL to the API to target
 
   Options:
-    -m/--method METHOD    HTTP method
+    -m/--method METHOD    HTTP method.
                           (string: default #{@method})
     -H/--header VALUE     HTTP header, can be specified multiple times.
                           Value should conform the format: "name: value"
                           (string)
-    --data VALUE          use as body string
+    --data VALUE          Use as body string.
                           (string)
-    --data-file FILEPATH  read body from file
+    --data-file FILEPATH  Read body from file.
                           (string)
     --data-form VALUE     URL encoded data, can be specied multiple times for each key/value pair.
                           Value should conform the format: "name: value"
                           (string)
-    -w/--workers N        number of concurrent workers to run
+    -w/--workers N        Number of concurrent workers to run.
                           (integer: default #{@workers})
+    -f/--frequency N      Sets the frequency of requests per worker. To limit the total
+                          request frequency use `--workers 1 --frequency N`.
+                          A value of 0 means no limit.
+                          (integer: default 0)
     --duration N          how many milliseconds to run
                           (integer: default #{@duration})
-    -v/--verbose          output logs
+    -v/--verbose          Output logs.
                           (boolean: default false)
-    --help                display this help message
+    --help                Display this help message.
   """
 
   def parse_args([]) do
@@ -49,6 +53,7 @@ defmodule Blast.CLI.Parser do
         method: :string,
         header: [:string, :keep],
         workers: :integer,
+        frequency: :integer,
         duration: :integer,
         verbose: :boolean,
         data: :string,
@@ -61,6 +66,7 @@ defmodule Blast.CLI.Parser do
         u: :url,
         H: :header,
         w: :workers,
+        f: :frequency,
         v: :verbose,
         h: :help
       ]
@@ -87,6 +93,7 @@ defmodule Blast.CLI.Parser do
           headers: headers,
           body: data,
           workers: Keyword.get(args, :workers, @workers),
+          frequency: Keyword.get(args, :frequency, 0),
           duration: Keyword.get(args, :duration, @duration),
           distributed: Keyword.get(args, :distributed, false),
           connect: Keyword.get(args, :connect, ""),

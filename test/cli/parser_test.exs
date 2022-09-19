@@ -35,12 +35,20 @@ defmodule Cli.ParserTest do
       assert(args.method == "GET")
       assert(args.workers == 1)
       assert(args.duration == 10_000)
+      assert(args.frequency == 0)
       assert not args.verbose
     end
 
     test "verbose" do
       {:ok, args} = Parser.parse_args(["--url", @url, "--verbose"])
       assert(args.verbose)
+    end
+
+    test "frequency" do
+      {:ok, args} = Parser.parse_args(["--url", @url, "--frequency", "10"])
+      assert(args.frequency == 10)
+      {:ok, args} = Parser.parse_args(["--url", @url, "-f", "10"])
+      assert(args.frequency == 10)
     end
   end
 

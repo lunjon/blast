@@ -1,5 +1,6 @@
 defmodule Blast.CLI do
   alias Blast.CLI.Parser
+  alias Blast.WorkerConfig
   require Logger
 
   def main(args) do
@@ -34,21 +35,25 @@ defmodule Blast.CLI do
 
     Logger.debug("Args: #{inspect(args)}")
 
-    req = %HTTPoison.Request{
+    request = %HTTPoison.Request{
       method: args.method,
       url: args.url,
       headers: args.headers,
       body: args.body
     }
 
-    run(req, args)
+    worker_config = %WorkerConfig{
+      frequency: args.frequency
+    }
+
+    run({request, worker_config}, args)
   end
 
-  defp run(req, args) do
+  defp run(worker_config, args) do
     children = [
       Blast.Results,
       Blast.WorkerSupervisor,
-      {Blast.Manager, {req, args.workers, self()}}
+      {Blast.Manager, {worker_config, args.workers, self()}}
     ]
 
     opts = [strategy: :one_for_all, name: Blast.Supervisor]
