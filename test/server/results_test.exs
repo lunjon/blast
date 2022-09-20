@@ -1,11 +1,11 @@
-defmodule BlastTest do
+defmodule BlastTest.Results do
   use ExUnit.Case
   alias Blast.Results
 
   @url "https://localhost/path"
 
   setup_all do
-    {:ok, _} = Results.start_link(:no_args)
+    Results.start_link(:test)
     :ok
   end
 

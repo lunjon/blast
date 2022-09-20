@@ -35,7 +35,8 @@ defmodule Blast.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.8"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 end

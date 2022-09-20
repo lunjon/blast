@@ -3,9 +3,12 @@ defmodule Cli.ParserTest do
   alias Blast.CLI.Parser
 
   @url "http://localhost"
+  @urls "https://localhost/path"
+  @urlq "https://localhost/path?query=true"
+
   @valid_filepath "mix.exs"
 
-  describe "errors" do
+  describe "common errors" do
     test "no args" do
       {:error, _} = Parser.parse_args([])
     end
@@ -16,6 +19,35 @@ defmodule Cli.ParserTest do
 
     test "invalid method" do
       {:error, _msg} = Parser.parse_args(["--url", @url, "--method", "no"])
+    end
+  end
+
+  describe "URLs" do
+    test "valid" do
+      urls = [
+        @url,
+        @urls,
+        @urlq,
+        "https://elixir-lang.org/path"
+      ]
+
+      for url <- urls do
+        {:ok, _} = Parser.parse_args(["--url", url])
+      end
+    end
+
+    test "invalid" do
+      urls = [
+        "",
+        "/path",
+        "htp:/lol",
+        ":8080/path",
+        "tls://invalid-scheme"
+      ]
+
+      for url <- urls do
+        {:error, _} = Parser.parse_args(["--url", url])
+      end
     end
   end
 

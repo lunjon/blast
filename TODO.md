@@ -1,8 +1,6 @@
 # TODO
 
 ## Fix
-- [ ] Shutdown if invalid URL
-- [x] Shutdown if missing --url but giving other flags
 
 ## Features
 - [ ] Decide on distribution: escript or release?
@@ -26,5 +24,4 @@
   - Should be using the builtin `Code.require_file`
 
 ## Tests
-- [ ] Worker (need mocking?)
 - [ ] Manager

@@ -4,8 +4,8 @@ defmodule Blast.Worker do
   require Logger
 
   @spec start_link(tuple()) :: {:ok, pid} | {:error, binary()}
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args)
+  def start_link({request, config}) do
+    GenServer.start_link(__MODULE__, {request, config})
   end
 
   def init({request, _config} = args) do
@@ -17,7 +17,9 @@ defmodule Blast.Worker do
   def handle_info(:run, {req, _config} = state) do
     millis = get_millis()
 
-    HTTPoison.request(req)
+    requester = Application.get_env(:blast, :requester, Blast.RequesterImpl)
+
+    requester.send(req)
     |> add_result(state, millis)
   end
 
@@ -29,6 +31,11 @@ defmodule Blast.Worker do
     {:noreply, state}
   end
 
+  def add_result({:error, error}, state, _) do
+    Logger.error("Error sending request: #{inspect(error)}")
+    {:noreply, state}
+  end
+
   # No frequency limit, just go
   defp wait(_, 0), do: 0
 
@@ -37,7 +44,6 @@ defmodule Blast.Worker do
 
     # Wait if current request rate is higher than the frequency
     if duration < t do
-      Logger.info("Waating (#{t}): #{t - duration} millis")
       trunc(t - duration)
     else
       0

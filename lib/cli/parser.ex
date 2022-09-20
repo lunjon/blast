@@ -4,11 +4,13 @@ defmodule Blast.CLI.Parser do
   @duration 10_000
   @workers 1
 
+  @errors %{invalid_url: {:error, "invalid URL"}}
+
   @help """
   blast - load test the APIs you love (or hate)!
 
   Required:
-    -u/--url              the URL to the API to target
+    -u/--url              URL of the API to target.
 
   Options:
     -m/--method METHOD    HTTP method.
@@ -78,7 +80,7 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, url} <- parse_url(Keyword.get(args, :url)),
+      with {:ok, url} <- Keyword.get(args, :url) |> parse_url(),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
            {:ok, headers} <- parse_keyvalues(Keyword.take(args, [:header]), %{}),
            {:ok, data} <-
@@ -118,7 +120,25 @@ defmodule Blast.CLI.Parser do
 
   defp parse_url(nil), do: {:error, "missing required option: --url"}
 
-  defp parse_url(url), do: {:ok, url}
+  defp parse_url(uri) when is_binary(uri) do
+    uri
+    |> URI.parse()
+    |> parse_url()
+  end
+
+  defp parse_url(%URI{scheme: scheme, host: host})
+       when is_nil(scheme) or is_nil(host) do
+    @errors.invalid_url
+  end
+
+  defp parse_url(%URI{host: ""}), do: @errors.invalid_url
+
+  defp parse_url(%URI{scheme: scheme} = uri)
+       when scheme in ["http", "https"] do
+    {:ok, to_string(uri)}
+  end
+
+  defp parse_url(_), do: @errors.invalid_url
 
   defp parse_method(method) do
     m = String.upcase(method)
