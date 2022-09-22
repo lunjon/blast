@@ -1,7 +1,7 @@
-defmodule Blast.Results do
+defmodule Core.Results do
   use GenServer
   require Logger
-  alias Blast.Result
+  alias Core.Result
 
   @me __MODULE__
 

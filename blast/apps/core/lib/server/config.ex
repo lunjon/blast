@@ -1,3 +1,3 @@
-defmodule Blast.WorkerConfig do
+defmodule Core.WorkerConfig do
   defstruct frequency: 0
 end

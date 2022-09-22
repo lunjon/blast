@@ -1,6 +1,6 @@
-defmodule Blast.Worker do
+defmodule Core.Worker do
   use GenServer, restart: :transient
-  alias Blast.Results
+  alias Core.Results
   require Logger
 
   @spec start_link(tuple()) :: {:ok, pid} | {:error, binary()}
@@ -8,8 +8,7 @@ defmodule Blast.Worker do
     GenServer.start_link(__MODULE__, {request, config})
   end
 
-  def init({request, _config} = args) do
-    Logger.info("Starting worker with request: #{inspect(request)}")
+  def init(args) do
     Process.send_after(self(), :run, 0)
     {:ok, args}
   end
@@ -17,7 +16,7 @@ defmodule Blast.Worker do
   def handle_info(:run, {req, _config} = state) do
     millis = get_millis()
 
-    requester = Application.get_env(:blast, :requester, Blast.RequesterImpl)
+    requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
 
     requester.send(req)
     |> add_result(state, millis)

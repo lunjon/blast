@@ -1,5 +1,6 @@
-defmodule Blast.WorkerSupervisor do
+defmodule Core.WorkerSupervisor do
   use DynamicSupervisor
+  require Logger
 
   @me WorkerSupervisor
 
@@ -11,11 +12,18 @@ defmodule Blast.WorkerSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def add_workers(_worker_config, 0), do: :ok
-
   def add_workers(worker_config, n) when is_integer(n) and n > 0 do
-    {:ok, _pid} = DynamicSupervisor.start_child(@me, {Blast.Worker, worker_config})
-    add_workers(worker_config, n - 1)
+    for _ <- 0..n do
+      res = DynamicSupervisor.start_child(@me, {Core.Worker, worker_config})
+
+      case res do
+        {:ok, pid} ->
+          Logger.info("Started new worker: #{inspect(pid)}")
+
+        {:error, error} ->
+          Logger.error("Error starting worker: #{error}")
+      end
+    end
   end
 
   def stop_workers() do

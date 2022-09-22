@@ -1,6 +1,6 @@
 defmodule Blast.CLI do
   alias Blast.CLI.Parser
-  alias Blast.WorkerConfig
+  alias Core.WorkerConfig
   require Logger
 
   def main(args) do
@@ -50,26 +50,15 @@ defmodule Blast.CLI do
   end
 
   defp run(worker_config, args) do
-    children = [
-      Blast.Results,
-      Blast.WorkerSupervisor,
-      {Blast.Manager, {worker_config, args.workers, self()}}
-    ]
+    Application.start(:core)
+    Core.Manager.kickoff(worker_config, args.workers)
 
-    opts = [strategy: :one_for_all, name: Blast.Supervisor]
-    Supervisor.start_link(children, opts)
+    System.at_exit(fn _ ->
+      Core.Results.get()
+      |> Core.Format.format_result(:json)
+      |> IO.puts()
+    end)
 
-    receive do
-      {:done} ->
-        Logger.info("Received done")
-    after
-      args.duration ->
-        Logger.info("Stopping workers...")
-        Blast.Manager.stop_all()
-    end
-
-    Blast.Results.get()
-    |> Blast.Format.format_result(:json)
-    |> IO.puts()
+    Process.sleep(:infinity)
   end
 end

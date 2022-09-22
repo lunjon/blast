@@ -1,4 +1,4 @@
-defmodule Blast.Manager do
+defmodule Core.Manager do
   require Logger
   use GenServer
 
@@ -10,8 +10,18 @@ defmodule Blast.Manager do
 
   # API
 
-  def done() do
-    GenServer.cast(@me, :done)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: @me)
+  end
+
+  def kickoff(worker_config, workers) do
+    state = %{
+      worker_config: worker_config,
+      workers: workers,
+      nodes: []
+    }
+
+    GenServer.cast(@me, {:kickoff, state})
   end
 
   @doc """
@@ -23,38 +33,28 @@ defmodule Blast.Manager do
 
   # Server
 
-  # args :: {worker_config, workers, caller}
-  def start_link({worker_config, workers, caller}) do
-    state = %{
-      worker_config: worker_config,
-      workers: workers,
-      caller: caller,
-      nodes: []
-    }
-
-    GenServer.start_link(__MODULE__, state, name: @me)
-  end
-
-  def init(state) do
+  def init(nil) do
     # Enabling monitoring of nodes.
     # This means that a message will be received when a new node connects.
     # See handle_info({:nodeup, addr}, ...)
     :net_kernel.monitor_nodes(true)
 
-    Process.send_after(self(), :kickoff, 0)
-
-    {:ok, Map.put(state, :nodes, [Node.self()])}
+    {:ok, nil}
   end
 
-  def handle_call(:shutdown, _caller, state) do
+  def handle_call(:shutdown, nil) do
+    {:reply, true, nil}
+  end
+
+  def handle_call(:shutdown, _) do
     # TODO: call for each node
-    Blast.WorkerSupervisor.stop_workers()
-    {:reply, true, state}
+    Core.WorkerSupervisor.stop_workers()
+    {:reply, true, nil}
   end
 
-  def handle_info(:kickoff, state) do
-    Blast.WorkerSupervisor.add_workers(state.worker_config, state.workers)
-
+  def handle_cast({:kickoff, state}, _) do
+    Logger.info("Kickoff received - adding workers")
+    Core.WorkerSupervisor.add_workers(state.worker_config, state.workers)
     {:noreply, state}
   end
 end

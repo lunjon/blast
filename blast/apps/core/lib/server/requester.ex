@@ -1,4 +1,4 @@
-defmodule Blast.Requester do
+defmodule Core.Requester do
   @moduledoc """
   Behaviour for sending requests.
   """
@@ -7,9 +7,9 @@ defmodule Blast.Requester do
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
 end
 
-defmodule Blast.RequesterImpl do
-  @behaviour Blast.Requester
-  @impl Blast.Requester
+defmodule Core.RequesterImpl do
+  @behaviour Core.Requester
+  @impl Core.Requester
   def send(request) do
     HTTPoison.request(request)
   end
