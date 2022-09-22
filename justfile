@@ -1,15 +1,10 @@
 alias t := test
 
-all:
-    mix all
-    mix test
-
 build:
-    mix compile
-    mix escript.build
+    cd blast && mix compile
 
 test:
-    mix test
+    cd blast && mix test
 
 install: build
-    cp blast ~/.local/bin/blast
+    cd blast/apps/cli && mix escript.install

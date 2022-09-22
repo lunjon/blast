@@ -3,11 +3,6 @@
 ## Fix
 
 ## Features
-- [ ] Decide on distribution: escript or release?
-- Output format flag: `--output`
-  - [ ] Add flag
-  - [ ] JSON
-  - [ ] Plaintext
 - [ ] Strategy: configure how to ramp up request frequence, etc.
   - [ ] What should the options be? `--strategy <expression>`?
   - [ ] Types of strategies:
@@ -23,5 +18,8 @@
   - pre- and post-request?
   - Should be using the builtin `Code.require_file`
 
-## Tests
-- [ ] Manager
+## Escript
+- Output format flag: `--output`
+  - [ ] Add flag
+  - [ ] JSON
+  - [ ] Plaintext
