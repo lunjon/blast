@@ -211,7 +211,9 @@ defmodule Cli.ParserTest do
     end
 
     test "worker mode" do
-      {:ok, args} = Parser.parse_args(["-u", @url, "--mode", "worker", "--manager-address", "man"])
+      {:ok, args} =
+        Parser.parse_args(["-u", @url, "--mode", "worker", "--manager-address", "man"])
+
       {:worker, "man"} = args.mode
     end
   end

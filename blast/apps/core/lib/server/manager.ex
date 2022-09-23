@@ -74,7 +74,7 @@ defmodule Core.Manager do
 
   def handle_call({:start_worker, manager_addr}, _caller, state) do
     manager_node = "blast_manager@#{manager_addr}" |> String.to_atom()
-    Node.start(:blast_worker)
+    random_worker_name() |> Node.start()
     Node.set_cookie(:secure)
     res = Node.connect(manager_node)
     Logger.info("Connect: #{inspect(res)}")
@@ -136,5 +136,10 @@ defmodule Core.Manager do
     nodes = Enum.filter(nodes, fn n -> n != addr end)
     Logger.info("#{Enum.count(nodes)} nodes remaining")
     {:noreply, {nodes, conf}}
+  end
+
+  defp random_worker_name() do
+    s = for _ <- 1..10, into: "", do: <<Enum.random('0123456789abcdef')>>
+    String.to_atom("worker_" <> s)
   end
 end
