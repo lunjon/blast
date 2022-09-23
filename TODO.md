@@ -1,10 +1,9 @@
 # TODO
 
 ## Fix
-- [x] Do not start workers immediately
+- [ ] Output results when exiting
 
 ## Features
-- [ ] Distributed mode
 - Controlling server
   - Command-line client: connect to running node and use REPL to control
   - Web interface in Phoenix
