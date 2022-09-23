@@ -4,26 +4,21 @@ defmodule Blast.Main do
   require Logger
 
   def main(args) do
-    try do
-      Parser.parse_args(args)
-      |> handle()
-    rescue
-      e ->
-        msg = Exception.format(:error, e)
-        Logger.error(msg)
-        IO.puts(:stderr, msg)
-        System.stop(1)
-    end
+    Parser.parse_args(args)
+    |> handle()
+    |> run()
+
+    Process.sleep(:infinity)
   end
 
   defp handle({:error, msg}) do
     IO.puts(:stderr, "error: #{msg}")
-    System.stop(1)
+    System.halt(1)
   end
 
   defp handle({:help, msg}) do
     IO.puts(:stderr, msg)
-    System.stop(1)
+    System.halt(1)
   end
 
   defp handle({:ok, args}) do
@@ -47,12 +42,21 @@ defmodule Blast.Main do
       request: request
     }
 
-    run(worker_config, args)
+    {worker_config, args}
   end
 
-  defp run(worker_config, args) do
-    Application.start(:core)
-    Core.Manager.kickoff(worker_config, args.workers)
-    Process.sleep(:infinity)
+  defp run({worker_config, args}) do
+    case args.mode do
+      {:standalone, _} ->
+        Logger.info("Starting standalone mode with #{args.workers} worker(s)")
+        Core.Manager.kickoff(worker_config, args.workers)
+
+      {:manager, _} ->
+        Core.Manager.start_manager()
+        Core.Manager.kickoff(worker_config, args.workers)
+
+      {:worker, manager_node} ->
+        Core.Manager.start_worker(manager_node)
+    end
   end
 end

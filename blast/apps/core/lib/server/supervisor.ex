@@ -13,7 +13,7 @@ defmodule Core.WorkerSupervisor do
   end
 
   def add_workers(worker_config, n) when is_integer(n) and n > 0 do
-    for _ <- 0..n do
+    for _ <- 1..n do
       res = DynamicSupervisor.start_child(@me, {Core.Worker, worker_config})
 
       case res do
