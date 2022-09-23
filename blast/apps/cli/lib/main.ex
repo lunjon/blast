@@ -46,17 +46,23 @@ defmodule Blast.Main do
   end
 
   defp run({worker_config, args}) do
-    case args.mode do
-      {:standalone, _} ->
-        Logger.info("Starting standalone mode with #{args.workers} worker(s)")
-        Core.Manager.kickoff(worker_config, args.workers)
+    kickoff =
+      case args.mode do
+        {:standalone, _} ->
+          Logger.info("Starting standalone mode with #{args.workers} worker(s)")
+          true
 
-      {:manager, _} ->
-        Core.Manager.start_manager()
-        Core.Manager.kickoff(worker_config, args.workers)
+        {:manager, _} ->
+          Core.Manager.start_manager()
+          true
 
-      {:worker, manager_node} ->
-        Core.Manager.start_worker(manager_node)
+        {:worker, manager_addr} ->
+          Core.Manager.start_worker(manager_addr)
+          false
+      end
+
+    if kickoff do
+      Core.Manager.kickoff(worker_config, args.workers)
     end
   end
 end

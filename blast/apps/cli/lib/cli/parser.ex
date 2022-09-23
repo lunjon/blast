@@ -10,40 +10,40 @@ defmodule Blast.CLI.Parser do
   blast - load test the APIs you love (or hate)!
 
   Required:
-    -u/--url              URL of the API to target.
+    -u/--url                  URL of the API to target.
 
   Options:
-    -m/--method METHOD    HTTP method.
-                          (string: default #{@method})
-    -H/--header VALUE     HTTP header, can be specified multiple times.
-                          Value should conform the format: "name: value"
-                          (string)
-    --data VALUE          Use as body string.
-                          (string)
-    --data-file FILEPATH  Read body from file.
-                          (string)
-    --data-form VALUE     URL encoded data, can be specied multiple times for each key/value pair.
-                          Value should conform the format: "name: value"
-                          (string)
-    -w/--workers N        Number of concurrent workers to run.
-                          (integer: default #{@workers})
-    -f/--frequency N      Sets the frequency of requests per worker. To limit the total
-                          request frequency use `--workers 1 --frequency N`.
-                          A value of 0 means no limit.
-                          (integer: default 0)
-    --duration N          how many milliseconds to run
-                          (integer: default #{@duration})
-    --mode MODE           Starts a node in the given mode. Allowed values are
-                          standalone, manager and worker for running a single node,
-                          as manager node in distributed mode and worker node, respectively.
-                          Distributed mode, i.e manager or worker, requires the --cookie flag.
-                          If worker mode it also requires the --manager-node option.
-                          (string: default standalone)
-    --manager-node        Option required when running "--mode worker" for connecting to
-                          the manager node as a worker.
-    -v/--verbose          Output logs.
-                          (boolean: default false)
-    --help                Display this help message.
+    -m/--method METHOD        HTTP method.
+                              (string: default #{@method})
+    -H/--header VALUE         HTTP header, can be specified multiple times.
+                              Value should conform the format: "name: value"
+                              (string)
+    --data VALUE              Use as body string.
+                              (string)
+    --data-file FILEPATH      Read body from file.
+                              (string)
+    --data-form VALUE         URL encoded data, can be specied multiple times for each key/value pair.
+                              Value should conform the format: "name: value"
+                              (string)
+    -w/--workers N            Number of concurrent workers to run.
+                              (integer: default #{@workers})
+    -f/--frequency N          Sets the frequency of requests per worker. To limit the total
+                              request frequency use `--workers 1 --frequency N`.
+                              A value of 0 means no limit.
+                              (integer: default 0)
+    --duration N              how many milliseconds to run
+                              (integer: default #{@duration})
+    --mode MODE               Starts a node in the given mode. Allowed values are
+                              standalone, manager and worker for running a single node,
+                              as manager node in distributed mode and worker node, respectively.
+                              Distributed mode, i.e manager or worker, requires the --cookie flag.
+                              If worker mode it also requires the --manager-node option.
+                              (string: default standalone)
+    --manager-address ADDR    Option required when running "--mode worker" for connecting to
+                              the manager node as a worker. Value must be a reachable network address.
+    -v/--verbose              Output logs.
+                              (boolean: default false)
+    --help                    Display this help message.
   """
 
   def parse_args([]) do
@@ -70,7 +70,7 @@ defmodule Blast.CLI.Parser do
         data_file: :string,
         data_form: [:string, :keep],
         mode: :string,
-        manager_node: :string,
+        manager_address: :string,
         help: :boolean
       ],
       aliases: [
@@ -91,7 +91,10 @@ defmodule Blast.CLI.Parser do
       {:help, @help}
     else
       with {:ok, mode_options} <-
-             parse_mode(Keyword.get(args, :mode, "standalone"), Keyword.get(args, :manager_node)),
+             parse_mode(
+               Keyword.get(args, :mode, "standalone"),
+               Keyword.get(args, :manager_address)
+             ),
            {:ok, url} <- Keyword.get(args, :url) |> parse_url(mode_options),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
            {:ok, headers} <- parse_keyvalues(Keyword.take(args, [:header]), %{}),
@@ -134,10 +137,11 @@ defmodule Blast.CLI.Parser do
   defp parse_mode("standalone", _), do: {:ok, {:standalone, nil}}
   defp parse_mode("manager", _), do: {:ok, {:manager, nil}}
 
-  defp parse_mode("worker", manager_node) when not is_nil(manager_node),
-    do: {:ok, {:worker, String.to_atom(manager_node)}}
+  defp parse_mode("worker", manager_addr) when not is_nil(manager_addr) do
+    {:ok, {:worker, manager_addr}}
+  end
 
-  defp parse_mode(_mode, _manager_node), do: {:error, "invalid --mode options"}
+  defp parse_mode(_mode, _manager_addr), do: {:error, "invalid --mode options"}
 
   defp parse_url(nil, {:worker, _}), do: {:ok, ""}
 

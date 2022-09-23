@@ -25,7 +25,7 @@ defmodule Cli.ParserTest do
       {:error, _msg} = Parser.parse_args(["--url", @url, "--mode", "no"])
     end
 
-    test "worker mode, missing --manager-node" do
+    test "worker mode, missing --manager-address" do
       {:error, _msg} = Parser.parse_args(["--url", @url, "--mode", "worker"])
     end
   end
@@ -211,8 +211,8 @@ defmodule Cli.ParserTest do
     end
 
     test "worker mode" do
-      {:ok, args} = Parser.parse_args(["-u", @url, "--mode", "worker", "--manager-node", "man"])
-      {:worker, :man} = args.mode
+      {:ok, args} = Parser.parse_args(["-u", @url, "--mode", "worker", "--manager-address", "man"])
+      {:worker, "man"} = args.mode
     end
   end
 end

@@ -56,7 +56,8 @@ defmodule Core.Manager do
     {:reply, :ok, state}
   end
 
-  def handle_call({:start_worker, manager_node}, _caller, state) do
+  def handle_call({:start_worker, manager_addr}, _caller, state) do
+    manager_node = "blast_manager@#{manager_addr}" |> String.to_atom()
     Node.start(:blast_worker)
     Node.set_cookie(:secure)
     res = Node.connect(manager_node)
