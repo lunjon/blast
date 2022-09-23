@@ -14,6 +14,10 @@ defmodule Core.Manager do
     GenServer.start_link(__MODULE__, nil, name: @me)
   end
 
+  @doc """
+  Starts `workers` by using the `worker_config`.
+  """
+  @spec kickoff(Core.WorkerConfig.t(), integer()) :: :ok
   def kickoff(worker_config, workers) do
     state = %{
       worker_config: worker_config,

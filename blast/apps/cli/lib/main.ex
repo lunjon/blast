@@ -43,10 +43,11 @@ defmodule Blast.Main do
     }
 
     worker_config = %WorkerConfig{
-      frequency: args.frequency
+      frequency: args.frequency,
+      request: request
     }
 
-    run({request, worker_config}, args)
+    run(worker_config, args)
   end
 
   defp run(worker_config, args) do

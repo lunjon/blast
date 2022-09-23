@@ -1,6 +1,6 @@
-defmodule BlastTest.Results do
+defmodule CoreTest.Results do
   use ExUnit.Case
-  alias Blast.Results
+  alias Core.Results
 
   @url "https://localhost/path"
 

@@ -3,36 +3,36 @@ defmodule Core.Worker do
   alias Core.Results
   require Logger
 
-  @spec start_link(tuple()) :: {:ok, pid} | {:error, binary()}
-  def start_link({request, config}) do
-    GenServer.start_link(__MODULE__, {request, config})
+  @spec start_link(Core.WorkerConfig.t()) :: {:ok, pid} | {:error, String.t()}
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, config)
   end
 
-  def init(args) do
+  def init(config) do
     Process.send_after(self(), :run, 0)
-    {:ok, args}
+    {:ok, config}
   end
 
-  def handle_info(:run, {req, _config} = state) do
+  def handle_info(:run, state) do
     millis = get_millis()
 
     requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
 
-    requester.send(req)
+    requester.send(state.request)
     |> add_result(state, millis)
   end
 
-  def add_result({:ok, response}, {_request, config} = state, start) do
+  def add_result({:ok, response}, config, start) do
     Results.put(response)
 
     after_millis = wait(get_millis() - start, config.frequency)
     Process.send_after(self(), :run, after_millis)
-    {:noreply, state}
+    {:noreply, config}
   end
 
-  def add_result({:error, error}, state, _) do
+  def add_result({:error, error}, config, _) do
     Logger.error("Error sending request: #{inspect(error)}")
-    {:noreply, state}
+    {:noreply, config}
   end
 
   # No frequency limit, just go
