@@ -4,10 +4,14 @@ defmodule Core.Manager do
 
   @me Manager
 
-  @doc """
+  @moduledoc """
   Manager is the module for responsible for managing, monitoring
   and distributing of the components of blast.
   """
+
+  ##############
+  # Public API #
+  ##############
 
   @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do
@@ -27,12 +31,20 @@ defmodule Core.Manager do
     GenServer.cast(@me, {:kickoff, state})
   end
 
+  @doc """
+  Starts this manager instance as a manager in distributed mode.
+  """
   def start_manager() do
     GenServer.call(@me, :start_manager)
   end
 
-  def start_worker(manager_node) do
-    GenServer.call(@me, {:start_worker, manager_node})
+  @doc """
+  Starts this manager instance as a worker in distributed mode.
+  Connects to the manager node at the given address.
+  """
+  @spec start_worker(String.t()) :: :ok
+  def start_worker(manager_addr) do
+    GenServer.call(@me, {:start_worker, manager_addr})
   end
 
   @doc """
@@ -45,6 +57,10 @@ defmodule Core.Manager do
   def init(nil) do
     {:ok, {[], nil}}
   end
+
+  #############################
+  # Callbacks for handle_call #
+  #############################
 
   def handle_call(:start_manager, _caller, state) do
     # Enabling monitoring of nodes.
@@ -78,6 +94,10 @@ defmodule Core.Manager do
     {:reply, true, {nodes, nil}}
   end
 
+  #############################
+  # Callbacks for handle_cast #
+  #############################
+
   def handle_cast({:kickoff, state}, {nodes, _}) do
     Logger.info("Kickoff received - adding #{state.workers} workers")
     Logger.info("Request: #{inspect(state.worker_config.request)}")
@@ -91,7 +111,9 @@ defmodule Core.Manager do
     {:noreply, {nodes, state}}
   end
 
-  # Info callbacks for manager
+  #############################
+  # Callbacks for handle_info #
+  #############################
 
   def handle_info({:nodeup, addr}, {nodes, conf}) do
     nodes =
