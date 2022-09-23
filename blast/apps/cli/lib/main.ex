@@ -1,4 +1,4 @@
-defmodule Blast.CLI do
+defmodule Blast.Main do
   alias Blast.CLI.Parser
   alias Core.WorkerConfig
   require Logger
@@ -52,13 +52,6 @@ defmodule Blast.CLI do
   defp run(worker_config, args) do
     Application.start(:core)
     Core.Manager.kickoff(worker_config, args.workers)
-
-    System.at_exit(fn _ ->
-      Core.Results.get()
-      |> Core.Format.format_result(:json)
-      |> IO.puts()
-    end)
-
     Process.sleep(:infinity)
   end
 end

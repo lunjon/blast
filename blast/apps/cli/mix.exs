@@ -20,7 +20,7 @@ defmodule CLI.MixProject do
   def escript() do
     [
       name: "blast",
-      main_module: Blast.CLI
+      main_module: Blast.Main
     ]
   end
 

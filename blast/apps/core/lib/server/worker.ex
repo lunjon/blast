@@ -49,5 +49,5 @@ defmodule Core.Worker do
     end
   end
 
-  defp get_millis(), do: :os.system_time(:millisecond)
+  defp get_millis(), do: System.monotonic_time(:millisecond)
 end
