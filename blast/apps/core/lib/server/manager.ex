@@ -1,6 +1,7 @@
 defmodule Core.Manager do
   require Logger
   use GenServer
+  alias Core.WorkerSupervisor
 
   @me Manager
 
@@ -21,7 +22,7 @@ defmodule Core.Manager do
   @doc """
   Starts `workers` by using the `worker_config`.
   """
-  @spec kickoff(Core.WorkerConfig.t(), integer()) :: :ok
+  @spec kickoff(Core.Worker.Config.t(), integer()) :: :ok
   def kickoff(worker_config, workers) do
     state = %{
       worker_config: worker_config,
@@ -90,7 +91,7 @@ defmodule Core.Manager do
       Node.spawn(node, Core.WorkerSupervisor, :stop_workers, [])
     end)
 
-    Core.WorkerSupervisor.stop_workers()
+    WorkerSupervisor.stop_workers()
     {:reply, true, {nodes, nil}}
   end
 
@@ -104,10 +105,10 @@ defmodule Core.Manager do
 
     # Add workers for connected nodes
     Enum.each(nodes, fn node ->
-      Node.spawn(node, Core.WorkerSupervisor, :add_workers, [state.worker_config, state.workers])
+      Node.spawn(node, Core.DynamicSupervisor, :add_workers, [state.worker_config, state.workers])
     end)
 
-    Core.WorkerSupervisor.add_workers(state.worker_config, state.workers)
+    WorkerSupervisor.add_workers(state.worker_config, state.workers)
     {:noreply, {nodes, state}}
   end
 

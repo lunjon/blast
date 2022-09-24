@@ -1,10 +1,9 @@
 # TODO
 
 ## Fix
-- [ ] Output results when exiting
 
 ## Features
-- Controlling server
+- Management API
   - Command-line client: connect to running node and use REPL to control
   - Web interface in Phoenix
 - [ ] Investigate if it's possible to load a module
@@ -13,6 +12,7 @@
   - Should be using the builtin `Code.require_file`
 
 ## Escript
+- [ ] Output results when exiting
 - Output format flag: `--output`
   - [ ] Add flag
   - [ ] JSON

@@ -1,6 +1,7 @@
 defmodule Blast.Main do
   alias Blast.CLI.Parser
-  alias Core.WorkerConfig
+  alias Core.Manager
+  alias Core.Worker.Config
   require Logger
 
   def main(args) do
@@ -37,7 +38,7 @@ defmodule Blast.Main do
       body: args.body
     }
 
-    worker_config = %WorkerConfig{
+    worker_config = %Config{
       frequency: args.frequency,
       request: request
     }
@@ -46,23 +47,24 @@ defmodule Blast.Main do
   end
 
   defp run({worker_config, args}) do
+    Logger.info("Starting in mode: #{elem(args.mode, 0)}")
+
     kickoff =
       case args.mode do
         {:standalone, _} ->
-          Logger.info("Starting standalone mode with #{args.workers} worker(s)")
           true
 
         {:manager, _} ->
-          Core.Manager.start_manager()
+          Manager.start_manager()
           true
 
         {:worker, manager_addr} ->
-          Core.Manager.start_worker(manager_addr)
+          Manager.start_worker(manager_addr)
           false
       end
 
     if kickoff do
-      Core.Manager.kickoff(worker_config, args.workers)
+      Manager.kickoff(worker_config, args.workers)
     end
   end
 end

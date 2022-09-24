@@ -1,6 +1,6 @@
-defmodule Core.WorkerConfig do
+defmodule Core.Worker.Config do
   @typedoc """
-  WorkerConfig defines the input to a worker
+  Worker.Config defines the input to a worker
   describing how to send the requests.
   """
   @type t :: %{

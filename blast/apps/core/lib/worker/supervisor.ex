@@ -4,6 +4,11 @@ defmodule Core.WorkerSupervisor do
 
   @me WorkerSupervisor
 
+  @moduledoc """
+  Used for processes that are started on the fly: workers
+  and management API.
+  """
+
   def start_link(_) do
     DynamicSupervisor.start_link(__MODULE__, nil, name: @me)
   end

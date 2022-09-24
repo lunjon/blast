@@ -8,10 +8,14 @@ defmodule Core.Application do
 
   @impl true
   def start(_type, _args) do
+    port = String.to_integer(System.get_env("MANAGEMENT_PORT", "4444"))
+
     children = [
+      Core.Manager,
       Core.Results,
       Core.WorkerSupervisor,
-      Core.Manager
+      {Core.Management.API, port},
+      {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
 
     opts = [strategy: :one_for_one, name: Core.Supervisor]

@@ -3,7 +3,7 @@ defmodule Core.Worker do
   alias Core.Results
   require Logger
 
-  @spec start_link(Core.WorkerConfig.t()) :: {:ok, pid} | {:error, String.t()}
+  @spec start_link(Core.Worker.Config.t()) :: {:ok, pid} | {:error, String.t()}
   def start_link(config) do
     GenServer.start_link(__MODULE__, config)
   end
