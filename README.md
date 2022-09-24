@@ -1,14 +1,9 @@
 # Blazt
 
-CLI, written in Elixir, for load testing HTTP APIs.
+Load test framework, written in Elixir, that targets HTTP APIs.
 
 ## Requirements
-- Elixir 1.12+
+- Elixir 1.13+
 
 ## Usage
-
-### Installation
-With the dependencies installed (`mix deps.get`) you should be able to build the escript binary with `mix escript.build`.
-
-### Running
-Running `blast --help` should hopefully get you on the right path.
+TODO.

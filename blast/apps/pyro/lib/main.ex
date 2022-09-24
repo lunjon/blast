@@ -5,6 +5,7 @@ defmodule Pyro.Main do
     quit      Exit.
     help      Show help this message.
     status    Get current status of server.
+    stop      Stop execution of the server.
   """
 
   def main(_args) do
@@ -12,10 +13,17 @@ defmodule Pyro.Main do
 
     case :gen_tcp.connect({127, 0, 0, 1}, 4444, opts) do
       {:ok, client} ->
+        IO.puts("""
+        Connect succesfully to server!
+
+        #{@help}
+        """)
+
         loop(client)
 
       {:error, reason} ->
         IO.puts(:stderr, "ERROR: #{reason}")
+        System.stop(1)
     end
   end
 
