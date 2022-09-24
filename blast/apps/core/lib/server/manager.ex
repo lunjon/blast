@@ -10,6 +10,9 @@ defmodule Core.Manager do
   and distributing of the components of blast.
   """
 
+  @type status() :: :idle | :running
+  @type state() :: {list(), status(), Config.t() | nil}
+
   ##############
   # Public API #
   ##############
@@ -17,6 +20,14 @@ defmodule Core.Manager do
   @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: @me)
+  end
+
+  @doc """
+  Gets current status.
+  """
+  @spec get_status() :: status()
+  def get_status() do
+    GenServer.call(@me, :status)
   end
 
   @doc """
@@ -50,9 +61,6 @@ defmodule Core.Manager do
     GenServer.call(@me, :shutdown)
   end
 
-  @type status() :: :idle | :running
-  @type state() :: {list(), status(), Config.t() | nil}
-
   def init(nil) do
     {:ok, {[], :idle, nil}}
   end
@@ -61,13 +69,17 @@ defmodule Core.Manager do
   # Callbacks for handle_call #
   #############################
 
+  def handle_call(:status, _caller, {_, status, _} = state) do
+    {:reply, status, state}
+  end
+
   def handle_call(:start_manager, _caller, state) do
     # Enabling monitoring of nodes.
     # This means that a message will be received when a new node connects.
     # See handle_info({:nodeup, addr}, ...)
     :net_kernel.monitor_nodes(true)
-    Node.start(:blast_manager)
     Node.set_cookie(:secure)
+    Node.start(:blast_manager)
     {:reply, :ok, state}
   end
 
@@ -80,8 +92,8 @@ defmodule Core.Manager do
     {:reply, :ok, state}
   end
 
-  def handle_call(:shutdown, _caller, {_, :idle, _}) do
-    {:reply, true, nil}
+  def handle_call(:shutdown, _caller, {_, :idle, _} = state) do
+    {:reply, true, state}
   end
 
   def handle_call(:shutdown, _caller, {nodes, :running, config}) do

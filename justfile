@@ -13,3 +13,4 @@ test:
 
 install: build
     cd blast/apps/cli && mix escript.install
+    cd blast/apps/pyro && mix escript.install
