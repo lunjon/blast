@@ -1,7 +1,7 @@
 defmodule Core.Manager do
   require Logger
   use GenServer
-  alias Core.WorkerSupervisor
+  alias Core.{WorkerSupervisor, Worker.Config}
 
   @me Manager
 
@@ -20,16 +20,11 @@ defmodule Core.Manager do
   end
 
   @doc """
-  Starts `workers` by using the `worker_config`.
+  Start blasting using `config`.
   """
-  @spec kickoff(Core.Worker.Config.t(), integer()) :: :ok
-  def kickoff(worker_config, workers) do
-    state = %{
-      worker_config: worker_config,
-      workers: workers
-    }
-
-    GenServer.cast(@me, {:kickoff, state})
+  @spec kickoff(Config.t()) :: :ok
+  def kickoff(config) do
+    GenServer.cast(@me, {:kickoff, config})
   end
 
   @doc """
@@ -55,8 +50,11 @@ defmodule Core.Manager do
     GenServer.call(@me, :shutdown)
   end
 
+  @type status() :: :idle | :running
+  @type state() :: {list(), status(), Config.t() | nil}
+
   def init(nil) do
-    {:ok, {[], nil}}
+    {:ok, {[], :idle, nil}}
   end
 
   #############################
@@ -82,41 +80,45 @@ defmodule Core.Manager do
     {:reply, :ok, state}
   end
 
-  def handle_call(:shutdown, _caller, nil) do
+  def handle_call(:shutdown, _caller, {_, :idle, _}) do
     {:reply, true, nil}
   end
 
-  def handle_call(:shutdown, _caller, {nodes, _}) do
+  def handle_call(:shutdown, _caller, {nodes, :running, config}) do
     Enum.each(nodes, fn node ->
       Node.spawn(node, Core.WorkerSupervisor, :stop_workers, [])
     end)
 
     WorkerSupervisor.stop_workers()
-    {:reply, true, {nodes, nil}}
+    {:reply, true, {nodes, :idle, config}}
   end
 
   #############################
   # Callbacks for handle_cast #
   #############################
 
-  def handle_cast({:kickoff, state}, {nodes, _}) do
-    Logger.info("Kickoff received - adding #{state.workers} workers")
-    Logger.info("Request: #{inspect(state.worker_config.request)}")
+  def handle_cast({:kickoff, _}, {_, :running, _} = state) do
+    Logger.info("Kickoff received, but already running")
+    {:noreply, state}
+  end
+
+  def handle_cast({:kickoff, config}, {nodes, _, _}) do
+    Logger.info("Kickoff received - adding #{config.workers} workers")
 
     # Add workers for connected nodes
     Enum.each(nodes, fn node ->
-      Node.spawn(node, Core.DynamicSupervisor, :add_workers, [state.worker_config, state.workers])
+      Node.spawn(node, Core.DynamicSupervisor, :add_workers, [config])
     end)
 
-    WorkerSupervisor.add_workers(state.worker_config, state.workers)
-    {:noreply, {nodes, state}}
+    WorkerSupervisor.add_workers(config)
+    {:noreply, {nodes, :running, config}}
   end
 
   #############################
   # Callbacks for handle_info #
   #############################
 
-  def handle_info({:nodeup, addr}, {nodes, conf}) do
+  def handle_info({:nodeup, addr}, {nodes, status, config}) do
     nodes =
       if to_string(addr) =~ ~r/manager/ do
         nodes
@@ -125,18 +127,20 @@ defmodule Core.Manager do
         [addr | nodes]
       end
 
-    Enum.each(nodes, fn node ->
-      Node.spawn(node, Core.Manager, :kickoff, [conf.worker_config, conf.workers])
-    end)
+    if status == :running do
+      Enum.each(nodes, fn node ->
+        Node.spawn(node, Core.Manager, :kickoff, [config])
+      end)
+    end
 
-    {:noreply, {nodes, conf}}
+    {:noreply, {nodes, status}}
   end
 
-  def handle_info({:nodedown, addr}, {nodes, conf}) do
+  def handle_info({:nodedown, addr}, {nodes, status}) do
     Logger.info("Node disconnected: #{inspect(addr)}")
     nodes = Enum.filter(nodes, fn n -> n != addr end)
     Logger.info("#{Enum.count(nodes)} nodes remaining")
-    {:noreply, {nodes, conf}}
+    {:noreply, {nodes, status}}
   end
 
   defp random_worker_name() do

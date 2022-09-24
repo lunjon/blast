@@ -38,15 +38,16 @@ defmodule Blast.Main do
       body: args.body
     }
 
-    worker_config = %Config{
+    config = %Config{
+      workers: args.workers,
       frequency: args.frequency,
       request: request
     }
 
-    {worker_config, args}
+    {config, args}
   end
 
-  defp run({worker_config, args}) do
+  defp run({config, args}) do
     Logger.info("Starting in mode: #{elem(args.mode, 0)}")
 
     kickoff =
@@ -64,7 +65,7 @@ defmodule Blast.Main do
       end
 
     if kickoff do
-      Manager.kickoff(worker_config, args.workers)
+      Manager.kickoff(config)
     end
   end
 end

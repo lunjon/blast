@@ -1,12 +1,13 @@
 defmodule Core.Worker.Config do
-  @typedoc """
-  Worker.Config defines the input to a worker
-  describing how to send the requests.
+  @moduledoc """
+  Defines the input to a worker describing how to send the requests,
+  and some additional metadata around the state of the runners.
   """
   @type t :: %{
+          workers: integer,
           frequency: integer,
           request: HTTPoison.Request.t()
         }
 
-  defstruct frequency: 0, request: nil
+  defstruct workers: 1, frequency: 0, request: nil
 end

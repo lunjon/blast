@@ -17,9 +17,9 @@ defmodule Core.WorkerSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def add_workers(worker_config, n) when is_integer(n) and n > 0 do
-    for _ <- 1..n do
-      res = DynamicSupervisor.start_child(@me, {Core.Worker, worker_config})
+  def add_workers(config) do
+    for _ <- 1..config.workers do
+      res = DynamicSupervisor.start_child(@me, {Core.Worker, config})
 
       case res do
         {:ok, pid} ->
