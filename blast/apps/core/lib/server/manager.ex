@@ -18,31 +18,31 @@ defmodule Core.Manager do
   ##############
 
   @spec start_link(any()) :: GenServer.on_start()
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: @me)
+  def start_link(_, name \\ @me) do
+    GenServer.start_link(__MODULE__, nil, name: name)
   end
 
   @doc """
   Gets current status.
   """
-  @spec get_status() :: status()
-  def get_status() do
-    GenServer.call(@me, :status)
+  @spec get_status(pid() | nil) :: status()
+  def get_status(pid \\ @me) do
+    GenServer.call(pid, :status)
   end
 
   @doc """
   Start blasting using `config`.
   """
   @spec kickoff(Config.t()) :: :ok
-  def kickoff(config) do
-    GenServer.cast(@me, {:kickoff, config})
+  def kickoff(config, pid \\ @me) do
+    GenServer.cast(pid, {:kickoff, config})
   end
 
   @doc """
   Starts this manager instance as a manager in distributed mode.
   """
-  def start_manager() do
-    GenServer.call(@me, :start_manager)
+  def start_manager(pid \\ @me) do
+    GenServer.call(pid, :start_manager)
   end
 
   @doc """
@@ -50,15 +50,15 @@ defmodule Core.Manager do
   Connects to the manager node at the given address.
   """
   @spec start_worker(String.t()) :: :ok
-  def start_worker(manager_addr) do
-    GenServer.call(@me, {:start_worker, manager_addr})
+  def start_worker(manager_addr, pid \\ @me) do
+    GenServer.call(pid, {:start_worker, manager_addr})
   end
 
   @doc """
   Instructs manager to stop all workers.
   """
-  def stop_all() do
-    GenServer.call(@me, :shutdown)
+  def stop_all(pid \\ @me) do
+    GenServer.call(pid, :shutdown)
   end
 
   def init(nil) do
