@@ -19,23 +19,32 @@ defmodule Core.Worker do
     requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
 
     requester.send(state.request)
-    |> add_result(state, millis)
+    |> handle_response(state, millis)
   end
 
-  def add_result({:ok, response}, config, start) do
-    Results.put(response)
+  def handle_response({:ok, response}, config, start) do
+    put_result(response, config.results_bucket)
 
     after_millis = wait(get_millis() - start, config.frequency)
     Process.send_after(self(), :run, after_millis)
     {:noreply, config}
   end
 
-  def add_result({:error, error}, config, _) do
+  def handle_response({:error, error}, config, _) do
     Logger.error("Error sending request: #{inspect(error)}")
     {:noreply, config}
   end
 
-  # No frequency limit, just go
+  defp put_result(response, pid) do
+    case pid do
+      nil ->
+        Results.put(response)
+
+      p ->
+        Results.put(response, p)
+    end
+  end
+
   defp wait(_, 0), do: 0
 
   defp wait(duration, frequency) do

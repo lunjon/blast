@@ -7,7 +7,7 @@ defmodule CoreTest.Manager do
   setup :config
 
   def start_manager(_context) do
-    {:ok, pid} = Manager.start_link(nil, :test)
+    {:ok, pid} = Manager.start_link(:test)
     on_exit(fn -> Process.exit(pid, :kill) end)
     [pid: pid]
   end

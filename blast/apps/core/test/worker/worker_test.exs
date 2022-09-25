@@ -6,15 +6,23 @@ defmodule CoreTest.Worker do
 
   @url "https://localhost/path"
 
-  setup_all do
-    {_, _} = Results.start_link(:no_args)
-    request = %HTTPoison.Request{url: @url, method: "GET"}
-    config = %Config{frequency: 1, request: request}
-    {:ok, pid} = Worker.start_link(config)
-    [pid: pid]
+  setup :start_results
+  setup :start_worker
+
+  def start_results(_context) do
+    {:ok, bucket} = Results.start_link(:test)
+    [bucket: bucket]
   end
 
-  test "puts new result", %{pid: pid} do
-    assert(Process.alive?(pid))
+  def start_worker(%{bucket: bucket}) do
+    request = %HTTPoison.Request{url: @url, method: "GET"}
+    config = %Config{frequency: 0, request: request, results_bucket: bucket}
+    {:ok, _} = Worker.start_link(config)
+    :ok
+  end
+
+  test "puts result", %{bucket: bucket} do
+    results = Results.get(bucket)
+    assert(map_size(results) > 0)
   end
 end

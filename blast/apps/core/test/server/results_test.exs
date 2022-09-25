@@ -4,12 +4,15 @@ defmodule CoreTest.Results do
 
   @url "https://localhost/path"
 
-  setup_all do
-    Results.start_link(:test)
-    :ok
+  setup :start_results
+
+  def start_results(_context) do
+    {:ok, pid} = Results.start_link(:test)
+    on_exit(fn -> Process.exit(pid, :kill) end)
+    [pid: pid]
   end
 
-  test "puts new result" do
+  test "puts new result", %{pid: pid} do
     res = %HTTPoison.Response{
       request_url: @url,
       status_code: 200
@@ -17,10 +20,10 @@ defmodule CoreTest.Results do
 
     # Arrange
     1..10
-    |> Enum.each(fn _ -> Results.put(res) end)
+    |> Enum.each(fn _ -> Results.put(res, pid) end)
 
     # Assert
-    results = Results.get()
+    results = Results.get(pid)
     assert Map.get(results, @url) > 0
   end
 end

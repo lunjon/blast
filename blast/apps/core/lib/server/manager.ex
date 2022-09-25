@@ -18,8 +18,12 @@ defmodule Core.Manager do
   ##############
 
   @spec start_link(any()) :: GenServer.on_start()
-  def start_link(_, name \\ @me) do
-    GenServer.start_link(__MODULE__, nil, name: name)
+  def start_link(:test) do
+    GenServer.start_link(__MODULE__, nil)
+  end
+
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: @me)
   end
 
   @doc """
