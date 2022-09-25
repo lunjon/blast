@@ -1,9 +1,10 @@
 defmodule Core.Worker do
   use GenServer, restart: :transient
   alias Core.Bucket
+  alias Core.Worker.Config
   require Logger
 
-  @spec start_link(Core.Worker.Config.t()) :: {:ok, pid} | {:error, String.t()}
+  @spec start_link(Config.t()) :: {:ok, pid} | {:error, String.t()}
   def start_link(config) do
     GenServer.start_link(__MODULE__, config)
   end
@@ -23,7 +24,7 @@ defmodule Core.Worker do
   end
 
   def handle_response({:ok, response}, config, start) do
-    put_result(response, config.results_bucket)
+    put_result(response, config.bucket)
 
     after_millis = wait(get_millis() - start, config.frequency)
     Process.send_after(self(), :run, after_millis)
