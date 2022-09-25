@@ -1,6 +1,6 @@
 defmodule Core.Worker do
   use GenServer, restart: :transient
-  alias Core.Results
+  alias Core.Bucket
   require Logger
 
   @spec start_link(Core.Worker.Config.t()) :: {:ok, pid} | {:error, String.t()}
@@ -38,10 +38,10 @@ defmodule Core.Worker do
   defp put_result(response, pid) do
     case pid do
       nil ->
-        Results.put(response)
+        Bucket.put(response)
 
       p ->
-        Results.put(response, p)
+        Bucket.put(response, p)
     end
   end
 

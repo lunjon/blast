@@ -8,8 +8,8 @@ defmodule Core.Worker.Config do
           workers: integer(),
           frequency: integer(),
           request: HTTPoison.Request.t(),
-          results_bucket: pid()
+          bucket: pid()
         }
 
-  defstruct workers: 1, frequency: 0, request: nil, results_bucket: nil
+  defstruct workers: 1, frequency: 0, request: nil, bucket: nil
 end

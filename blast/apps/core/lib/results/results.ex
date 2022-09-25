@@ -1,4 +1,4 @@
-defmodule Core.Results do
+defmodule Core.Bucket do
   use GenServer
   require Logger
   alias Core.Result

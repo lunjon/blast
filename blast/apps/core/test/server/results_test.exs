@@ -1,13 +1,13 @@
-defmodule CoreTest.Results do
+defmodule CoreTest.Bucket do
   use ExUnit.Case
-  alias Core.Results
+  alias Core.Bucket
 
   @url "https://localhost/path"
 
   setup :start_results
 
   def start_results(_context) do
-    {:ok, pid} = Results.start_link(:test)
+    {:ok, pid} = Bucket.start_link(:test)
     on_exit(fn -> Process.exit(pid, :kill) end)
     [pid: pid]
   end
@@ -20,10 +20,10 @@ defmodule CoreTest.Results do
 
     # Arrange
     1..10
-    |> Enum.each(fn _ -> Results.put(res, pid) end)
+    |> Enum.each(fn _ -> Bucket.put(res, pid) end)
 
     # Assert
-    results = Results.get(pid)
+    results = Bucket.get(pid)
     assert Map.get(results, @url) > 0
   end
 end

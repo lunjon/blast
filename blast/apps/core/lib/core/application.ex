@@ -26,7 +26,7 @@ defmodule Core.Application do
 
     [
       Core.Manager,
-      Core.Results,
+      Core.Bucket,
       Core.WorkerSupervisor,
       {Core.Management.API, port},
       {Task.Supervisor, name: Blast.TaskSupervisor}

@@ -1,6 +1,9 @@
 defmodule Blast.CLI.HeaderParser do
+  @moduledoc """
+  Parsing of "key: value" type options (--header and --data-form)
+  """
+
   @keyvalue_regex ~r/^([a-zA-Z][a-zA-Z-]*[a-zA-Z]?):\s?(.+)$/
-  # Parsing of "key: value" type options (--header and --data-form)
 
   def parse_keyvalues([], map), do: {:ok, map}
 
