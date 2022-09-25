@@ -3,6 +3,10 @@ defmodule Core.Bucket do
   require Logger
   alias Core.Result
 
+  @moduledoc """
+  Responsible for collecting results during a particular run.
+  """
+
   @me __MODULE__
 
   def start_link(:test) do
@@ -24,6 +28,7 @@ defmodule Core.Bucket do
     GenServer.cast(pid, {:put, response})
   end
 
+  @spec get() :: Result.t()
   def get(pid \\ @me) do
     GenServer.call(pid, :get)
   end
@@ -31,7 +36,7 @@ defmodule Core.Bucket do
   # Internal API
 
   def handle_cast({:put, response}, state) do
-    {:noreply, Result.update(state, response)}
+    {:noreply, Result.add_response(state, response)}
   end
 
   def handle_call(:get, _from, state) do
