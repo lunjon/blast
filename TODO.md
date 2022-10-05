@@ -14,9 +14,3 @@
   - [ ] Add flag
   - [ ] JSON
   - [ ] Plaintext
-
-## Pyro
-- [ ] Add required parameter: address to server
-- Options on start
-  - [ ] port
-  - [ ] verbose
