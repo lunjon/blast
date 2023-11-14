@@ -7,7 +7,7 @@ defmodule Blast.CLI.Parser do
   @errors %{invalid_url: {:error, "invalid URL"}}
 
   @help """
-  blast - load test the APIs you love (or hate)!
+  blast - load testing of HTTP APIs
 
   Required:
     -u/--url                  URL of the API to target.
