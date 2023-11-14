@@ -13,8 +13,6 @@ defmodule Core.Management.API do
     {:ok, socket} =
       :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
 
-    Logger.info("Accepting connections on port #{port}")
-
     accept(socket)
   end
 

@@ -14,17 +14,19 @@ defmodule Blast.Main do
 
   defp handle({:error, msg}) do
     IO.puts(:stderr, "error: #{msg}")
-    System.halt(1)
+    System.stop(1)
+    Process.sleep(:infinity)
   end
 
   defp handle({:help, msg}) do
     IO.puts(:stderr, msg)
-    System.halt(1)
+    System.stop(1)
+    Process.sleep(:infinity)
   end
 
   defp handle({:ok, args}) do
     if not args.verbose do
-      Logger.configure(level: :none)
+      Logger.configure(level: :error)
     else
       Logger.configure(level: :info)
     end

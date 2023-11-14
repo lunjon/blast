@@ -160,7 +160,7 @@ defmodule Core.Manager do
   end
 
   defp random_worker_name() do
-    s = for _ <- 1..10, into: "", do: <<Enum.random('0123456789abcdef')>>
+    s = for _ <- 1..10, into: "", do: <<Enum.random(~c"0123456789abcdef")>>
     String.to_atom("worker_" <> s)
   end
 end
