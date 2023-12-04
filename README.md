@@ -29,6 +29,10 @@ $ blast --url http://localhost:8080/path
 ...
 ```
 
+There are options to control all basic aspects of an HTTP request.
+
+Use `blast --help` to see them all.
+
 ## Hooks
 `blast` support _hooks_ via external Elixir modules via the `--hooks FILEPATH` option.
 
@@ -36,9 +40,7 @@ This will load a filepath as an elixir file, expecting a single module that expo
 zero or more hooks.
 
 A _hook_ is one of the following functions in the module:
-- `pre_request(req) :: req`: this is called before each request is sent.
-
-The request type is `Core.Request`.
+- `pre_request(Core.Request.t()) :: Core.Request.t()`: this is called before each request is sent.
 
 ### Example
 
