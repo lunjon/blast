@@ -22,7 +22,18 @@ defmodule CoreTest.Manager do
     :idle = Manager.get_status(pid)
   end
 
-  test "kickoff changes status", %{pid: pid, config: config} do
+  test "kickoff() starts manager if idle", %{pid: pid, config: config} do
+    :idle = Manager.get_status(pid)
+    Manager.kickoff(config, pid)
+    :running = Manager.get_status(pid)
+  end
+
+  test "kickoff() does nothing if already running", %{pid: pid, config: config} do
+    # Arrange
+    Manager.kickoff(config, pid)
+    :running = Manager.get_status(pid)
+
+    # Act & assert
     Manager.kickoff(config, pid)
     :running = Manager.get_status(pid)
   end

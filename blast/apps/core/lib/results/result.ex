@@ -3,13 +3,27 @@ defmodule Core.Result do
 
   @moduledoc """
   Container for responses collected during a load test run.
+
+  The results are tracked based on the URL
+  of the responses. The the `responses` map will
+  contain something like:
+
+      %{responses: %{"http://localhost" => %{200 => 97}}}
+
+  This means there was 97 call to http://localhost that responded HTTP 200 (OK).
   """
 
   @type t :: %{responses: map()}
 
   defstruct responses: %{}
 
-  def add_response(result, %Response{request_url: url, status_code: status}) do
+  @spec add_response(t(), Response.t()) :: t()
+  def add_response(result, %Response{} = res) do
+    %Response{
+      request_url: url,
+      status_code: status
+    } = res
+
     result
     |> update_in(
       [Access.key!(:responses), url],

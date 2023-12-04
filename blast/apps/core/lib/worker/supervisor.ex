@@ -5,8 +5,7 @@ defmodule Core.WorkerSupervisor do
   @me WorkerSupervisor
 
   @moduledoc """
-  Used for processes that are started on the fly: workers
-  and management API.
+  Used for processes that are started on the fly.
   """
 
   def start_link(_) do

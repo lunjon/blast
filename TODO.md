@@ -1,7 +1,6 @@
 # TODOs
 
 ## Remove
-- Remove TCP management API
 
 ## Features
 - Print status to console during runtime
@@ -9,7 +8,7 @@
   - Idea is to allow users to have custom code running, e.g. for authentication.
   - pre- and post-request?
   - Should be using the builtin `Code.require_file`
-- Load configuration from file, e.g. YAML
+- Load request configuration from file
 
 ## CLI
 - Output results when exiting

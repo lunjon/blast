@@ -24,10 +24,6 @@ defmodule Cli.ParserTest do
     test "invalid mode" do
       {:error, _msg} = Parser.parse_args(["--url", @url, "--mode", "no"])
     end
-
-    test "worker mode, missing --manager-address" do
-      {:error, _msg} = Parser.parse_args(["--url", @url, "--mode", "worker"])
-    end
   end
 
   describe "URLs" do
@@ -196,25 +192,6 @@ defmodule Cli.ParserTest do
           "--data-form",
           "key: value"
         ])
-    end
-  end
-
-  describe "mode options" do
-    test "default" do
-      {:ok, args} = Parser.parse_args(["-u", @url])
-      {:standalone, nil} = args.mode
-    end
-
-    test "manager mode" do
-      {:ok, args} = Parser.parse_args(["-u", @url, "--mode", "manager"])
-      {:manager, nil} = args.mode
-    end
-
-    test "worker mode" do
-      {:ok, args} =
-        Parser.parse_args(["-u", @url, "--mode", "worker", "--manager-address", "man"])
-
-      {:worker, "man"} = args.mode
     end
   end
 end

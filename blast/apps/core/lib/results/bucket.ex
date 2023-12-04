@@ -1,11 +1,14 @@
 defmodule Core.Bucket do
+  @moduledoc """
+  Responsible for collecting results.
+
+  This server uses the state the Result struct
+  to track result and state of the running load tests.
+  """
+
   use GenServer
   require Logger
   alias Core.Result
-
-  @moduledoc """
-  Responsible for collecting results during a particular run.
-  """
 
   @me __MODULE__
 
@@ -22,6 +25,7 @@ defmodule Core.Bucket do
   end
 
   # External API
+  # ============
 
   @spec put(HTTPoison.Response.t()) :: :ok
   def put(response, pid \\ @me) do
@@ -34,6 +38,7 @@ defmodule Core.Bucket do
   end
 
   # Internal API
+  # ============
 
   def handle_cast({:put, response}, state) do
     {:noreply, Result.add_response(state, response)}

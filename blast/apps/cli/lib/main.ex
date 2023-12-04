@@ -7,7 +7,7 @@ defmodule Blast.Main do
   def main(args) do
     Parser.parse_args(args)
     |> handle()
-    |> run()
+    |> Manager.kickoff()
 
     Process.sleep(:infinity)
   end
@@ -46,28 +46,6 @@ defmodule Blast.Main do
       request: request
     }
 
-    {config, args}
-  end
-
-  defp run({config, args}) do
-    Logger.info("Starting in mode: #{elem(args.mode, 0)}")
-
-    kickoff =
-      case args.mode do
-        {:standalone, _} ->
-          true
-
-        {:manager, _} ->
-          Manager.start_manager()
-          true
-
-        {:worker, manager_addr} ->
-          Manager.start_worker(manager_addr)
-          false
-      end
-
-    if kickoff do
-      Manager.kickoff(config)
-    end
+    config
   end
 end

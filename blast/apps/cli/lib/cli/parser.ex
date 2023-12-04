@@ -33,14 +33,6 @@ defmodule Blast.CLI.Parser do
                               (integer: default 0)
     --duration N              how many milliseconds to run
                               (integer: default #{@duration})
-    --mode MODE               Starts a node in the given mode. Allowed values are
-                              standalone, manager and worker for running a single node,
-                              as manager node in distributed mode and worker node, respectively.
-                              Distributed mode, i.e manager or worker, requires the --cookie flag.
-                              If worker mode it also requires the --manager-node option.
-                              (string: default standalone)
-    --manager-address ADDR    Option required when running "--mode worker" for connecting to
-                              the manager node as a worker. Value must be a reachable network address.
     -v/--verbose              Output logs.
                               (boolean: default false)
     --help                    Display this help message.
@@ -69,8 +61,6 @@ defmodule Blast.CLI.Parser do
         data: :string,
         data_file: :string,
         data_form: [:string, :keep],
-        mode: :string,
-        manager_address: :string,
         help: :boolean
       ],
       aliases: [
@@ -90,12 +80,7 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, mode_options} <-
-             parse_mode(
-               Keyword.get(args, :mode, "standalone"),
-               Keyword.get(args, :manager_address)
-             ),
-           {:ok, url} <- Keyword.get(args, :url) |> parse_url(mode_options),
+      with {:ok, url} <- Keyword.get(args, :url) |> parse_url(),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
            {:ok, headers} <- parse_keyvalues(Keyword.take(args, [:header]), %{}),
            {:ok, data} <-
@@ -112,10 +97,7 @@ defmodule Blast.CLI.Parser do
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, 0),
           duration: Keyword.get(args, :duration, @duration),
-          distributed: Keyword.get(args, :distributed, false),
-          connect: Keyword.get(args, :connect, ""),
-          verbose: Keyword.get(args, :verbose, false),
-          mode: mode_options
+          verbose: Keyword.get(args, :verbose, false)
         }
 
         {:ok, args}
@@ -134,36 +116,29 @@ defmodule Blast.CLI.Parser do
     {:error, "invalid arguments: #{invalid}"}
   end
 
-  defp parse_mode("standalone", _), do: {:ok, {:standalone, nil}}
-  defp parse_mode("manager", _), do: {:ok, {:manager, nil}}
+  defp parse_url(nil), do: {:error, "missing url"}
 
-  defp parse_mode("worker", manager_addr) when not is_nil(manager_addr) do
-    {:ok, {:worker, manager_addr}}
-  end
-
-  defp parse_mode(_mode, _manager_addr), do: {:error, "invalid --mode options"}
-
-  defp parse_url(nil, {:worker, _}), do: {:ok, ""}
-
-  defp parse_url(uri, _) when is_binary(uri) do
+  defp parse_url(uri) when is_binary(uri) do
     uri
     |> URI.parse()
-    |> parse_url(nil)
+    |> parse_uri()
   end
 
-  defp parse_url(%URI{scheme: scheme, host: host}, _)
+  defp parse_uri(%URI{scheme: scheme, host: host})
        when is_nil(scheme) or is_nil(host) do
     @errors.invalid_url
   end
 
-  defp parse_url(%URI{host: ""}, _), do: @errors.invalid_url
+  defp parse_uri(%URI{host: ""}), do: @errors.invalid_url
 
-  defp parse_url(%URI{scheme: scheme} = uri, _)
+  defp parse_uri(%URI{scheme: scheme} = uri)
        when scheme in ["http", "https"] do
     {:ok, to_string(uri)}
   end
 
-  defp parse_url(_, _), do: @errors.invalid_url
+  defp parse_uri(%URI{scheme: scheme}) do
+    {:error, "unsupported scheme: #{scheme}"}
+  end
 
   defp parse_method(method) do
     m = String.upcase(method)
