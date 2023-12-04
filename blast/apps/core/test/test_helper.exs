@@ -1,6 +1,7 @@
 # Setup mock
 defmodule CoreTest.RequesterMock do
   @behaviour Core.Requester
+
   @impl Core.Requester
   def send(_req) do
     {:ok, %HTTPoison.Response{status_code: 200, request_url: "todo"}}

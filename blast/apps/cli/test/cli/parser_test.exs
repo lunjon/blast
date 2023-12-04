@@ -68,7 +68,7 @@ defmodule Cli.ParserTest do
     test "values" do
       {:ok, args} = Parser.parse_args(["--url", @url])
       assert(args.url == @url)
-      assert(args.method == "GET")
+      assert(args.method == :get)
       assert(args.workers == 1)
       assert(args.duration == 10_000)
       assert(args.frequency == 0)
@@ -192,6 +192,30 @@ defmodule Cli.ParserTest do
           "--data-form",
           "key: value"
         ])
+    end
+  end
+
+  describe "--hooks <module> should" do
+    test "accept arg given valid file" do
+      args = [
+        "--url",
+        @url,
+        "--hooks",
+        "mix.exs"
+      ]
+
+      {:ok, _} = Parser.parse_args(args)
+    end
+
+    test "return error given unknown file" do
+      args = [
+        "--url",
+        @url,
+        "--hooks",
+        "non-existing-file.txt"
+      ]
+
+      {:error, _} = Parser.parse_args(args)
     end
   end
 end

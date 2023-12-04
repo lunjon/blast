@@ -15,20 +15,23 @@ defmodule Core.Worker do
     {:ok, config}
   end
 
-  def handle_info(:run, state) do
+  def handle_info(:run, config) do
     millis = get_millis()
 
     requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
 
-    requester.send(state.request)
-    |> handle_response(state, millis)
+    config.request
+    |> config.pre_request.()
+    |> requester.send()
+    |> handle_response(config, millis)
   end
 
   def handle_response({:ok, response}, config, start) do
     put_result(response, config.bucket)
 
-    after_millis = wait(get_millis() - start, config.frequency)
+    after_millis = get_wait_time(get_millis() - start, config.frequency)
     Process.send_after(self(), :run, after_millis)
+
     {:noreply, config}
   end
 
@@ -40,19 +43,12 @@ defmodule Core.Worker do
     {:noreply, config}
   end
 
-  defp put_result(response, pid) do
-    case pid do
-      nil ->
-        Bucket.put(response)
+  defp put_result(response, nil), do: Bucket.put(response)
+  defp put_result(response, pid), do: Bucket.put(response, pid)
 
-      p ->
-        Bucket.put(response, p)
-    end
-  end
+  defp get_wait_time(_, 0), do: 0
 
-  defp wait(_, 0), do: 0
-
-  defp wait(duration, frequency) do
+  defp get_wait_time(duration, frequency) do
     t = 1.0 / frequency * 1000
 
     # Wait if current request rate is higher than the frequency

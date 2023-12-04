@@ -1,6 +1,7 @@
 defmodule Blast.Main do
   alias Blast.CLI.Parser
   alias Core.Manager
+  alias Core.Request
   alias Core.Worker.Config
   require Logger
 
@@ -33,19 +34,34 @@ defmodule Blast.Main do
 
     Logger.debug("Args: #{inspect(args)}")
 
-    request = %HTTPoison.Request{
+    request = %Request{
       method: args.method,
       url: args.url,
       headers: args.headers,
       body: args.body
     }
 
-    config = %Config{
+    %Config{
       workers: args.workers,
       frequency: args.frequency,
       request: request
     }
+    |> load_hooks(args.hook_file)
+  end
 
-    config
+  defp load_hooks(config, nil), do: config
+
+  defp load_hooks(config, filepath) do
+    [{module, _}] = Code.require_file(filepath)
+
+    case Kernel.function_exported?(module, :pre_request, 1) do
+      true ->
+        Config.set_pre_request_hook(config, fn req ->
+          apply(module, :pre_request, [req])
+        end)
+
+      false ->
+        config
+    end
   end
 end

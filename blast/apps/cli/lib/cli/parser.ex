@@ -1,6 +1,6 @@
 defmodule Blast.CLI.Parser do
-  @methods ["GET", "POST", "PUT", "DELETE"]
-  @method "GET"
+  @methods [:get, :post, :put, :delete]
+  @method :get
   @duration 10_000
   @workers 1
 
@@ -14,7 +14,7 @@ defmodule Blast.CLI.Parser do
 
   Options:
     -m/--method METHOD        HTTP method.
-                              (string: default #{@method})
+                              (string: default #{to_string(@method)})
     -H/--header VALUE         HTTP header, can be specified multiple times.
                               Value should conform the format: "name: value"
                               (string)
@@ -31,8 +31,9 @@ defmodule Blast.CLI.Parser do
                               request frequency use `--workers 1 --frequency N`.
                               A value of 0 means no limit.
                               (integer: default 0)
-    --duration N              how many milliseconds to run
+    --duration N              Jow many milliseconds to run
                               (integer: default #{@duration})
+    --hooks FILE              Load an elixir file (.ex) as hooks module.
     -v/--verbose              Output logs.
                               (boolean: default false)
     --help                    Display this help message.
@@ -61,6 +62,7 @@ defmodule Blast.CLI.Parser do
         data: :string,
         data_file: :string,
         data_form: [:string, :keep],
+        hooks: :string,
         help: :boolean
       ],
       aliases: [
@@ -83,6 +85,7 @@ defmodule Blast.CLI.Parser do
       with {:ok, url} <- Keyword.get(args, :url) |> parse_url(),
            {:ok, method} <- parse_method(Keyword.get(args, :method, @method)),
            {:ok, headers} <- parse_keyvalues(Keyword.take(args, [:header]), %{}),
+           {:ok, hook_file} <- parse_hook_file(Keyword.get(args, :hooks)),
            {:ok, data} <-
              parse_data_flags(
                Keyword.get(args, :data),
@@ -94,6 +97,7 @@ defmodule Blast.CLI.Parser do
           method: method,
           headers: headers,
           body: data,
+          hook_file: hook_file,
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, 0),
           duration: Keyword.get(args, :duration, @duration),
@@ -140,13 +144,24 @@ defmodule Blast.CLI.Parser do
     {:error, "unsupported scheme: #{scheme}"}
   end
 
+  defp parse_method(@method), do: {:ok, @method}
+
   defp parse_method(method) do
-    m = String.upcase(method)
+    m = String.downcase(method) |> String.to_atom()
 
     if m in @methods do
       {:ok, m}
     else
       {:error, "invalid method: #{method}"}
+    end
+  end
+
+  defp parse_hook_file(nil), do: {:ok, nil}
+
+  defp parse_hook_file(filepath) do
+    case File.exists?(filepath) do
+      false -> {:error, "file not found: #{filepath}"}
+      true -> {:ok, filepath}
     end
   end
 
