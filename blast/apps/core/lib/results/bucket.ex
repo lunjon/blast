@@ -28,7 +28,7 @@ defmodule Core.Bucket do
     GenServer.cast(pid, {:put, response})
   end
 
-  @spec get() :: Result.t()
+  @spec get(pid()) :: Result.t()
   def get(pid \\ @me) do
     GenServer.call(pid, :get)
   end

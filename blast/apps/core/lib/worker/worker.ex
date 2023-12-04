@@ -2,6 +2,7 @@ defmodule Core.Worker do
   use GenServer, restart: :transient
   alias Core.Bucket
   alias Core.Worker.Config
+  alias Core.Results.Error
   require Logger
 
   @spec start_link(Config.t()) :: {:ok, pid} | {:error, String.t()}
@@ -33,6 +34,9 @@ defmodule Core.Worker do
 
   def handle_response({:error, error}, config, _) do
     Logger.error("Error sending request: #{inspect(error)}")
+
+    Error.handle_error(error)
+
     {:noreply, config}
   end
 
