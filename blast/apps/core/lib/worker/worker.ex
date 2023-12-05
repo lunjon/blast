@@ -16,13 +16,11 @@ defmodule Core.Worker do
   end
 
   def handle_info(:run, config) do
-    millis = get_millis()
-
     requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
+    millis = get_millis()
+    {config, req} = get_request(config)
 
-    config.request
-    |> config.pre_request.()
-    |> requester.send()
+    requester.send(req)
     |> handle_response(config, millis)
   end
 
@@ -41,6 +39,18 @@ defmodule Core.Worker do
     Error.handle_error(error)
 
     {:noreply, config}
+  end
+
+  defp get_request(%Config{request: req, hooks: hooks} = cfg) do
+    case hooks[:pre_request] do
+      nil ->
+        {cfg, req}
+
+      hook ->
+        {cx, req} = hook.(hooks.cx, req)
+        cfg = update_in(cfg.hooks.cx, fn _ -> cx end)
+        {cfg, req}
+    end
   end
 
   defp put_result(response, nil), do: Bucket.put(response)

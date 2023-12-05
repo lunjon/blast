@@ -7,7 +7,7 @@ defmodule Core.Worker.Config do
   @typedoc """
   Hooks are used to enrich the request before sending it.
   """
-  @type hook :: (Core.Request.t() -> Core.Request.t())
+  @type hook :: (map(), Core.Request.t() -> {map(), Core.Request.t()})
 
   @type t :: %{
           workers: integer(),
@@ -21,14 +21,10 @@ defmodule Core.Worker.Config do
             frequency: 0,
             request: nil,
             bucket: nil,
-            pre_request: &Core.Worker.Config.default_pre_request/1
+            hooks: %{}
 
   @doc """
-  Default request each that gets called before each request is sent.
-  """
-  def default_pre_request(req), do: req
-
-  @doc """
+  Sets the pre-request hook.
   Override the default before_hook function.
   """
   @spec set_pre_request_hook(t(), hook()) :: t()

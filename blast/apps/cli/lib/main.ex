@@ -41,27 +41,39 @@ defmodule Blast.Main do
       body: args.body
     }
 
+    hooks = load_hooks(args.hook_file)
+
     %Config{
       workers: args.workers,
       frequency: args.frequency,
-      request: request
+      request: request,
+      hooks: hooks
     }
-    |> load_hooks(args.hook_file)
   end
 
-  defp load_hooks(config, nil), do: config
+  defp load_hooks(nil), do: %{}
 
-  defp load_hooks(config, filepath) do
+  defp load_hooks(filepath) do
     [{module, _}] = Code.require_file(filepath)
 
-    case Kernel.function_exported?(module, :pre_request, 1) do
+    hooks =
+      case Kernel.function_exported?(module, :init, 0) do
+        true ->
+          {:ok, cx} = apply(module, :init, [])
+          %{cx: cx}
+
+        false ->
+          %{cx: %{}}
+      end
+
+    case Kernel.function_exported?(module, :pre_request, 2) do
       true ->
-        Config.set_pre_request_hook(config, fn req ->
-          apply(module, :pre_request, [req])
+        Map.put(hooks, :pre_request, fn cx, req ->
+          apply(module, :pre_request, [cx, req])
         end)
 
       false ->
-        config
+        hooks
     end
   end
 end
