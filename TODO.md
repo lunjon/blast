@@ -12,3 +12,5 @@
   - 5XX status: add option for controlling how to handle these
   - 4XX status: add option for controlling how to handle these
   - 429 Too Many Requests: this should be respected by default
+- Add sub-command `help <topic>`
+  - This can be useful for documentation
