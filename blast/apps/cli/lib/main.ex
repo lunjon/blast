@@ -10,7 +10,8 @@ defmodule Blast.Main do
     |> handle()
     |> Manager.kickoff()
 
-    Process.sleep(:infinity)
+    # Process.sleep(:infinity)
+    Blast.CLI.REPL.start()
   end
 
   defp handle({:error, msg}) do

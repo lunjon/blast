@@ -23,12 +23,21 @@ After installing, you should be able to invoke the cli:
 ```sh
 $ blast -h
 ...
-
-# Send GET http://localhost:8080/path
-$ blast --url http://localhost:8080/path
-...
 ```
 
+`blast` is an application that requires human interaction and is not intended to
+be called from other scripts. As such, when running `blast` you will enter it's
+prompt:
+
+```sh
+$ blast --url http://localhost:8080/path
+[running] blast>
+```
+
+This is a REPL (read-eval-print-loop) that allows you to control and
+configure it, as well as monitor it's status.
+
+#### Options
 There are options to control all basic aspects of an HTTP request.
 
 Use `blast --help` to see them all.

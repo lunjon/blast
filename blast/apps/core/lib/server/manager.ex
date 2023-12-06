@@ -11,7 +11,7 @@ defmodule Core.Manager do
   """
 
   @type status() :: :idle | :running
-  @type state() :: {list(), status(), Config.t() | nil}
+  @type state() :: {status(), Config.t() | nil}
 
   ##############
   # Public API #
@@ -35,7 +35,28 @@ defmodule Core.Manager do
   end
 
   @doc """
-  Start blasting using `config`.
+  Gets current configuration.
+  """
+  @spec get_config(pid() | nil) :: nil | Config.t()
+  def get_config(pid \\ @me) do
+    GenServer.call(pid, :get_config)
+  end
+
+  @doc """
+  Start blasting using initial configuration.
+  """
+  @spec kickoff() :: :ok | {:error, String.t()}
+  def kickoff() do
+    config = GenServer.call(@me, :get_config)
+
+    case config do
+      nil -> {:error, "no configuration set"}
+      _ -> kickoff(config)
+    end
+  end
+
+  @doc """
+  Start blasting using a new `config`.
   """
   @spec kickoff(Config.t()) :: :ok
   def kickoff(config, pid \\ @me) do
@@ -46,7 +67,7 @@ defmodule Core.Manager do
   Instructs manager to stop all workers.
   """
   def stop_all(pid \\ @me) do
-    GenServer.call(pid, :shutdown)
+    GenServer.call(pid, :stop)
   end
 
   def init(nil) do
@@ -57,15 +78,19 @@ defmodule Core.Manager do
   # Callbacks for handle_call #
   #############################
 
+  def handle_call(:get_config, _caller, {_, config} = state) do
+    {:reply, config, state}
+  end
+
   def handle_call(:status, _caller, {status, _} = state) do
     {:reply, status, state}
   end
 
-  def handle_call(:shutdown, _caller, {:idle, _} = state) do
+  def handle_call(:stop, _caller, {:idle, _} = state) do
     {:reply, true, state}
   end
 
-  def handle_call(:shutdown, _caller, {:running, config}) do
+  def handle_call(:stop, _caller, {:running, config}) do
     WorkerSupervisor.stop_workers()
     {:reply, true, {:idle, config}}
   end
