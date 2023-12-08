@@ -10,5 +10,5 @@ fmt:
 test:
     mix test
 
-install: build
+install: test build
     cd apps/cli && mix escript.install

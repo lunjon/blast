@@ -14,28 +14,22 @@ defmodule Blast.CLI.Parser do
 
   Options:
     -m/--method METHOD        HTTP method.
-                              (string: default #{to_string(@method)})
+                              (default: #{to_string(@method)})
     -H/--header VALUE         HTTP header, can be specified multiple times.
                               Value should conform the format: "name: value"
-                              (string)
     --data VALUE              Use as body string.
-                              (string)
     --data-file FILEPATH      Read body from file.
-                              (string)
     --data-form VALUE         URL encoded data, can be specied multiple times for each key/value pair.
-                              Value should conform the format: "name: value"
-                              (string)
+                              Value should conform the format: "name: value".
     -w/--workers N            Number of concurrent workers to run.
-                              (integer: default #{@workers})
+                              (default: #{@workers})
     -f/--frequency N          Sets the frequency of requests per worker. To limit the total
                               request frequency use `--workers 1 --frequency N`.
-                              A value of 0 means no limit.
-                              (integer: default 0)
-    --duration N              Jow many milliseconds to run
-                              (integer: default #{@duration})
+                              A value of 0 means no limit. (default: 0)
+    --duration N              How many milliseconds to run.
+                              (default: #{@duration})
     --hooks FILE              Load an elixir file (.ex) as hooks module.
-    -v/--verbose              Output logs.
-                              (boolean: default false)
+    -v/--verbose              Output logs. (default: false)
     --help                    Display this help message.
   """
 
