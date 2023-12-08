@@ -6,6 +6,11 @@ defmodule Core.Results.Error do
       %HTTPoison.Error{reason: :econnrefused} ->
         IO.puts(:stderr, "unreachable endpoint configured: exiting")
         System.halt(1)
+      %HTTPoison.Error{reason: :closed} ->
+        IO.puts(:stderr, "target endpoint closed: exiting")
+        System.halt(1)
+      _ ->
+        IO.puts(:stderr, "unexpected error: #{inspect(error)}")
     end
   end
 end
