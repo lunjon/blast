@@ -8,6 +8,9 @@ erl_crash.dump
 blazt-*.tar
 tmp/
 
+# Builds
+blast
+
 # Language server
 .elixir_ls/
 .lexical/
