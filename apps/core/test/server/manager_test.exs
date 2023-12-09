@@ -1,7 +1,8 @@
-defmodule CoreTest.Manager do
+defmodule BlastTest.Manager do
   use ExUnit.Case
-  alias Core.Manager
-  alias Core.Worker.Config
+  alias Blast.Manager
+  alias Blast.Worker.Config
+  alias Blast.Spec
 
   setup :start_manager
   setup :config
@@ -13,8 +14,9 @@ defmodule CoreTest.Manager do
   end
 
   def config(_context) do
-    request = %HTTPoison.Request{url: ""}
-    config = %Config{workers: 1, frequency: 1, request: request}
+    {:ok, spec} = Spec.load_file("test/spec.yml")
+    requests = Spec.get_requests(spec)
+    config = %Config{workers: 1, frequency: 1, requests: requests}
     [config: config]
   end
 

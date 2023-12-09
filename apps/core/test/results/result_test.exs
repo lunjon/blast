@@ -1,6 +1,6 @@
-defmodule CoreTest.Result do
+defmodule BlastTest.Result do
   use ExUnit.Case
-  alias Core.Result
+  alias Blast.Result
 
   @url "https://api.test/path"
   @responses %{

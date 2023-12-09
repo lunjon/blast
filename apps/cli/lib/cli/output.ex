@@ -1,5 +1,5 @@
 defmodule Blast.CLI.Output do
-  alias Core.Result
+  alias Blast.Result
   alias IO.ANSI
 
   @spec result(Result.t()) :: String.t()
@@ -18,10 +18,27 @@ defmodule Blast.CLI.Output do
   end
 
   def green(text) do
-    ANSI.green() <> text <> ANSI.reset()
+    style([ANSI.green()], text)
+  end
+
+  def green_italic(text) do
+    style([ANSI.italic(), ANSI.green()], text)
   end
 
   def red(text) do
-    ANSI.red() <> text <> ANSI.reset()
+    style([ANSI.red()], text)
+  end
+
+  def italic(text) do
+    style([ANSI.italic()], text)
+  end
+
+  defp style(styles, text) do
+    [
+      Enum.join(styles),
+      text,
+      ANSI.reset()
+    ]
+    |> Enum.join()
   end
 end

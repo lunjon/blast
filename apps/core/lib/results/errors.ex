@@ -1,4 +1,4 @@
-defmodule Core.Results.Error do
+defmodule Blast.Results.Error do
   def handle_error(nil), do: :ok
 
   def handle_error(error) do

@@ -1,4 +1,4 @@
-defmodule Core.Format do
+defmodule Blast.Format do
   @type format :: :json | :plain
 
   @spec format_result(Blast.Result.t(), format()) :: binary()

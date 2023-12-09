@@ -26,6 +26,7 @@ defmodule CLI.MixProject do
 
   defp aliases do
     [
+      start: "run --no-halt",
       all: ["compile", "format", "escript.build"]
     ]
   end

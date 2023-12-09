@@ -1,18 +1,23 @@
 defmodule Blast.CLI.REPL do
   alias Blast.CLI.Output
-  alias Core.Manager
-  alias Core.Bucket
-  alias Core.Worker.Config
+  alias Blast.Manager
+  alias Blast.Bucket
+  alias Blast.Worker.Config
 
   @exit ["exit", "quit"]
 
   def start() do
-    # TODO: print welcome message
+    welcome()
     loop()
   end
 
   defp loop() do
-    read_line() |> handle()
+    try do
+      read_line() |> handle()
+    rescue
+      err -> Output.error("unhandled error: #{inspect(err)}")
+    end
+
     loop()
   end
 
@@ -37,20 +42,43 @@ defmodule Blast.CLI.REPL do
     Manager.stop_all()
   end
 
-  defp handle(["set" | args]) do
-    IO.puts("set: #{inspect(args)}")
+  defp handle(["set", "frequency", value]) do
+    case Integer.parse(value) do
+      :error -> Output.error("invalid frequency: #{value}")
+      {f, ""} -> set_config(:frequency, f)
+    end
+  end
+
+  defp handle(["set", "workers", value]) do
+    case Integer.parse(value) do
+      :error -> Output.error("invalid value for workers: #{value}")
+      {f, ""} -> set_config(:workers, f)
+    end
+  end
+
+  defp handle(["set" | _]) do
+    Output.error("unknown or invalid args for set")
   end
 
   defp handle(["config"]) do
     %Config{
       workers: workers,
-      request: request
+      frequency: freq,
+      requests: requests
     } = Manager.get_config()
 
+    requests =
+      requests
+      |> Enum.map(fn req ->
+        "  URL: #{req.url}\n  Method: #{req.method}"
+      end)
+      |> Enum.join("\n  ---\n")
+
     IO.puts("""
-    URL:     #{request.url}
-    Method:  #{request.method} 
     Workers: #{workers}
+    Frequency (per worker): #{freq}
+    Requests:
+    #{requests}
     """)
   end
 
@@ -61,15 +89,32 @@ defmodule Blast.CLI.REPL do
     end
   end
 
-  defp handle(["help" | _]) do
+  defp handle(["help"]) do
     IO.puts("""
     Commands:
       status              Show current status.
-      set <name> <value>  Sets a configuration value.
-                          This accept the same names as options when starting blast.
-                          For instance, set URL with "set url <url>".
-      help                Show this help.
+      set <name> <value>  Sets a configuration value, such as number of workers or frequency.
+      help <cmd>          Show this help or help for a command
       quit                Quit the program. [alias: exit]
+    """)
+  end
+
+  defp handle(["help", "status"]) do
+    IO.puts("""
+    Show current status.
+    You can also see the status in the prompt.
+    """)
+  end
+
+  defp handle(["help", "set"]) do
+    IO.puts("""
+    Sets number of workers or frequency.
+
+      Set number of workers to 50:
+        set workers 50
+
+      Set frequency to 10:
+        set freq[uency] 10
     """)
   end
 
@@ -77,12 +122,33 @@ defmodule Blast.CLI.REPL do
     Output.error("unknown command: #{cmd}")
   end
 
+  defp set_config(key, value) do
+    :ok =
+      Manager.get_config()
+      |> Map.update!(key, fn _ -> value end)
+      |> Manager.set_config()
+  end
+
   defp read_line() do
     status = Manager.get_status()
-    prompt = "[#{status}] " <> Output.green("blast") <> "> "
+    prompt = "[#{status}]> "
 
     IO.gets(prompt)
-    |> String.trim()
-    |> String.split()
+    |> parse_line()
+  end
+
+  defp parse_line(:eof), do: ["exit"]
+
+  defp parse_line(line), do: String.trim(line) |> String.split()
+
+  defp welcome() do
+    IO.puts("""
+    ___     _       ____    ____    ___ 
+    |__]    |       |__|    [__      |  
+    |__]    |___    |  |    ___]     |  
+                                        
+
+    Starting #{Output.green_italic("blast")}.
+    """)
   end
 end

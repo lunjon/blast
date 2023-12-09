@@ -1,10 +1,10 @@
-defmodule Core.Application do
+defmodule Blast.Application do
   @moduledoc false
   use Application
 
   @impl true
   def start(_type, _args) do
-    opts = [strategy: :one_for_one, name: Core.Supervisor]
+    opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
     System.get_env("MIX_ENV", nil)
     |> children()
@@ -13,16 +13,16 @@ defmodule Core.Application do
 
   defp children("test") do
     [
-      Core.WorkerSupervisor,
+      Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end
 
   defp children(_) do
     [
-      Core.Manager,
-      Core.Bucket,
-      Core.WorkerSupervisor,
+      Blast.Manager,
+      Blast.Bucket,
+      Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end

@@ -12,7 +12,7 @@ defmodule Blast.Hools do
     token = "test"
     bearer = "Bearer #{token}"
 
-    req = Core.Request.put_header(req, "Authorization", bearer)
+    req = Blast.Request.put_header(req, "Authorization", bearer)
     {%{mutate: true}, req}
   end
 end

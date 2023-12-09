@@ -7,8 +7,8 @@
   - 4XX status: add option for controlling how to handle these
   - 429 Too Many Requests: this should be respected by default
 - Define more hooks:
-  - `post_request(Core.Response.t())`
+  - `post_request(Blast.Response.t())`
     - Gets called after each request async
-    - Requires that `Core.Response.t()` is defined\
-      as only `Core.Request.t()` exists now
+    - Requires that `Blast.Response.t()` is defined\
+      as only `Blast.Request.t()` exists now
 - Add more examples in documentation

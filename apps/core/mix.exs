@@ -19,7 +19,7 @@ defmodule Core.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Core.Application, []}
+      mod: {Blast.Application, []}
     ]
   end
 
@@ -28,6 +28,7 @@ defmodule Core.MixProject do
     [
       {:httpoison, "~> 1.8"},
       {:jason, "~> 1.4"},
+      {:yaml_elixir, "~> 2.0"},
       {:mox, "~> 1.0", only: :test}
     ]
   end

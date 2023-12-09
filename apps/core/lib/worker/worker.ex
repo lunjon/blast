@@ -1,8 +1,8 @@
-defmodule Core.Worker do
+defmodule Blast.Worker do
   use GenServer, restart: :transient
-  alias Core.Bucket
-  alias Core.Worker.Config
-  alias Core.Results.Error
+  alias Blast.Bucket
+  alias Blast.Worker.Config
+  alias Blast.Results.Error
   require Logger
 
   @spec start_link(Config.t()) :: {:ok, pid} | {:error, String.t()}
@@ -16,9 +16,14 @@ defmodule Core.Worker do
   end
 
   def handle_info(:run, config) do
-    requester = Application.get_env(:blast, :requester, Core.RequesterImpl)
+    requester = Application.get_env(:blast, :requester, Blast.RequesterImpl)
     millis = get_millis()
     {config, req} = get_request(config)
+
+    config =
+      Map.update!(config, :requests, fn [req | rest] ->
+        rest ++ [req]
+      end)
 
     requester.send(req)
     |> handle_response(config, millis)
@@ -41,7 +46,7 @@ defmodule Core.Worker do
     {:noreply, config}
   end
 
-  defp get_request(%Config{request: req, hooks: hooks} = cfg) do
+  defp get_request(%Config{requests: [req | _], hooks: hooks} = cfg) do
     case hooks[:pre_request] do
       nil ->
         {cfg, req}

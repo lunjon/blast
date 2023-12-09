@@ -1,7 +1,7 @@
-defmodule Core.Manager do
+defmodule Blast.Manager do
   require Logger
   use GenServer
-  alias Core.{WorkerSupervisor, Worker.Config}
+  alias Blast.{WorkerSupervisor, Worker.Config}
 
   @me Manager
 
@@ -43,6 +43,14 @@ defmodule Core.Manager do
   end
 
   @doc """
+  Set configuration to the given value.
+  """
+  @spec set_config(Config.t(), pid()) :: :ok
+  def set_config(config, pid \\ @me) do
+    GenServer.call(pid, {:set_config, config})
+  end
+
+  @doc """
   Start blasting using initial configuration.
   """
   @spec kickoff() :: :ok | {:error, String.t()}
@@ -77,6 +85,15 @@ defmodule Core.Manager do
   #############################
   # Callbacks for handle_call #
   #############################
+
+  def handle_call({:set_config, config}, _caller, {status, _}) do
+    if status == :running do
+      WorkerSupervisor.stop_workers()
+      WorkerSupervisor.add_workers(config)
+    end
+
+    {:reply, :ok, {status, config}}
+  end
 
   def handle_call(:get_config, _caller, {_, config} = state) do
     {:reply, config, state}

@@ -1,4 +1,4 @@
-defmodule Core.Result do
+defmodule Blast.Result do
   alias HTTPoison.Response
 
   @moduledoc """

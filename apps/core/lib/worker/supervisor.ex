@@ -1,4 +1,4 @@
-defmodule Core.WorkerSupervisor do
+defmodule Blast.WorkerSupervisor do
   use DynamicSupervisor
   require Logger
 
@@ -18,7 +18,7 @@ defmodule Core.WorkerSupervisor do
 
   def add_workers(config) do
     for _ <- 1..config.workers do
-      res = DynamicSupervisor.start_child(@me, {Core.Worker, config})
+      res = DynamicSupervisor.start_child(@me, {Blast.Worker, config})
 
       case res do
         {:ok, pid} ->

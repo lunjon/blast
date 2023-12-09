@@ -1,10 +1,9 @@
-defmodule CoreTest.Worker do
+defmodule BlastTest.Worker do
   use ExUnit.Case
-  alias Core.Bucket
-  alias Core.Worker
-  alias Core.Worker.Config
-
-  @url "https://localhost/path"
+  alias Blast.Bucket
+  alias Blast.Worker
+  alias Blast.Worker.Config
+  alias Blast.Spec
 
   setup :start_results
   setup :start_worker
@@ -15,8 +14,9 @@ defmodule CoreTest.Worker do
   end
 
   def start_worker(%{bucket: bucket}) do
-    request = %HTTPoison.Request{url: @url, method: "GET"}
-    config = %Config{frequency: 0, request: request, bucket: bucket}
+    {:ok, spec} = Spec.load_file("test/spec.yml")
+    requests = Spec.get_requests(spec)
+    config = %Config{frequency: 0, requests: requests, bucket: bucket}
     {:ok, _} = Worker.start_link(config)
     :ok
   end

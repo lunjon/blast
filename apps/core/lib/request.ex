@@ -1,4 +1,4 @@
-defmodule Core.Request do
+defmodule Blast.Request do
   @type t :: %{
           method: atom(),
           url: String.t(),
@@ -9,7 +9,7 @@ defmodule Core.Request do
   @enforce_keys [:method, :url, :headers]
   defstruct [:method, :url, :headers, :body]
 
-  alias Core.Request
+  alias __MODULE__
 
   def new(method, url, headers \\ %{}, body \\ nil) do
     %Request{

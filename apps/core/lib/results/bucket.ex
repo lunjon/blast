@@ -1,4 +1,4 @@
-defmodule Core.Bucket do
+defmodule Blast.Bucket do
   @moduledoc """
   Responsible for collecting results.
 
@@ -8,7 +8,7 @@ defmodule Core.Bucket do
 
   use GenServer
   require Logger
-  alias Core.Result
+  alias Blast.Result
 
   @me __MODULE__
 

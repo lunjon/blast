@@ -1,6 +1,6 @@
-defmodule CoreTest.Bucket do
+defmodule BlastTest.Bucket do
   use ExUnit.Case
-  alias Core.Bucket
+  alias Blast.Bucket
 
   @url "https://localhost/path"
 

@@ -1,0 +1,10 @@
+endpoints:
+  - base-url: http://localhost:8080
+    requests:
+      - path: "/test"
+      - path: "/withbody"
+        method: post
+        body: "{\"test\": true}"
+        headers:
+          - name: content-type
+            value: application/json

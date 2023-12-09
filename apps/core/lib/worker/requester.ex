@@ -1,22 +1,22 @@
-defmodule Core.Requester do
+defmodule Blast.Requester do
   @moduledoc """
   Behaviour for sending requests.
   """
 
-  @callback send(Core.Request.t()) ::
+  @callback send(Blast.Request.t()) ::
               {:ok, HTTPoison.Response.t()} | {:error, any()}
 end
 
-defmodule Core.RequesterImpl do
+defmodule Blast.RequesterImpl do
   @moduledoc """
-  The default implementation of Core.Requester behaviour
+  The default implementation of Blast.Requester behaviour
   for sending HTTP requests.
   """
-  @behaviour Core.Requester
+  @behaviour Blast.Requester
 
-  alias Core.Request, as: Req
+  alias Blast.Request, as: Req
 
-  @impl Core.Requester
+  @impl Blast.Requester
   def send(%Req{} = req) do
     %Req{
       method: m,

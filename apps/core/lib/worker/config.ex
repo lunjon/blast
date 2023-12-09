@@ -1,4 +1,4 @@
-defmodule Core.Worker.Config do
+defmodule Blast.Worker.Config do
   @moduledoc """
   Defines the input to a worker describing how to send the requests,
   and some additional metadata around the state of the runners.
@@ -7,19 +7,22 @@ defmodule Core.Worker.Config do
   @typedoc """
   Hooks are used to enrich the request before sending it.
   """
-  @type hook :: (map(), Core.Request.t() -> {map(), Core.Request.t()})
+
+  alias Blast.Request
+
+  @type hook :: (map(), Request.t() -> {map(), Request.t()})
 
   @type t :: %{
           workers: integer(),
           frequency: integer(),
-          request: Core.Request.t(),
+          requests: [Request.t()],
           bucket: pid(),
           pre_request: pid()
         }
 
   defstruct workers: 1,
             frequency: 0,
-            request: nil,
+            requests: [],
             bucket: nil,
             hooks: %{}
 

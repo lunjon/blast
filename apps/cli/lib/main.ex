@@ -1,8 +1,7 @@
 defmodule Blast.Main do
-  alias Blast.CLI.Parser
-  alias Core.Manager
-  alias Core.Request
-  alias Core.Worker.Config
+  alias Blast.CLI.{Parser, Output}
+  alias Blast.Manager
+  alias Blast.Worker.Config
   require Logger
 
   def main(args) do
@@ -10,12 +9,11 @@ defmodule Blast.Main do
     |> handle()
     |> Manager.kickoff()
 
-    # Process.sleep(:infinity)
     Blast.CLI.REPL.start()
   end
 
   defp handle({:error, msg}) do
-    IO.puts(:stderr, "error: #{msg}")
+    Output.error(msg)
     System.stop(1)
     Process.sleep(:infinity)
   end
@@ -35,19 +33,14 @@ defmodule Blast.Main do
 
     Logger.debug("Args: #{inspect(args)}")
 
-    request = %Request{
-      method: args.method,
-      url: args.url,
-      headers: args.headers,
-      body: args.body
-    }
+    requests = Blast.Spec.get_requests(args.spec)
 
     hooks = load_hooks(args.hook_file)
 
     %Config{
       workers: args.workers,
       frequency: args.frequency,
-      request: request,
+      requests: requests,
       hooks: hooks
     }
   end

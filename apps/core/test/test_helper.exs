@@ -1,8 +1,8 @@
 # Setup mock
-defmodule CoreTest.RequesterMock do
-  @behaviour Core.Requester
+defmodule BlastTest.RequesterMock do
+  @behaviour Blast.Requester
 
-  @impl Core.Requester
+  @impl Blast.Requester
   def send(_req) do
     {:ok, %HTTPoison.Response{status_code: 200, request_url: "todo"}}
   end
