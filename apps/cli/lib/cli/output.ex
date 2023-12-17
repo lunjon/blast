@@ -8,6 +8,15 @@ defmodule Blast.CLI.Output do
       IO.puts(url)
 
       Enum.each(statuses, fn {status, count} ->
+        status =
+          cond do
+            status < 200 -> status
+            status >= 300 and status < 400 -> yellow(status)
+            200 <= status and status < 300 -> green(status)
+            400 <= status and status < 500 -> yellow(status)
+            true -> red(status)
+          end
+
         IO.puts("    #{status}: #{count}")
       end)
     end)
@@ -15,6 +24,10 @@ defmodule Blast.CLI.Output do
 
   def error(err) do
     IO.puts(:stderr, "#{red("error")}: #{err}")
+  end
+
+  def yellow(text) do
+    style([ANSI.yellow()], text)
   end
 
   def green(text) do
@@ -36,7 +49,7 @@ defmodule Blast.CLI.Output do
   defp style(styles, text) do
     [
       Enum.join(styles),
-      text,
+      to_string(text),
       ANSI.reset()
     ]
     |> Enum.join()
