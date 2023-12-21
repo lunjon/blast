@@ -26,7 +26,7 @@ defmodule Core.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:httpoison, "~> 1.8"},
+      {:httpoison, "~> 2.2"},
       {:jason, "~> 1.4"},
       {:yaml_elixir, "~> 2.0"},
       {:mox, "~> 1.0", only: :test}
