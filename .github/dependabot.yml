@@ -8,3 +8,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    groups:
+      dependencies:
+        patterns:
+          - "*"
