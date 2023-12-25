@@ -57,12 +57,12 @@ endpoints:
             value: application/json
 ```
 
-You can read more about it in [docs](./docs/blastfile.md).
+You can read more about it in the [docs](./docs/blastfile.md).
 
 ## Hooks
-`blast` support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.
+Blast support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.
 
 This will load a filepath as an elixir file, expecting a single module that exports
 zero or more hooks.
 
-You can read more about it in [docs](./docs/hooks.md).
+You can read more about it in the [docs](./docs/hooks.md).
