@@ -14,14 +14,12 @@ defmodule Blast.Main do
 
   defp handle({:error, msg}) do
     Output.error(msg)
-    System.stop(1)
-    Process.sleep(:infinity)
+    abort()
   end
 
   defp handle({:help, msg}) do
     IO.puts(:stderr, msg)
-    System.stop(1)
-    Process.sleep(:infinity)
+    abort()
   end
 
   defp handle({:ok, args}) do
@@ -53,21 +51,49 @@ defmodule Blast.Main do
     hooks =
       case Kernel.function_exported?(module, :init, 0) do
         true ->
-          {:ok, cx} = apply(module, :init, [])
+          cx = apply(module, :init, []) |> get_context()
           %{cx: cx}
 
         false ->
           %{cx: %{}}
       end
 
-    case Kernel.function_exported?(module, :pre_request, 2) do
+    case Kernel.function_exported?(module, :on_request, 2) do
       true ->
-        Map.put(hooks, :pre_request, fn cx, req ->
-          apply(module, :pre_request, [cx, req])
+        Map.put(hooks, :on_request, fn cx, req ->
+          apply(module, :on_request, [cx, req])
         end)
 
       false ->
         hooks
     end
+  end
+
+  defp get_context(:ok), do: %{cx: %{}}
+
+  defp get_context({:ok, cx}), do: %{cx: cx}
+
+  defp get_context({:error, reason}) do
+    Output.error(reason)
+    abort()
+  end
+
+  defp get_context(cx) do
+    Output.error("unrecognizable return from init: #{inspect(cx)}")
+
+    IO.puts("""
+
+    Acceptable results are any of
+      - :ok
+      - {:ok, map()}
+      - {:error, binary()}
+    """)
+
+    abort()
+  end
+
+  defp abort() do
+    System.halt(1)
+    Process.sleep(:infinity)
   end
 end

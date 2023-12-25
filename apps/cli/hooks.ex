@@ -4,10 +4,11 @@
 
 defmodule Blast.Hools do
   def init() do
-    {:ok, %{test: true}}
+    # {:ok, %{test: true}}
+    "bla"
   end
 
-  def pre_request(cx, req) do
+  def on_request(cx, req) do
     IO.inspect(cx)
     token = "test"
     bearer = "Bearer #{token}"

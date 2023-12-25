@@ -11,14 +11,14 @@ A _hook_ is one of the following functions in the module:
     as the first argument.
   - If this function isn't defined an empty map will be provided for other hooks
   - This is referred to as the _context_
-- `pre_request(map(), Blast.Request.t()) :: {map(), Blast.Request.t()}`: this is called before each request is sent.
+- `on_request(map(), Blast.Request.t()) :: {map(), Blast.Request.t()}`: this is called before each request is sent.
   - The first argument is the context returned from `init`
   - It should return a tuple containing the context and request
   - The context returned here will be sent the next time
 
 ### Example
 
-The module defined below exports a `pre_request` hook that adds
+The module defined below exports a `on_request` hook that adds
 an authorization header before each request is sent.
 
 ```elixir
@@ -26,8 +26,13 @@ an authorization header before each request is sent.
 defmodule Blast.Hooks do
   alias Blast.Request
 
+  # This is called once before anyting else starts
+  def init() do
+    {:ok, %{awesome: true}}
+  end
+
   # Note that the function must be exported (and that the name matters).
-  def pre_request(cx, req) do
+  def on_request(cx, req) do
     {cx, token} = get_token(cx, cx.token)
     bearer = "Bearer #{token}"
 

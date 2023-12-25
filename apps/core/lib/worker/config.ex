@@ -17,7 +17,7 @@ defmodule Blast.Worker.Config do
           frequency: integer(),
           requests: [Request.t()],
           bucket: pid(),
-          pre_request: pid()
+          on_request: pid()
         }
 
   defstruct workers: 1,
@@ -27,11 +27,11 @@ defmodule Blast.Worker.Config do
             hooks: %{}
 
   @doc """
-  Sets the pre-request hook.
-  Override the default before_hook function.
+  Sets the on_request hook, which is called before
+  each request is sent.
   """
-  @spec set_pre_request_hook(t(), hook()) :: t()
-  def set_pre_request_hook(config, hook) do
-    Map.put(config, :pre_request, hook)
+  @spec set_on_request_hook(t(), hook()) :: t()
+  def set_on_request_hook(config, hook) do
+    Map.put(config, :on_request, hook)
   end
 end

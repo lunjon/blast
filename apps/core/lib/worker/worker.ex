@@ -49,7 +49,7 @@ defmodule Blast.Worker do
   defp get_request(%Config{requests: requests, hooks: hooks} = cfg) do
     req = Enum.random(requests)
 
-    case hooks[:pre_request] do
+    case hooks[:on_request] do
       nil ->
         {cfg, req}
 

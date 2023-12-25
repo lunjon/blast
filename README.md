@@ -7,9 +7,7 @@ but I have plans to integrate it into a web-based interface
 built in [Phoenix](https://www.phoenixframework.org/) (inspired by
 [Locust](https://locust.io)).
 
-## Installation and Usage
-
-### Installation
+## Installation
 
 In order to install you need Elixir 1.13+.
 
@@ -21,7 +19,7 @@ $ cd apps/cli && mix escript.install
 
 Make sure you have `~/.mix/escripts/` in your `$PATH` environment variable.
 
-### Usage
+## Usage
 
 After installing, you should be able to invoke the cli:
 
@@ -36,6 +34,7 @@ prompt:
 
 ```sh
 $ blast
+...
 [running] blast>
 ```
 
@@ -47,6 +46,8 @@ configure it, as well as monitor it's status.
 Blast needs a *blast file* that defines what requests to send.
 The specfile is written in YAML and can be specified using `--spec-file` flag.
 If not specified it looks for a `blast.y[a]ml` in the current working directory.
+
+In this file you'll define the requests to send and other options.
 
 **Example**:
 ```yaml

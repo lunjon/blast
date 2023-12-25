@@ -1,20 +1,9 @@
 defmodule Blast.Spec do
   @moduledoc """
-  A blast spec defines what the load tests should target.
+  A blast file defines what the load tests should target.
   It is loaded from a YAML file (or string) and consists
   of at least on root element that defines the endpoints
   to target in the requests.
-
-  An `endpoint` defines a base URL along with requests
-  to send to this endpoint.
-
-  ```yaml
-  endpoints: # Required (cannot be empty).
-    - base-url: string # Base URL of the endpoint, e.g. https://example.com
-      requests: # Required (cannot be empty). List of requests to send.
-        - method: get # HTTP method. Defaults to `get` if omitted.
-          path: "/some/path" # Required. Relate URL path.
-  ```
   """
 
   alias __MODULE__
@@ -26,6 +15,10 @@ defmodule Blast.Spec do
   @enforce_keys [:endpoints]
   defstruct endpoints: [], default: %{}
 
+  @doc """
+  Loads a spec from a `filepath`.
+  The file must be a file in the YAML format.
+  """
   def load_file(filepath) do
     case File.read(filepath) do
       {:ok, data} -> load_string(data)
@@ -33,6 +26,10 @@ defmodule Blast.Spec do
     end
   end
 
+  @doc """
+  Loads a spec (`blastfile`) from a string in YAML format.
+  See documentation for full specification.
+  """
   def load_string(string) when is_binary(string) do
     with {:ok, yaml} <- YamlElixir.read_from_string(string),
          {:ok, endpoints} <- parse_endpoints(yaml["endpoints"]) do
