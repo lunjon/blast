@@ -4,7 +4,8 @@ defmodule Blast.CLI.Output do
 
   @spec result(Result.t()) :: String.t()
   def result(result) do
-    Enum.each(result.responses, fn {url, statuses} ->
+    result.responses
+    |> Enum.each(fn {url, statuses} ->
       IO.puts(url)
 
       Enum.each(statuses, fn {status, count} ->

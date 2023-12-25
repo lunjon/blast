@@ -51,7 +51,10 @@ defmodule Blast.Spec do
   @spec get_requests(t()) :: [Request.t()]
   def get_requests(%Spec{endpoints: endpoints}) do
     endpoints
-    |> Enum.flat_map(fn endpoint -> endpoint.requests end)
+    |> Enum.flat_map(fn endpoint ->
+      endpoint.requests
+    end)
+    |> Enum.shuffle()
   end
 
   defp parse_endpoints(nil), do: {:error, "missing required field: endpoints"}
@@ -63,6 +66,7 @@ defmodule Blast.Spec do
       with {:ok, base_url} <- get_required("endpoints", "base-url", endpoint["base-url"]),
            {:ok, default_headers} <- parse_headers(endpoint["default-headers"]),
            {:ok, requests} <- parse_requests(default_headers, base_url, endpoint["requests"]) do
+        requests = Enum.flat_map(requests, & &1)
         {:ok, %Endpoint{base_url: base_url, requests: requests}}
       else
         err -> err
@@ -86,13 +90,16 @@ defmodule Blast.Spec do
            {:ok, method} <- get_method(request["method"]) do
         headers = (headers ++ default_headers) |> Enum.dedup()
 
-        {:ok,
-         %Request{
-           url: URI.parse(base_url) |> URI.append_path(path) |> URI.to_string(),
-           method: String.to_atom(method),
-           headers: Map.new(headers),
-           body: body
-         }}
+        weight = Map.get(request, "weight", 1)
+
+        req = %Request{
+          url: URI.parse(base_url) |> URI.append_path(path) |> URI.to_string(),
+          method: String.to_atom(method),
+          headers: Map.new(headers),
+          body: body
+        }
+
+        {:ok, Enum.map(1..weight, fn _ -> req end)}
       else
         err -> err
       end

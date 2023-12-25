@@ -46,7 +46,9 @@ defmodule Blast.Worker do
     {:noreply, config}
   end
 
-  defp get_request(%Config{requests: [req | _], hooks: hooks} = cfg) do
+  defp get_request(%Config{requests: requests, hooks: hooks} = cfg) do
+    req = Enum.random(requests)
+
     case hooks[:pre_request] do
       nil ->
         {cfg, req}

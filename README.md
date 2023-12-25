@@ -37,12 +37,11 @@ $ blast
 This is a REPL (read-eval-print-loop) that allows you to control and
 configure it, as well as monitor it's status.
 
-#### Spec
+#### Blast file
 
-Blast needs a `specfile` that defines what requests to send.
+Blast needs a *blast file* that defines what requests to send.
 The specfile is written in YAML and can be specified using `--spec-file` flag.
-
-It checks for `spec.y[a]ml` in current working directory by default.
+If not specified it looks for a `blast.y[a]ml` in the current working directory.
 
 **Example**:
 ```yaml
@@ -58,7 +57,7 @@ endpoints:
             value: application/json
 ```
 
-You can read more about it in [docs](./docs/spec.md).
+You can read more about it in [docs](./docs/blastfile.md).
 
 ## Hooks
 `blast` support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.

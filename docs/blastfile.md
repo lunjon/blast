@@ -21,4 +21,6 @@ endpoints: # Required (cannot be empty). List of endpoints.
         body-form: # Optional. List of name/value pairs to send as form.
           - name: string # Required. Name of field.
             value: string # Required. Value of field.
+        weight: integer # Optional. Number >= 1 to make this request more like to be sent.
+                        # For instance, a value of 2 means that it is twice as likely to be sent.
 ```

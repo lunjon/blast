@@ -34,4 +34,8 @@ defmodule Blast.Request do
     headers = Map.put(headers, name, value)
     Map.put(req, :headers, headers)
   end
+
+  def equals(%Request{url: url1, method: method1}, %Request{url: url2, method: method2}) do
+    url1 == url2 and method1 == method2
+  end
 end

@@ -69,14 +69,23 @@ defmodule Blast.CLI.REPL do
 
     requests =
       requests
-      |> Enum.map(fn req ->
-        "  URL: #{req.url}\n  Method: #{req.method}"
+      |> Enum.uniq_by(fn req ->
+        "#{req.method}-#{req.url}"
       end)
-      |> Enum.join("\n  ---\n")
+      |> Enum.map(fn req ->
+        method =
+          req.method
+          |> to_string()
+          |> String.upcase()
+          |> String.pad_trailing(6)
+
+        "  #{method} #{req.url}  "
+      end)
+      |> Enum.join("\n")
 
     IO.puts("""
-    Workers: #{workers}
-    Frequency (per worker): #{freq}
+    Workers:   #{workers}
+    Frequency: #{freq}
     Requests:
     #{requests}
     """)

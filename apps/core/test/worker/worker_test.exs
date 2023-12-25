@@ -14,7 +14,7 @@ defmodule BlastTest.Worker do
   end
 
   def start_worker(%{bucket: bucket}) do
-    {:ok, spec} = Spec.load_file("test/spec.yml")
+    {:ok, spec} = Spec.load_file("test/blast.yml")
     requests = Spec.get_requests(spec)
     config = %Config{frequency: 0, requests: requests, bucket: bucket}
     {:ok, _} = Worker.start_link(config)

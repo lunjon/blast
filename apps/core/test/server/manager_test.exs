@@ -14,7 +14,7 @@ defmodule BlastTest.Manager do
   end
 
   def config(_context) do
-    {:ok, spec} = Spec.load_file("test/spec.yml")
+    {:ok, spec} = Spec.load_file("test/blast.yml")
     requests = Spec.get_requests(spec)
     config = %Config{workers: 1, frequency: 1, requests: requests}
     [config: config]

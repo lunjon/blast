@@ -3,11 +3,11 @@ defmodule Blast.CLI.Parser do
   @frequency 1
 
   @help """
-  blast - load testing of HTTP APIs
+  blast - load test HTTP APIs
 
   Options:
-    -s/--spec-file            File path to specfile. Must exist.
-                              (default: spec.y[a]ml)
+    -s/--blast-file           File path to blast file. Must exist.
+                              (default: looks for blast.y[a]ml in cwd)
     -w/--workers N            Number of concurrent workers to run.
                               (default: #{@workers})
     -f/--frequency N          Sets the frequency of requests per worker. To limit the total
@@ -72,14 +72,14 @@ defmodule Blast.CLI.Parser do
 
   defp parse_specfile(nil) do
     cond do
-      File.exists?("./spec.yaml") -> parse_specfile("./spec.yaml")
-      File.exists?("./spec.yml") -> parse_specfile("./spec.yml")
-      File.exists?("./test/spec.yml") -> parse_specfile("./test/spec.yml")
-      true -> {:error, "specfile not found"}
+      File.exists?("./blast.yaml") -> parse_blastfile("./blast.yaml")
+      File.exists?("./blast.yml") -> parse_blastfile("./blast.yml")
+      File.exists?("./test/blast.yml") -> parse_blastfile("./test/blast.yml")
+      true -> {:error, "blastfile not found"}
     end
   end
 
-  defp parse_specfile(filepath) when is_binary(filepath), do: Blast.Spec.load_file(filepath)
+  defp parse_blastfile(filepath) when is_binary(filepath), do: Blast.Spec.load_file(filepath)
 
   defp parse_hook_file(nil), do: {:ok, nil}
 
