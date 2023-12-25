@@ -1,20 +1,18 @@
 # README
 # ======
-# This is used to test external hooks.
+# This is used to test hooks.
 
 defmodule Blast.Hools do
   def init() do
-    # {:ok, %{test: true}}
-    "bla"
+    :ok
   end
 
   def on_request(cx, req) do
-    IO.inspect(cx)
     token = "test"
     bearer = "Bearer #{token}"
 
     req = Blast.Request.put_header(req, "Authorization", bearer)
-    {%{mutate: true}, req}
+    {cx, req}
   end
 end
 
