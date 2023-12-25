@@ -2,6 +2,11 @@
 
 Load test framework, written in Elixir, that targets HTTP APIs.
 
+It is currently only able to run from the command line (as a REPL),
+but I have plans to integrate it into a web-based interface 
+built in [Phoenix](https://www.phoenixframework.org/) (inspired by
+[Locust](https://locust.io)).
+
 ## Installation and Usage
 
 ### Installation
