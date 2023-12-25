@@ -7,7 +7,7 @@ defmodule Blast.Main do
   def main(args) do
     Parser.parse_args(args)
     |> handle()
-    |> Manager.kickoff()
+    |> Manager.set_config()
 
     Blast.CLI.REPL.start()
   end
