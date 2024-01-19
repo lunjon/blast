@@ -14,3 +14,4 @@ blast
 # Language server
 .elixir_ls/
 .lexical/
+.elixir-tools/
