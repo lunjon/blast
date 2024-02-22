@@ -1,22 +1,17 @@
-defmodule Blast.Main do
+defmodule Blast.Application do
+  use Application
   alias Blast.CLI.{Parser, Output, REPL}
   alias Blast.Manager
   alias Blast.Worker.Config
   require Logger
 
-  def main(args) do
-    {args, config} =
-      Parser.parse_args(args)
-      |> handle()
+  @impl true
+  def start(_, args) do
+    opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
-    Manager.set_config(config)
-
-    if args.repl do
-      REPL.start()
-    else
-      Manager.kickoff()
-      Process.sleep(:infinity)
-    end
+    System.get_env("MIX_ENV", nil)
+    |> children()
+    |> Supervisor.start_link(opts)
   end
 
   defp handle({:error, msg}) do
@@ -103,5 +98,21 @@ defmodule Blast.Main do
   defp abort() do
     System.halt(1)
     Process.sleep(:infinity)
+  end
+
+  defp children("test") do
+    [
+      Blast.WorkerSupervisor,
+      {Task.Supervisor, name: Blast.TaskSupervisor}
+    ]
+  end
+
+  defp children(_) do
+    [
+      Blast.Manager,
+      Blast.Bucket,
+      Blast.WorkerSupervisor,
+      {Task.Supervisor, name: Blast.TaskSupervisor}
+    ]
   end
 end

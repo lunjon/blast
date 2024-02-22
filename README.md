@@ -1,74 +1,21 @@
 # Blast
 
-Load test framework, written in Elixir, that targets HTTP APIs.
-
-It is currently only able to run from the command line (as a REPL),
-but I have plans to integrate it into a web-based interface 
-built in [Phoenix](https://www.phoenixframework.org/) (inspired by
-[Locust](https://locust.io)).
+**TODO: Add description**
 
 ## Installation
 
-In order to install you need Elixir 1.13+.
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `blast` to your list of dependencies in `mix.exs`:
 
-Then run the following commands:
-```sh
-$ cd blast && mix deps.get
-$ cd apps/cli && mix escript.install
+```elixir
+def deps do
+  [
+    {:blast, "~> 0.1.0"}
+  ]
+end
 ```
 
-Make sure you have `~/.mix/escripts/` in your `$PATH` environment variable.
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at <https://hexdocs.pm/blast>.
 
-## Usage
-
-After installing, you should be able to invoke the cli:
-
-```sh
-$ blast -h
-...
-```
-
-`blast` is an application that requires human interaction and is not intended to
-be called from other scripts. As such, when running `blast` you will enter it's
-prompt:
-
-```sh
-$ blast
-...
-[running] blast>
-```
-
-This is a REPL (read-eval-print-loop) that allows you to control and
-configure it, as well as monitor it's status.
-
-#### Blast file
-
-Blast needs a *blast file* that defines what requests to send.
-The specfile is written in YAML and can be specified using `--spec-file` flag.
-If not specified it looks for a `blast.y[a]ml` in the current working directory.
-
-In this file you'll define the requests to send and other options.
-
-**Example**:
-```yaml
-endpoints:
-  - base-url: http://localhost:8080
-    requests:
-      - path: "/test"
-      - path: "/withbody"
-        method: post
-        body: "{\"test\": true}"
-        headers:
-          - name: content-type
-            value: application/json
-```
-
-You can read more about it in the [docs](./docs/blastfile.md).
-
-## Hooks
-Blast support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.
-
-This will load a filepath as an elixir file, expecting a single module that exports
-zero or more hooks.
-
-You can read more about it in the [docs](./docs/hooks.md).
