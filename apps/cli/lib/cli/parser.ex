@@ -14,6 +14,7 @@ defmodule Blast.CLI.Parser do
                               request frequency use `--workers 1 --frequency N`.
                               A value of 0 means no limit. (default: #{@frequency})
     --hooks FILE              Load an elixir file (.ex) as hooks module.
+    --repl                    Start in REPL mode.
     -v/--verbose              Output logs. (default: false)
     --help                    Display this help message.
   """
@@ -27,6 +28,7 @@ defmodule Blast.CLI.Parser do
         duration: :integer,
         verbose: :boolean,
         hooks: :string,
+        repl: :boolean,
         help: :boolean
       ],
       aliases: [
@@ -51,7 +53,8 @@ defmodule Blast.CLI.Parser do
           hook_file: hook_file,
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, 1),
-          verbose: Keyword.get(args, :verbose, false)
+          verbose: Keyword.get(args, :verbose, false),
+          repl: Keyword.get(args, :repl, false)
         }
 
         {:ok, args}

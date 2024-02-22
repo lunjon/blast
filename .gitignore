@@ -11,6 +11,9 @@ tmp/
 # Builds
 blast
 
+blast.yml
+blast.yaml
+
 # Language server
 .elixir_ls/
 .lexical/

@@ -1,15 +1,22 @@
 defmodule Blast.Main do
-  alias Blast.CLI.{Parser, Output}
+  alias Blast.CLI.{Parser, Output, REPL}
   alias Blast.Manager
   alias Blast.Worker.Config
   require Logger
 
   def main(args) do
-    Parser.parse_args(args)
-    |> handle()
-    |> Manager.set_config()
+    {args, config} =
+      Parser.parse_args(args)
+      |> handle()
 
-    Blast.CLI.REPL.start()
+    Manager.set_config(config)
+
+    if args.repl do
+      REPL.start()
+    else
+      Manager.kickoff()
+      Process.sleep(:infinity)
+    end
   end
 
   defp handle({:error, msg}) do
@@ -35,12 +42,13 @@ defmodule Blast.Main do
 
     hooks = load_hooks(args.hook_file)
 
-    %Config{
-      workers: args.workers,
-      frequency: args.frequency,
-      requests: requests,
-      hooks: hooks
-    }
+    {args,
+     %Config{
+       workers: args.workers,
+       frequency: args.frequency,
+       requests: requests,
+       hooks: hooks
+     }}
   end
 
   defp load_hooks(nil), do: %{}
