@@ -21,16 +21,15 @@ In this file you'll define the requests to send and other options.
 
 **Example**:
 ```yaml
-endpoints:
-  - base-url: http://localhost:8080
-    requests:
-      - path: "/test"
-      - path: "/withbody"
-        method: post
-        body: "{\"test\": true}"
-        headers:
-          - name: content-type
-            value: application/json
+base-url: http://localhost:8080
+requests:
+  - path: "/test"
+  - path: "/withbody"
+    method: post
+    body: "{\"test\": true}"
+    headers:
+      - name: content-type
+        value: application/json
 ```
 
 You can read more about it in the [docs](./docs/blastfile.md).

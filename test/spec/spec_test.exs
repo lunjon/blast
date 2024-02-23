@@ -10,19 +10,17 @@ defmodule Blast.Spec.Test do
       # Act
       {:ok, spec} =
         Spec.load_string("""
-        endpoints:
-          - base-url: https://cats.meow
-            requests:
-              - path: /facts
-              - method: post
-                path: /cats
+        base-url: https://cats.meow
+        requests:
+          - path: /facts
+          - method: post
+            path: /cats
         """)
 
       # Assert
-      %Spec{endpoints: [endpoint]} = spec
-      assert endpoint.base_url === @cats_base_url
+      assert spec.base_url === @cats_base_url
 
-      [get, post] = endpoint.requests
+      [get, post] = spec.requests
       assert get.method == :get
       assert get.url == "#{@cats_base_url}/facts"
       assert post.method == :post
@@ -33,40 +31,29 @@ defmodule Blast.Spec.Test do
       # Act
       {:ok, spec} =
         Spec.load_string("""
-        endpoints:
-          - base-url: #{@cats_base_url}
-            requests:
-              - path: /facts
-          - base-url: #{@dogs_base_url}
-            default-headers:
-              - name: "X-Blast"
-                value: "4ever"
-            requests:
-              - path: /voffy
-              - method: post
-                path: /dogs
-                body: '{"test": true}'
-                headers:
-                  - name: Authorization
-                    value: Bearer test
+        base-url: #{@dogs_base_url}
+        default-headers:
+          - name: "X-Blast"
+            value: "4ever"
+        requests:
+          - path: /voffy
+          - method: post
+            path: /dogs
+            body: '{"test": true}'
+            headers:
+              - name: Authorization
+                value: Bearer test
         """)
 
       # Assert
-      %Spec{endpoints: [cats_endpoint, dogs_endpoint]} = spec
-      assert cats_endpoint.base_url === @cats_base_url
 
-      [get] = cats_endpoint.requests
-      assert get.method == :get
-      assert get.url == "#{@cats_base_url}/facts"
-      assert get.headers == %{}
-
-      [_, post] = dogs_endpoint.requests
+      [_, post] = spec.requests
       assert post.method == :post
       assert post.url == "#{@dogs_base_url}/dogs"
       assert post.headers == %{"Authorization" => "Bearer test", "X-Blast" => "4ever"}
 
       requests = Spec.get_requests(spec)
-      assert length(requests) == 3
+      assert length(requests) == 2
     end
   end
 
@@ -75,63 +62,53 @@ defmodule Blast.Spec.Test do
       {:error, _} = Spec.load_string("")
     end
 
-    test("empty endpoints") do
+    test("empty requests") do
       {:error, _} =
         Spec.load_string("""
-        endpoints: []
-        """)
-    end
-
-    test("empty endpoint requests") do
-      {:error, _} =
-        Spec.load_string("""
-        endpoints:
-          - base-url: https://example.com
-            requests: []
+        base-url: "http://localhost"
+        requests: []
         """)
     end
 
     test("invalid method") do
       {:error, _} =
         Spec.load_string("""
-        endpoints:
-          - base-url: https://example.com
-            requests:
-              - method: meow
-                path: /test
+        base-url: https://example.com
+        requests:
+          - method: meow
+            path: /test
         """)
     end
 
     test("missing base url") do
       {:error, _} =
         Spec.load_string("""
-        endpoints:
-          - requests:
-              - path: /test
+        requests:
+          - path: /test
         """)
     end
 
     test("invalid body definition: body and body-file") do
       {:error, _} =
         Spec.load_string("""
-        endpoints:
-          - base-url: http://localhost
-              - path: /test
-                body: A string
-                body-file: ./filepath.json
+        base-url: https://example.com
+        requests:
+          - path: /test
+            body: A string
+            body-file: ./filepath.json
         """)
     end
 
     test("invalid body definition: body and body-form") do
       {:error, _} =
         Spec.load_string("""
-        endpoints:
-          - base-url: http://localhost
-              - path: /test
-                body: A string
-                body-form:
-                  - name: test
-                    value: blast
+        base-url: http://localhost
+        requests:
+          - path: /test
+            body: A string
+            body-form:
+              - name: test
+                value: blast
         """)
     end
   end

@@ -49,6 +49,7 @@
         shellHook = ''
           exec $SHELL
         '';
+
         packages = [
           erlang
           elixir

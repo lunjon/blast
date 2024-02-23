@@ -12,8 +12,7 @@ defmodule Blast.MixProject do
         blast: [
           applications: [blast: :permanent]
         ]
-      ],
-      
+      ]
     ]
   end
 
@@ -32,7 +31,6 @@ defmodule Blast.MixProject do
       {:jason, "~> 1.4"},
       {:yaml_elixir, "~> 2.0"},
       {:mox, "~> 1.0", only: :test}
-    
     ]
   end
 end

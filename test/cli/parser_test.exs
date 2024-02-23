@@ -2,53 +2,55 @@ defmodule Cli.ParserTest do
   use ExUnit.Case
   alias Blast.CLI.Parser
 
-  describe "defaults" do
-    test "no args" do
-      {:ok, _} = Parser.parse_args([])
-    end
+  defp get_args(args \\ []) do
+    ["--specfile", "test/cli/blast.yml"] ++ args
+    |> Enum.uniq()
+  end
 
+  describe "defaults" do
     test "help" do
       {:help, _msg} = Parser.parse_args(["--help"])
       {:help, _msg} = Parser.parse_args(["-h"])
     end
 
     test "values" do
-      {:ok, args} = Parser.parse_args([])
+      args = get_args()
+      {:ok, args} = Parser.parse_args(args)
       assert(args.workers == 1)
       assert(args.frequency == 1)
       assert not args.verbose
     end
 
     test "verbose" do
-      {:ok, args} = Parser.parse_args(["--verbose"])
+      args = get_args(["--verbose"])
+      {:ok, args} = Parser.parse_args(args)
       assert(args.verbose)
     end
 
     test "frequency" do
-      {:ok, args} = Parser.parse_args(["--frequency", "10"])
+      args = get_args(["--frequency", "10"])
+      {:ok, args} = Parser.parse_args(args)
       assert(args.frequency == 10)
-      {:ok, args} = Parser.parse_args(["-f", "10"])
+      args = get_args(["-f", "10"])
+      {:ok, args} = Parser.parse_args(args)
       assert(args.frequency == 10)
     end
   end
 
   describe "--hooks <module> should" do
     test "accept arg given valid file" do
-      args = [
-        "--hooks",
-        "mix.exs"
-      ]
-
+      args = get_args([ "--hooks", "mix.exs" ])
       {:ok, _} = Parser.parse_args(args)
     end
 
     test "return error given unknown file" do
-      args = [
-        "--hooks",
-        "non-existing-file.txt"
-      ]
-
-      {:error, _} = Parser.parse_args(args)
+      {:error, _} =
+        get_args([
+          "--hooks",
+          "non-existing-file.txt"
+        ])
+        |>Parser.parse_args()
     end
   end
+
 end

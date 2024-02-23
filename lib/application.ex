@@ -6,14 +6,34 @@ defmodule Blast.Application do
 
   @impl true
   def start(_type, _args) do
-    config = Parser.parse_args([])
-      |> handle()
-
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
     System.get_env("MIX_ENV", nil)
-    |> children(config)
+    |> children()
     |> Supervisor.start_link(opts)
+  end
+
+  defp abort() do
+    System.halt(1)
+    Process.sleep(:infinity)
+  end
+
+  defp children("test") do
+    [
+      Blast.WorkerSupervisor,
+      {Task.Supervisor, name: Blast.TaskSupervisor}
+    ]
+  end
+
+  defp children(_mix_env) do
+    config = Parser.parse_args([])
+      |> handle()
+    [
+      {Blast.Manager, config},
+      Blast.Bucket,
+      Blast.WorkerSupervisor,
+      {Task.Supervisor, name: Blast.TaskSupervisor}
+    ]
   end
 
   defp handle({:error, msg}) do
@@ -94,26 +114,5 @@ defmodule Blast.Application do
     """)
 
     abort()
-  end
-
-  defp abort() do
-    System.halt(1)
-    Process.sleep(:infinity)
-  end
-
-  defp children("test", _config) do
-    [
-      Blast.WorkerSupervisor,
-      {Task.Supervisor, name: Blast.TaskSupervisor}
-    ]
-  end
-
-  defp children(_type, config) do
-    [
-      {Blast.Manager, config},
-      Blast.Bucket,
-      Blast.WorkerSupervisor,
-      {Task.Supervisor, name: Blast.TaskSupervisor}
-    ]
   end
 end

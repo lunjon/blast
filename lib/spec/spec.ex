@@ -7,13 +7,16 @@ defmodule Blast.Spec do
   """
 
   alias __MODULE__
-  alias Blast.Spec.Endpoint
   alias Blast.Request
 
-  @type t :: %{endpoints: [Endpoint.t()]}
+  @type t :: %{
+    base_url: binary(),
+    requests: [Request.t()],
+    default_headers: [{binary(), binary()}],
+  }
 
-  @enforce_keys [:endpoints]
-  defstruct endpoints: [], default: %{}
+  @enforce_keys [:base_url, :requests]
+  defstruct [base_url: "", requests: "", default_headers: []]
 
   @doc """
   Loads a spec from a `filepath`.
@@ -30,13 +33,20 @@ defmodule Blast.Spec do
   Loads a spec (`blastfile`) from a string in YAML format.
   See documentation for full specification.
   """
+  @spec load_string(binary()) :: {:ok, t()} | {:error, binary()}
   def load_string(string) when is_binary(string) do
     with {:ok, yaml} <- YamlElixir.read_from_string(string),
-         {:ok, endpoints} <- parse_endpoints(yaml["endpoints"]) do
-      {:ok,
-       %Blast.Spec{
-         endpoints: endpoints
-       }}
+         {:ok, base_url} <- get_required("base-url", yaml["base-url"]),
+         {:ok, default_headers} <- parse_headers(yaml["default-headers"]),
+         {:ok, requests} <- parse_requests(default_headers, base_url, yaml["requests"]) do
+        requests = Enum.flat_map(requests, & &1)
+        spec = %Blast.Spec{
+          base_url: base_url,
+          requests: requests,
+          default_headers: default_headers
+        }
+
+        {:ok, spec}
     else
       err -> err
     end
@@ -46,36 +56,13 @@ defmodule Blast.Spec do
   Parse the spec and build a list of requests from it.
   """
   @spec get_requests(t()) :: [Request.t()]
-  def get_requests(%Spec{endpoints: endpoints}) do
-    endpoints
-    |> Enum.flat_map(fn endpoint ->
-      endpoint.requests
-    end)
+  def get_requests(%Spec{requests: requests} = _spec) do
+    requests
     |> Enum.shuffle()
   end
 
-  defp parse_endpoints(nil), do: {:error, "missing required field: endpoints"}
-  defp parse_endpoints([]), do: {:error, "endpoints must not be empty"}
-
-  defp parse_endpoints(endpoints) when is_list(endpoints) do
-    endpoints
-    |> Enum.map(fn endpoint ->
-      with {:ok, base_url} <- get_required("endpoints", "base-url", endpoint["base-url"]),
-           {:ok, default_headers} <- parse_headers(endpoint["default-headers"]),
-           {:ok, requests} <- parse_requests(default_headers, base_url, endpoint["requests"]) do
-        requests = Enum.flat_map(requests, & &1)
-        {:ok, %Endpoint{base_url: base_url, requests: requests}}
-      else
-        err -> err
-      end
-    end)
-    |> find_error()
-  end
-
-  defp parse_endpoints(_), do: {:error, "invalid type for endpoints"}
-
-  defp parse_requests(_, _, nil), do: {:error, "missing required field in endpoint: requests"}
-  defp parse_requests(_, _, []), do: {:error, "endpoint requests must not be empty"}
+  defp parse_requests(_, _, nil), do: {:error, "missing required field: requests"}
+  defp parse_requests(_, _, []), do: {:error, "requests must not be empty"}
 
   defp parse_requests(default_headers, base_url, requests) when is_list(requests) do
     requests
@@ -117,7 +104,12 @@ defmodule Blast.Spec do
   defp parse_header(%{"name" => name, "value" => value}), do: {:ok, {name, value}}
   defp parse_header(data), do: {:error, "unexpected fields: #{inspect(data)}"}
 
+  defp get_required(field, nil), do: {:error, "missing required field in root: #{field}"}
+
+  defp get_required(_field, value), do: {:ok, value}
+
   defp get_required(root, field, nil), do: {:error, "missing required field in #{root}: #{field}"}
+
   defp get_required(_, _field, value), do: {:ok, value}
 
   defp find_error(results) do
@@ -163,8 +155,7 @@ defmodule Blast.Spec do
     parse_headers(body_form)
   end
 
-  defp parse_body_fields(_, _, _),
-    do:
-      {:error,
-       "invalid combination of body fields: request may optionally contain one of body, body-file or body-form"}
+  defp parse_body_fields(_, _, _) do
+    { :error, "invalid combination of body fields: request may optionally contain one of body, body-file or body-form" }
+  end
 end

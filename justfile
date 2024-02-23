@@ -7,7 +7,7 @@ fmt:
     mix format
 
 test:
-    mix test
+    MIX_ENV=test mix test
 
 release env="prod": build
     MIX_ENV={{ env }} mix release
