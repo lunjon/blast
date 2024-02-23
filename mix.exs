@@ -10,7 +10,6 @@ defmodule Blast.MixProject do
       deps: deps(),
       releases: [
         blast: [
-          # cookie: "KAAX37MU6532HG547P4LWXWOKZ63ECSZNLDFNYTUX75ZM2VJ35CA====",
           applications: [blast: :permanent]
         ]
       ],

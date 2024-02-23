@@ -22,8 +22,8 @@ defmodule Blast.Manager do
     GenServer.start_link(__MODULE__, nil)
   end
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: @me)
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, config, name: @me)
   end
 
   @doc """
@@ -82,6 +82,11 @@ defmodule Blast.Manager do
     {:ok, {:idle, nil}}
   end
 
+  def init(config) do
+    Process.send_after(self(), :start, 10)
+    {:ok, {:running, config}}
+  end
+
   #############################
   # Callbacks for handle_call #
   #############################
@@ -123,6 +128,14 @@ defmodule Blast.Manager do
 
   def handle_cast({:kickoff, config}, {_, _}) do
     Logger.info("Kickoff received - adding #{config.workers} workers")
+    start_workers(config)
+  end
+
+  def handle_info(:start, {_, config}) do
+  	start_workers(config)
+  end
+
+  defp start_workers(config) do
     WorkerSupervisor.add_workers(config)
     {:noreply, {:running, config}}
   end

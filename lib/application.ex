@@ -1,18 +1,18 @@
 defmodule Blast.Application do
   use Application
   alias Blast.CLI.{Parser, Output}
-  alias Blast.Manager
   alias Blast.Worker.Config
   require Logger
 
   @impl true
-  def start(_, args) do
-    IO.inspect(args)
+  def start(_type, _args) do
+    config = Parser.parse_args([])
+      |> handle()
 
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
     System.get_env("MIX_ENV", nil)
-    |> children()
+    |> children(config)
     |> Supervisor.start_link(opts)
   end
 
@@ -39,13 +39,12 @@ defmodule Blast.Application do
 
     hooks = load_hooks(args.hook_file)
 
-    {args,
      %Config{
        workers: args.workers,
        frequency: args.frequency,
        requests: requests,
        hooks: hooks
-     }}
+     }
   end
 
   defp load_hooks(nil), do: %{}
@@ -102,16 +101,16 @@ defmodule Blast.Application do
     Process.sleep(:infinity)
   end
 
-  defp children("test") do
+  defp children("test", _config) do
     [
       Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end
 
-  defp children(_) do
+  defp children(_type, config) do
     [
-      Blast.Manager,
+      {Blast.Manager, config},
       Blast.Bucket,
       Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
