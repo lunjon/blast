@@ -1,12 +1,14 @@
 defmodule Blast.Application do
   use Application
-  alias Blast.CLI.{Parser, Output, REPL}
+  alias Blast.CLI.{Parser, Output}
   alias Blast.Manager
   alias Blast.Worker.Config
   require Logger
 
   @impl true
   def start(_, args) do
+    IO.inspect(args)
+
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
     System.get_env("MIX_ENV", nil)
