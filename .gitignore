@@ -8,6 +8,7 @@ erl_crash.dump
 blazt-*.tar
 tmp/
 result/
+burrito_out/
 
 # Builds
 blast

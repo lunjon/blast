@@ -10,7 +10,12 @@ defmodule Blast.MixProject do
       deps: deps(),
       releases: [
         blast: [
-          applications: [blast: :permanent]
+          steps: [:assemble, &Burrito.wrap/1],
+          burrito: [
+            targets: [
+              linux: [os: :linux, cpu: :x86_64]
+            ]
+          ]
         ]
       ]
     ]
@@ -30,7 +35,7 @@ defmodule Blast.MixProject do
       {:httpoison, "~> 2.2"},
       {:jason, "~> 1.4"},
       {:yaml_elixir, "~> 2.0"},
-      {:mox, "~> 1.0", only: :test}
+      {:burrito, "~> 1.0"}
     ]
   end
 end

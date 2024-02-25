@@ -1,5 +1,5 @@
 {
-  description = "A basic flake used for development";
+  description = "A flake used for development";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
@@ -23,26 +23,8 @@
       pkgs = import nixpkgs { inherit system; };
       erlang = pkgs.beam.interpreters.erlang_26;
       elixir = pkgs.beam.interpreters.elixir;
-      pname = "blast";
     in {
       formatter.${system} = pkgs.nixfmt;
-
-      packages.${system}.default = pkgs.beamPackages.mixRelease rec {
-        inherit pname;
-        version = "0.1.0";
-        src = ./.;
-
-        mixFodDeps = pkgs.beamPackages.fetchMixDeps {
-          pname = "${pname}-deps";
-          inherit src version;
-          hash = "sha256-ZXWXxOUsmih/g4XVfyMJwfTR+qkWZCRMk7SY6UeJfYU=";
-        };
-
-        fixupPhase = ''
-          mkdir -p $out/releases
-          echo "blast" > $out/releases/COOKIE
-        '';
-      };
 
       devShells.${system}.default = pkgs.mkShell {
         name = "blast";
@@ -53,6 +35,9 @@
         packages = [
           erlang
           elixir
+
+          pkgs.xz
+          pkgs.zig
 
           pkgs.nil
           pkgs.elixir-ls

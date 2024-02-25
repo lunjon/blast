@@ -26,7 +26,9 @@ defmodule Blast.Application do
   end
 
   defp children(_mix_env) do
-    config = Parser.parse_args([])
+    config =
+      Burrito.Util.Args.get_arguments()
+      |>Parser.parse_args()
       |> handle()
     [
       {Blast.Manager, config},
