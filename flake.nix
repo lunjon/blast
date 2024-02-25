@@ -40,7 +40,7 @@
 
         fixupPhase = ''
           mkdir -p $out/releases
-          echo "71249ecf-ef39-4d7b-9e19-19c861dc495e" > $out/releases/COOKIE
+          echo "blast" > $out/releases/COOKIE
         '';
       };
 
