@@ -11,10 +11,10 @@ built in [Phoenix](https://www.phoenixframework.org/) (inspired by
 
 TODO.
 
-#### Blast file
+#### Spec file
 
-Blast needs a *blast file* that defines what requests to send.
-The specfile is written in YAML and can be specified using `--spec-file` flag.
+Blast needs a *spec file* that defines which requests to send.
+The specfile is written in YAML and can be specified using `--specfile` flag.
 If not specified it looks for a `blast.y[a]ml` in the current working directory.
 
 In this file you'll define the requests to send and other options.
@@ -32,7 +32,7 @@ requests:
         value: application/json
 ```
 
-You can read more about it in the [docs](./docs/blastfile.md).
+You can read more about it in the [docs](./docs/specfile.md).
 
 ## Hooks
 Blast support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.

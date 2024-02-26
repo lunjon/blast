@@ -138,17 +138,17 @@ defmodule Blast.CLI.REPL do
       |> Manager.set_config()
   end
 
+  @spec read_line() :: [binary()]
   defp read_line() do
     status = Manager.get_status()
     prompt = "[#{status}]> "
 
-    IO.gets(prompt)
-    |> parse_line()
+    case IO.gets(prompt) do
+      :eof -> ["exit"]
+      {:error, _err} -> ["exit"]
+      line -> String.trim(line) |> String.split()
+    end
   end
-
-  defp parse_line(:eof), do: ["exit"]
-
-  defp parse_line(line), do: String.trim(line) |> String.split()
 
   defp welcome() do
     IO.puts("""

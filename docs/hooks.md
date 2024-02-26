@@ -26,7 +26,7 @@ an authorization header before each request is sent.
 defmodule Blast.Hooks do
   alias Blast.Request
 
-  # This is called once before anyting else starts
+  # This is called once before anything else starts
   def init() do
     {:ok, %{awesome: true}}
   end

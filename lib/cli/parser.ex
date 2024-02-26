@@ -6,17 +6,17 @@ defmodule Blast.CLI.Parser do
   blast - load test HTTP APIs
 
   Options:
-    -s/--specfile           File path to blast file. Must exist.
-                              (default: looks for blast.y[a]ml in cwd)
-    -w/--workers N            Number of concurrent workers to run.
-                              (default: #{@workers})
-    -f/--frequency N          Sets the frequency of requests per worker. To limit the total
-                              request frequency use `--workers 1 --frequency N`.
-                              A value of 0 means no limit. (default: #{@frequency})
-    --hooks FILE              Load an elixir file (.ex) as hooks module.
-    --repl                    Start in REPL mode.
-    -v/--verbose              Output logs. (default: false)
-    --help                    Display this help message.
+    -s/--specfile      File path to blast file. Must exist.
+                       (default: looks for blast.y[a]ml in current working directory)
+    -w/--workers N     Number of concurrent workers to run.
+                       (default: #{@workers})
+    -f/--frequency N   Sets the frequency of requests per worker. To limit the total
+                       request frequency use `--workers 1 --frequency N`.
+                       A value of 0 means no limit. (default: #{@frequency})
+    --hooks FILE       Load an elixir file (.ex) as hooks module.
+    --repl             Start in REPL mode.
+    -v/--verbose       Output logs. (default: false)
+    --help             Display this help message.
   """
 
   def parse_args(args) do
@@ -26,7 +26,7 @@ defmodule Blast.CLI.Parser do
         workers: :integer,
         frequency: :integer,
         duration: :integer,
-        verbose: :boolean,
+        verbose: :count,
         hooks: :string,
         repl: :boolean,
         help: :boolean
@@ -53,7 +53,7 @@ defmodule Blast.CLI.Parser do
           hook_file: hook_file,
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, 1),
-          verbose: Keyword.get(args, :verbose, false),
+          verbose: Keyword.get(args, :verbose, 0),
           repl: Keyword.get(args, :repl, false)
         }
 
@@ -78,7 +78,7 @@ defmodule Blast.CLI.Parser do
       File.exists?("./blast.yaml") -> parse_specfile("./blast.yaml")
       File.exists?("./blast.yml") -> parse_specfile("./blast.yml")
       File.exists?("./test/blast.yml") -> parse_specfile("./test/blast.yml")
-      true -> {:error, "blastfile not found"}
+      true -> {:error, "spec file not found"}
     end
   end
 

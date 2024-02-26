@@ -2,7 +2,7 @@ defmodule Blast.CLI.Output do
   alias Blast.Result
   alias IO.ANSI
 
-  @spec result(Result.t()) :: String.t()
+  @spec result(Result.t()) :: :ok
   def result(result) do
     result.responses
     |> Enum.each(fn {url, statuses} ->

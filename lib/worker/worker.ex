@@ -30,6 +30,8 @@ defmodule Blast.Worker do
   end
 
   def handle_response({:ok, response}, config, start) do
+    Logger.debug("#{inspect(response.request.method)} #{response.request.url}: #{response.status_code}")
+
     put_result(response, config.bucket)
 
     after_millis = get_wait_time(get_millis() - start, config.frequency)

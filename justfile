@@ -7,7 +7,12 @@ fmt:
     mix format
 
 test:
-    MIX_ENV=test mix test
+    mix test
 
-release env="prod": build
+release env="prod": test
+    # NOTE: you have to bump the version in mix.exs
     MIX_ENV={{ env }} mix release
+
+clean:
+    rm -rf burrito_out
+    mix clean --deps

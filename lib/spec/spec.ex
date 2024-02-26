@@ -30,7 +30,7 @@ defmodule Blast.Spec do
   end
 
   @doc """
-  Loads a spec (`blastfile`) from a string in YAML format.
+  Loads a spec file from a string in YAML format.
   See documentation for full specification.
   """
   @spec load_string(binary()) :: {:ok, t()} | {:error, binary()}
@@ -91,7 +91,7 @@ defmodule Blast.Spec do
     |> find_error()
   end
 
-  defp parse_requests(_, _, _), do: {:error, "invalid type for endpoint requests"}
+  defp parse_requests(_, _, _), do: {:error, "invalid type for requests"}
 
   defp parse_headers(nil), do: {:ok, []}
 

@@ -4,32 +4,29 @@ defmodule Blast.Application do
   alias Blast.Worker.Config
   require Logger
 
+  @env Mix.env()
+
   @impl true
   def start(_type, _args) do
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
-    System.get_env("MIX_ENV", nil)
-    |> children()
+    children(@env)
     |> Supervisor.start_link(opts)
   end
 
-  defp abort() do
-    System.halt(1)
-    Process.sleep(:infinity)
-  end
-
-  defp children("test") do
+  defp children(:test) do
     [
       Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end
 
-  defp children(_mix_env) do
+  defp children(_env) do
     config =
       Burrito.Util.Args.get_arguments()
       |>Parser.parse_args()
       |> handle()
+
     [
       {Blast.Manager, config},
       Blast.Bucket,
@@ -49,16 +46,11 @@ defmodule Blast.Application do
   end
 
   defp handle({:ok, args}) do
-    if not args.verbose do
-      Logger.configure(level: :error)
-    else
-      Logger.configure(level: :info)
-    end
+    configure_logging(args.verbose)
 
     Logger.debug("Args: #{inspect(args)}")
 
     requests = Blast.Spec.get_requests(args.spec)
-
     hooks = load_hooks(args.hook_file)
 
      %Config{
@@ -116,5 +108,19 @@ defmodule Blast.Application do
     """)
 
     abort()
+  end
+
+  @spec configure_logging(integer()) :: :ok
+  defp configure_logging(count) do
+    case count do
+      0 -> Logger.configure(level: :error)
+      1 -> Logger.configure(level: :info)
+      _ -> Logger.configure(level: :debug)
+    end
+  end
+
+  @spec abort() :: no_return()
+  defp abort() do
+    System.halt(1)
   end
 end
