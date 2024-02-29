@@ -9,7 +9,7 @@ defmodule Blast.Spec do
   alias __MODULE__
   alias Blast.Request
 
-  @type t :: %{
+  @type t :: %__MODULE__{
     base_url: binary(),
     requests: [Request.t()],
     default_headers: [{binary(), binary()}],

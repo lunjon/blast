@@ -36,9 +36,12 @@
           erlang
           elixir
 
+          # Required by burrito
           pkgs.xz
           pkgs.zig
 
+
+          # Language servers
           pkgs.nil
           pkgs.elixir-ls
           next-ls.packages.${system}.default

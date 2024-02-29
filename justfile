@@ -9,6 +9,9 @@ fmt:
 test:
     mix test
 
+run *args:
+    MIX_ENV=prod mix run --no-halt -- {{ args }}
+
 release env="prod": test
     # NOTE: you have to bump the version in mix.exs
     MIX_ENV={{ env }} mix release

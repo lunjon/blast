@@ -6,14 +6,17 @@ defmodule BlastTest.Result do
   @responses %{
     ok: %HTTPoison.Response{
       request_url: @url,
+      request: %{method: :get},
       status_code: 200
     },
     not_found: %HTTPoison.Response{
       request_url: @url,
+      request: %{method: :get},
       status_code: 404
     },
     forbidden: %HTTPoison.Response{
       request_url: @url <> "/admin",
+      request: %{method: :get},
       status_code: 403
     }
   }
@@ -21,7 +24,7 @@ defmodule BlastTest.Result do
   describe "add_response should" do
     test "add initial response" do
       result = Result.add_response(%Result{}, @responses.ok)
-      %{200 => 1} = result.responses[@url]
+      %{200 => 1} = result.responses["GET #{@url}"]
     end
 
     test "increment status field for url" do
@@ -31,7 +34,7 @@ defmodule BlastTest.Result do
         |> Result.add_response(@responses.ok)
         |> Result.add_response(@responses.ok)
 
-      %{200 => 3} = result.responses[@url]
+      %{200 => 3} = result.responses["GET #{@url}"]
     end
 
     test "handle different statuses" do
@@ -40,7 +43,7 @@ defmodule BlastTest.Result do
         |> Result.add_response(@responses.ok)
         |> Result.add_response(@responses.not_found)
 
-      %{200 => 1, 404 => 1} = result.responses[@url]
+      %{200 => 1, 404 => 1} = result.responses["GET #{@url}"]
     end
 
     test "handle multiple urls" do
@@ -50,8 +53,8 @@ defmodule BlastTest.Result do
         |> Result.add_response(@responses.not_found)
         |> Result.add_response(@responses.forbidden)
 
-      %{200 => 1, 404 => 1} = result.responses[@url]
-      %{403 => 1} = result.responses[@url <> "/admin"]
+      %{200 => 1, 404 => 1} = result.responses["GET #{@url}"]
+      %{403 => 1} = result.responses["GET " <> @url <> "/admin"]
     end
   end
 end

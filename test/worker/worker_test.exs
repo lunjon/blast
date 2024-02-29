@@ -1,9 +1,7 @@
 defmodule BlastTest.Worker do
   use ExUnit.Case
-  alias Blast.Bucket
-  alias Blast.Worker
+  alias Blast.{Bucket, Spec, Worker, Hooks}
   alias Blast.Worker.Config
-  alias Blast.Spec
 
   setup :start_results
   setup :start_worker
@@ -16,8 +14,15 @@ defmodule BlastTest.Worker do
   def start_worker(%{bucket: bucket}) do
     {:ok, spec} = Spec.load_file("test/blast.yml")
     requests = Spec.get_requests(spec)
-    config = %Config{frequency: 0, requests: requests, bucket: bucket}
-    {:ok, _} = Worker.start_link(config)
+
+    {:ok, _} =
+      Worker.start_link(%Config{
+        frequency: 0,
+        requests: requests,
+        bucket: bucket,
+        hooks: %Hooks{}
+      })
+
     :ok
   end
 

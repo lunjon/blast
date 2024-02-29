@@ -6,7 +6,7 @@ defmodule Blast.CLI.Parser do
   blast - load test HTTP APIs
 
   Options:
-    -s/--specfile      File path to blast file. Must exist.
+    -s/--specfile      File path to blast file.
                        (default: looks for blast.y[a]ml in current working directory)
     -w/--workers N     Number of concurrent workers to run.
                        (default: #{@workers})
@@ -14,8 +14,6 @@ defmodule Blast.CLI.Parser do
                        request frequency use `--workers 1 --frequency N`.
                        A value of 0 means no limit. (default: #{@frequency})
     --hooks FILE       Load an elixir file (.ex) as hooks module.
-    --repl             Start in REPL mode.
-    -v/--verbose       Output logs. (default: false)
     --help             Display this help message.
   """
 
@@ -26,7 +24,6 @@ defmodule Blast.CLI.Parser do
         workers: :integer,
         frequency: :integer,
         duration: :integer,
-        verbose: :count,
         hooks: :string,
         repl: :boolean,
         help: :boolean
@@ -35,7 +32,6 @@ defmodule Blast.CLI.Parser do
         s: :specfile,
         w: :workers,
         f: :frequency,
-        v: :verbose,
         h: :help
       ]
     )
@@ -52,8 +48,7 @@ defmodule Blast.CLI.Parser do
           spec: spec,
           hook_file: hook_file,
           workers: Keyword.get(args, :workers, @workers),
-          frequency: Keyword.get(args, :frequency, 1),
-          verbose: Keyword.get(args, :verbose, 0),
+          frequency: Keyword.get(args, :frequency, @frequency),
           repl: Keyword.get(args, :repl, false)
         }
 

@@ -26,6 +26,7 @@ defmodule BlastTest.Bucket do
   defp build_res(status \\ 200) do
     %HTTPoison.Response{
       request_url: @url,
+      request: %{method: :get},
       status_code: status
     }
   end

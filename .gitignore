@@ -13,8 +13,11 @@ burrito_out/
 # Builds
 blast
 
+# Blast files
 blast.yml
 blast.yaml
+blast.log
+local.hooks.ex
 
 # Language server
 .elixir_ls/

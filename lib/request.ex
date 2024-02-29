@@ -1,5 +1,5 @@
 defmodule Blast.Request do
-  @type t :: %{
+  @type t :: %__MODULE__{
           method: atom(),
           url: String.t(),
           headers: map(),

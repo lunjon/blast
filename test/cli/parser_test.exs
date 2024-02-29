@@ -18,13 +18,6 @@ defmodule Cli.ParserTest do
       {:ok, args} = Parser.parse_args(args)
       assert(args.workers == 1)
       assert(args.frequency == 1)
-      assert(args.verbose == 0)
-    end
-
-    test "verbose" do
-      args = get_args(["--verbose"])
-      {:ok, args} = Parser.parse_args(args)
-      assert(args.verbose == 1)
     end
 
     test "frequency" do

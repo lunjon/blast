@@ -1,6 +1,6 @@
 defmodule Blast.Bucket do
   @moduledoc """
-  Responsible for collecting results.
+  Responsible for collecting results and responses.
 
   This server uses the state the Result struct
   to track result and state of the running load tests.

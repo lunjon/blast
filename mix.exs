@@ -4,7 +4,7 @@ defmodule Blast.MixProject do
   def project do
     [
       app: :blast,
-      version: "0.3.1",
+      version: "0.3.2",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -32,6 +32,8 @@ defmodule Blast.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:logger_backends, "~> 1.0"},
+      {:logger_file_backend, "~> 0.0"},
       {:httpoison, "~> 2.2"},
       {:jason, "~> 1.4"},
       {:yaml_elixir, "~> 2.0"},

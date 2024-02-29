@@ -41,3 +41,20 @@ This will load a filepath as an elixir file, expecting a single module that expo
 zero or more hooks.
 
 You can read more about it in the [docs](./docs/hooks.md).
+
+## Development
+
+I recommend using the nix flake like so:
+
+```sh
+$ nix develop # It takes a while the first time
+...
+$ mix deps.get # 
+```
+
+### Running as application
+
+You can start blast using:
+```sh
+$ mix run --no-halt -- [ARGS]
+```
