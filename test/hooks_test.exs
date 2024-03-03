@@ -1,23 +1,18 @@
 defmodule Blast.Hooks.Test do
-  use ExUnit
+  use ExUnit.Case
   alias Blast.{Hooks, Request}
 
   test("valid hooks file") do
     {:ok, hooks} = Hooks.load_hooks("test/hooks.ex")
     assert hooks.cx
-    assert hooks.init
     assert hooks.on_start
     assert hooks.on_request
 
-    cx = hooks.init.()
-    assert is_map(cx)
-    assert cx.init == true
-
-    {:ok, cx} = hooks.on_start.(cx)
+    {:ok, cx} = hooks.on_start.(hooks.cx)
     assert is_map(cx)
     assert cx.on_start == true
 
-    {cx, req} = hooks.on_request.(cx, %Request{})
+    {cx, _req} = hooks.on_request.(cx, %Request{method: "GET", url: "http://localhost", headers: []})
     assert is_map(cx)
     assert cx.on_request == true
   end

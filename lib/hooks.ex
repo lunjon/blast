@@ -10,21 +10,16 @@ defmodule Blast.Hooks do
   @type init_func :: (-> {:ok, context} | {:error, binary})
   @type on_start_func :: (context -> context)
   @type on_request_func :: (context, Request.t -> context)
-  @type on_stop_func :: (context -> context)
   
   @type t :: %{
     cx: context(),
-    init: init_func(),
     on_start: on_start_func(),
     on_request: on_request_func(),
-    on_stop: on_request_func(),
   }
 
   defstruct cx: %{},
-            init: nil,
             on_start: nil,
-            on_request: nil,
-            on_stop: nil
+            on_request: nil
 
   @doc """
   Loads hooks from an Elixir file.
@@ -54,15 +49,6 @@ defmodule Blast.Hooks do
       if Kernel.function_exported?(module, :on_start, 1) do
         Map.put(hooks, :on_start, fn cx ->
           apply(module, :on_start, [cx])
-        end)
-      else
-        hooks
-      end
-
-    hooks =
-      if Kernel.function_exported?(module, :on_stop, 1) do
-        Map.put(hooks, :on_stop, fn cx ->
-          apply(module, :on_stop, [cx])
         end)
       else
         hooks

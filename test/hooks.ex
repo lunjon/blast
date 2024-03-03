@@ -6,7 +6,7 @@ defmodule Hooks do
   end
 
   def on_start(cx) do
-    Map.put(cx, :on_start, true)
+    cx = Map.put(cx, :on_start, true)
     {:ok, cx}
   end
 
