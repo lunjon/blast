@@ -2,16 +2,15 @@
 
 Load test framework, written in Elixir, that targets HTTP APIs.
 
-It is currently only able to run from the command line (as a REPL),
+It is currently only able to run from the command line,
 but I have plans to integrate it into a web-based interface 
-built in [Phoenix](https://www.phoenixframework.org/) (inspired by
-[Locust](https://locust.io)).
+built in [Phoenix](https://www.phoenixframework.org/) (inspired by [Locust](https://locust.io)).
 
 ## Installation
 
 TODO.
 
-#### Spec file
+## Spec file
 
 Blast needs a *spec file* that defines which requests to send.
 The specfile is written in YAML and can be specified using `--specfile` flag.
@@ -44,12 +43,12 @@ You can read more about it in the [docs](./docs/hooks.md).
 
 ## Development
 
-I recommend using the nix flake like so:
+I recommend using the nix flake, like so:
 
 ```sh
 $ nix develop # It takes a while the first time
 ...
-$ mix deps.get # 
+$ mix deps.get # Fetch dependencies
 ```
 
 ### Running as application
