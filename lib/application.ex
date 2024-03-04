@@ -41,7 +41,7 @@ defmodule Blast.Application do
     [
       {Blast.Manager, config},
       Blast.Bucket,
-      Blast.Result.Render,
+      Blast.TUI,
       Blast.WorkerSupervisor,
       {Task.Supervisor, name: Blast.TaskSupervisor}
     ]

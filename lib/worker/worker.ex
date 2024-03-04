@@ -21,32 +21,33 @@ defmodule Blast.Worker do
 
   def handle_info(:run, state) do
     requester = Application.get_env(:blast, :requester, Blast.RequesterImpl)
-    millis = get_millis()
+    starttime = get_millis()
     {state, req} = State.get_request(state)
 
     requester.send(req)
-    |> handle_response(state, millis)
+    |> handle_response(state, starttime)
 
     {:noreply, state}
   end
 
-  def handle_response({:ok, response}, state, start) do
-    put_result(response, state.bucket)
+  def handle_response({:ok, response}, state, starttime) do
 
-    after_millis = get_wait_time(get_millis() - start, state.frequency)
-    Process.send_after(self(), :run, after_millis)
+    request_duration = get_millis() - starttime
+    put_result(request_duration, response, state.bucket)
+
+    wait_time = get_wait_time(request_duration, state.frequency)
+    Process.send_after(self(), :run, wait_time)
   end
 
-  def handle_response({:error, error}, _state, _) do
+  def handle_response({:error, error}, _state, _starttime) do
     Logger.error("Error sending request: #{inspect(error)}")
-
     Error.handle_error(error)
   end
 
-  defp put_result(response, nil), do: Bucket.put(response)
-  defp put_result(response, pid), do: Bucket.put(response, pid)
+  defp put_result(duration, response, nil), do: Bucket.put(duration, response)
+  defp put_result(duration, response, pid), do: Bucket.put(duration, response, pid)
 
-  defp get_wait_time(_, 0), do: 0
+  defp get_wait_time(_duration, 0), do: 0
 
   defp get_wait_time(duration, frequency) do
     t = 1.0 / frequency * 1000

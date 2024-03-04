@@ -21,8 +21,7 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      erlang = pkgs.beam.interpreters.erlang_26;
-      elixir = pkgs.beam.interpreters.elixir;
+      elixir = pkgs.beam.packages.erlang_26.elixir_1_16;
     in {
       formatter.${system} = pkgs.nixfmt;
 
@@ -33,7 +32,6 @@
         '';
 
         packages = [
-          erlang
           elixir
 
           # Required by burrito
@@ -47,6 +45,8 @@
           next-ls.packages.${system}.default
           lexical-ls.packages.${system}.default
         ];
+
+        LOCALE_ARCHIVE=/usr/lib/locale/locale-archive;
       };
     };
 }

@@ -27,9 +27,9 @@ defmodule Blast.Bucket do
   # External API
   # ============
 
-  @spec put(HTTPoison.Response.t()) :: :ok
-  def put(response, pid \\ @me) do
-    GenServer.cast(pid, {:put, response})
+  @spec put(integer(), HTTPoison.Response.t()) :: :ok
+  def put(duration, response, pid \\ @me) do
+    GenServer.cast(pid, {:put, duration, response})
   end
 
   @spec get(pid()) :: Result.t()
@@ -40,8 +40,8 @@ defmodule Blast.Bucket do
   # Internal API
   # ============
 
-  def handle_cast({:put, response}, state) do
-    {:noreply, Result.add_response(state, response)}
+  def handle_cast({:put, duration, response}, result) do
+    {:noreply, Result.add_response(result, duration, response)}
   end
 
   def handle_call(:get, _from, state) do

@@ -14,8 +14,8 @@ defmodule BlastTest.Bucket do
     # Arrange
     res = build_res()
 
-    for _ <- 1..10 do
-      :ok = Bucket.put(res, pid)
+    for ii <- 1..10 do
+      :ok = Bucket.put(ii, res, pid)
     end
 
     # Assert

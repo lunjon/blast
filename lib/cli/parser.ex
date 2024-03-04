@@ -1,6 +1,6 @@
 defmodule Blast.CLI.Parser do
-  @workers 1
-  @frequency 1
+  @workers 2
+  @frequency 10
 
   @help """
   blast - load test HTTP APIs
