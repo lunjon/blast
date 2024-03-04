@@ -8,7 +8,15 @@ built in [Phoenix](https://www.phoenixframework.org/) (inspired by [Locust](http
 
 ## Installation
 
-TODO.
+### Script
+If you have Elixir 1.15+ installed you can install `blast` as an escript:
+
+```sh
+$ mix do escript.build + escript.install
+```
+
+### Nix
+If you're using nix checkout the [flake](./flake.nix)!
 
 ## Running
 

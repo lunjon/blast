@@ -5,17 +5,14 @@ defmodule Blast.MixProject do
     [
       app: :blast,
       version: "0.5.0",
-      elixir: "~> 1.16",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      escript: [main_module: Blast.CLI],
       releases: [
         blast: [
-          steps: [:assemble, &Burrito.wrap/1],
-          burrito: [
-            targets: [
-              linux: [os: :linux, cpu: :x86_64]
-            ]
-          ]
+          include_executables_for: [:unix],
+          applications: [blast: :permanent]
         ]
       ]
     ]
@@ -36,8 +33,7 @@ defmodule Blast.MixProject do
       {:logger_file_backend, "~> 0.0"},
       {:httpoison, "~> 2.2"},
       {:jason, "~> 1.4"},
-      {:yaml_elixir, "~> 2.0"},
-      {:burrito, "~> 1.0"}
+      {:yaml_elixir, "~> 2.0"}
     ]
   end
 end

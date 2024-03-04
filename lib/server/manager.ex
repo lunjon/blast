@@ -22,7 +22,13 @@ defmodule Blast.Manager do
     GenServer.start_link(__MODULE__, nil)
   end
 
+  def start_link([]) do
+    # This gets called from the application when running CLI.main.
+    GenServer.start_link(__MODULE__, nil, name: @me)
+  end
+
   def start_link(config) do
+    # Starts running right away.
     GenServer.start_link(__MODULE__, config, name: @me)
   end
 

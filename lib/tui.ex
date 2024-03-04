@@ -62,16 +62,23 @@ defmodule Blast.TUI do
   defp render(result, reqs_per_sec) do
     clear_screen([])
     |> move(0, 0)
+    |> add_format([:green_background, :black, "             Blast Running             "])
+
+    move([], 3, 0)
     |> add_line("Number of requests sent:   #{result.count}")
     |> add_line("Number of requests/second: #{reqs_per_sec}")
+    |> add_line()
     |> add_line("Average response time:     #{result.average} ms")
-    |> move(5, 0)
+    |> add_line("Minimum response time:     #{result.min} ms")
+    |> add_line("Maximum response time:     #{result.max} ms")
+    |> add_line()
     |> render_result(result.responses)
     |> flush()
   end
 
   defp flush(ops) do
     Enum.join(ops) |> IO.puts()
+    []
   end
 
   defp move(ops, line, col) do
@@ -82,7 +89,14 @@ defmodule Blast.TUI do
     ops ++ [ANSI.clear()]
   end
 
-  defp add_line(ops, line), do: add_lines(ops, [line])
+  defp add_format(ops, kw) do
+    flush(ops)
+    ANSI.format(kw) |> IO.puts()
+
+    []
+  end
+
+  defp add_line(ops, line \\ ""), do: add_lines(ops, [line])
 
   defp add_lines(ops, lines) do
     lines =

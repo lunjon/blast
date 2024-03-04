@@ -7,8 +7,9 @@ erl_crash.dump
 *.ez
 blazt-*.tar
 tmp/
-result/
-burrito_out/
+
+# Output from nix
+result
 
 # Builds
 blast

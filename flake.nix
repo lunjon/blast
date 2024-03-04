@@ -21,9 +21,13 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      erlang = pkgs.beam.packages.erlang_26;
       elixir = pkgs.beam.packages.erlang_26.elixir_1_16;
     in {
       formatter.${system} = pkgs.nixfmt;
+
+      packages.${system}.default =
+        erlang.callPackage ./blast.nix { inherit elixir; };
 
       devShells.${system}.default = pkgs.mkShell {
         name = "blast";
@@ -32,12 +36,8 @@
         '';
 
         packages = [
+          erlang.erlang
           elixir
-
-          # Required by burrito
-          pkgs.xz
-          pkgs.zig
-
 
           # Language servers
           pkgs.nil
@@ -46,7 +46,7 @@
           lexical-ls.packages.${system}.default
         ];
 
-        LOCALE_ARCHIVE=/usr/lib/locale/locale-archive;
+        LOCALE_ARCHIVE = /usr/lib/locale/locale-archive;
       };
     };
 }

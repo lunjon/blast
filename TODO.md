@@ -1,7 +1,7 @@
 # TODOs
 
-- Add more capabilities to the Result module
-  - Track number of requests per second
+- Publish release artifacts
+  - Build using Burrito
 - Ramp up: ability to configure/set any way to ramp up requests
   - Perhaps different strategies (start easy though)
     - Add one worker per unit of time
