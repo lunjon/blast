@@ -79,7 +79,7 @@ defmodule Blast.Result do
     )
     |> update_in(
       [Access.key!(:average)],
-      fn average -> (average + duration) / (result.count+1) end
+      fn average -> (average + duration) / 2.0 end
     )
   end
 end

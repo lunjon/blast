@@ -48,7 +48,6 @@ defmodule Blast.TUI do
     curr = System.monotonic_time(:millisecond)
     diff = (curr - ts) / 1000
 
-    Logger.info("ts=#{ts},curr#{curr} | diff=#{diff},count=#{count}")
     requests_per_sec = ((res.count - count) / diff) |> ceil()
 
     state =
@@ -62,16 +61,23 @@ defmodule Blast.TUI do
   defp render(result, reqs_per_sec) do
     clear_screen([])
     |> move(0, 0)
-    |> add_format([:green_background, :black, "             Blast Running             "])
+    |> flush()
 
+    add_format([:green_background, :black, "             Stats             "])
+   
     move([], 3, 0)
     |> add_line("Number of requests sent:   #{result.count}")
     |> add_line("Number of requests/second: #{reqs_per_sec}")
     |> add_line()
-    |> add_line("Average response time:     #{result.average} ms")
+    |> add_line("Average response time:     #{Float.round(result.average, 1)} ms")
     |> add_line("Minimum response time:     #{result.min} ms")
     |> add_line("Maximum response time:     #{result.max} ms")
     |> add_line()
+    |> flush()
+
+    add_format([:green_background, :black, "           Endpoints           "])
+
+    move([], 12, 0)
     |> render_result(result.responses)
     |> flush()
   end
@@ -89,11 +95,8 @@ defmodule Blast.TUI do
     ops ++ [ANSI.clear()]
   end
 
-  defp add_format(ops, kw) do
-    flush(ops)
+  defp add_format(kw) do
     ANSI.format(kw) |> IO.puts()
-
-    []
   end
 
   defp add_line(ops, line \\ ""), do: add_lines(ops, [line])
