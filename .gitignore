@@ -17,6 +17,8 @@ blast
 # Blast files
 blast.yml
 blast.yaml
+!test/blast.yml
+
 blast.log
 local.hooks.ex
 

@@ -3,7 +3,7 @@ defmodule Cli.ParserTest do
   alias Blast.CLI.Parser
 
   defp get_args(args \\ []) do
-    ["--specfile", "test/cli/blast.yml"] ++ args
+    ["--specfile", "test/blast.yml"] ++ args
     |> Enum.uniq()
   end
 
