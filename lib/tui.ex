@@ -43,7 +43,7 @@ defmodule Blast.TUI do
     {:noreply, state}
   end
 
-  @spec get_request_count(state(), Result.t()) :: state()
+  @spec get_request_count(state(), Result.t()) :: {state(), integer()}
   defp get_request_count(%{prev_time: ts, prev_count: count} = state, res) do
     curr = System.monotonic_time(:millisecond)
     diff = (curr - ts) / 1000
@@ -63,7 +63,7 @@ defmodule Blast.TUI do
     |> move(0, 0)
     |> flush()
 
-    add_format([:green_background, :black, "             Stats             "])
+    write_format([:green_background, :black, "             Stats             "])
    
     move([], 3, 0)
     |> add_line("Number of requests sent:   #{result.count}")
@@ -75,7 +75,7 @@ defmodule Blast.TUI do
     |> add_line()
     |> flush()
 
-    add_format([:green_background, :black, "           Endpoints           "])
+    write_format([:green_background, :black, "           Endpoints           "])
 
     move([], 12, 0)
     |> render_result(result.responses)
@@ -95,7 +95,7 @@ defmodule Blast.TUI do
     ops ++ [ANSI.clear()]
   end
 
-  defp add_format(kw) do
+  defp write_format(kw) do
     ANSI.format(kw) |> IO.puts()
   end
 

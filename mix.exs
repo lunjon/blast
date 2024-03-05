@@ -14,6 +14,11 @@ defmodule Blast.MixProject do
           include_executables_for: [:unix],
           applications: [blast: :permanent]
         ]
+      ],
+      dialyzer: [
+        plt_add_deps: :apps_direct,
+        # plt_add_apps: [:wx],
+        plt_ignore_apps: [:mnesia]
       ]
     ]
   end
@@ -33,7 +38,8 @@ defmodule Blast.MixProject do
       {:logger_file_backend, "~> 0.0"},
       {:httpoison, "~> 2.2"},
       {:jason, "~> 1.4"},
-      {:yaml_elixir, "~> 2.0"}
+      {:yaml_elixir, "~> 2.0"},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end

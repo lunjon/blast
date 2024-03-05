@@ -51,7 +51,7 @@ defmodule Blast.Manager do
   @doc """
   Set configuration to the given value.
   """
-  @spec set_config(Config.t(), pid()) :: :ok
+  @spec set_config(Config.t(), pid() | atom()) :: term()
   def set_config(config, pid \\ @me) do
     GenServer.call(pid, {:set_config, config})
   end
