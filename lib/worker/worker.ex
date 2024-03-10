@@ -20,7 +20,8 @@ defmodule Blast.Worker do
   end
 
   def handle_info(:run, state) do
-    requester = Application.get_env(:blast, :requester, Blast.RequesterImpl)
+    requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
+
     starttime = get_millis()
     {state, req} = State.get_request(state)
 

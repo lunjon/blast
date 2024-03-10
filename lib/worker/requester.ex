@@ -7,7 +7,7 @@ defmodule Blast.Requester do
               {:ok, HTTPoison.Response.t()} | {:error, any()}
 end
 
-defmodule Blast.RequesterImpl do
+defmodule Blast.HttpRequester do
   @moduledoc """
   The default implementation of Blast.Requester behaviour
   for sending HTTP requests.

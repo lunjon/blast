@@ -22,6 +22,7 @@ defmodule Blast.Spec do
   Loads a spec from a `filepath`.
   The file must be a file in the YAML format.
   """
+  @spec load_file(binary()) :: {:ok, t()} | {:error, any()}
   def load_file(filepath) do
     case File.read(filepath) do
       {:ok, data} -> load_string(data)
