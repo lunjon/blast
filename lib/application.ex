@@ -17,29 +17,14 @@ defmodule Blast.Application do
   defp children(:test) do
     [
       Blast.WorkerSupervisor,
-      {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end
 
-  defp children(:dev) do
-    config = Blast.CLI.parse_args(System.argv())
-
+  defp children(_env) do
     [
-      {Blast.Manager, config},
       Blast.Bucket,
-      Blast.TUI,
       Blast.WorkerSupervisor,
-      {Task.Supervisor, name: Blast.TaskSupervisor}
-    ]
-  end
-
-  defp children(_type) do
-    [
-      Blast.Manager,
-      Blast.Bucket,
       Blast.TUI,
-      Blast.WorkerSupervisor,
-      {Task.Supervisor, name: Blast.TaskSupervisor}
     ]
   end
 end

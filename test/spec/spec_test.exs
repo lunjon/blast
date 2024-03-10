@@ -10,6 +10,15 @@ defmodule Blast.Spec.Test do
       # Act
       {:ok, spec} =
         Spec.load_string("""
+        settings:
+          frequency: 1
+          control:
+            kind: rampup
+            properties:
+              every: 5
+              start: 1
+              target: 10
+              
         base-url: https://cats.meow
         requests:
           - path: /facts
@@ -19,8 +28,10 @@ defmodule Blast.Spec.Test do
 
       # Assert
       assert spec.base_url === @cats_base_url
+      assert length(spec.requests) == 2
 
-      [get, post] = spec.requests
+      get = Enum.find(spec.requests, &(&1.method == :get))
+      post = Enum.find(spec.requests, &(&1.method == :post))
       assert get.method == :get
       assert get.url == "#{@cats_base_url}/facts"
       assert post.method == :post
@@ -47,13 +58,10 @@ defmodule Blast.Spec.Test do
 
       # Assert
 
-      [_, post] = spec.requests
+      post = Enum.find(spec.requests, &(&1.method == :post))
       assert post.method == :post
       assert post.url == "#{@dogs_base_url}/dogs"
       assert post.headers == %{"Authorization" => "Bearer test", "X-Blast" => "4ever"}
-
-      requests = Spec.get_requests(spec)
-      assert length(requests) == 2
     end
   end
 
@@ -109,6 +117,47 @@ defmodule Blast.Spec.Test do
             body-form:
               - name: test
                 value: blast
+        """)
+    end
+
+    test("invalid setting(control): unknown control kind") do
+      {:error, _} =
+        Spec.load_string("""
+        settings:
+          control:
+            kind: hello
+
+        base-url: http://localhost
+        requests:
+          - path: /test
+        """)
+    end
+
+    test("invalid setting(control): rampup - missing properties") do
+      {:error, _} =
+        Spec.load_string("""
+        settings:
+          control:
+            kind: rampup
+
+        base-url: http://localhost
+        requests:
+          - path: /test
+        """)
+    end
+
+    test("invalid setting(control): rampup - invalid field type") do
+      {:error, _} =
+        Spec.load_string("""
+        settings:
+          control:
+            kind: rampup
+            properties:
+              every: "string"
+
+        base-url: http://localhost
+        requests:
+          - path: /test
         """)
     end
   end

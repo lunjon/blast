@@ -6,7 +6,6 @@ deps/
 erl_crash.dump
 *.ez
 blazt-*.tar
-tmp/
 
 # Output from nix
 result
@@ -26,3 +25,7 @@ local.hooks.ex
 .elixir_ls/
 .lexical/
 .elixir-tools/
+
+# Temporary files
+tmp/
+*.txt

@@ -1,7 +1,7 @@
 defmodule Blast.Worker do
   use GenServer, restart: :transient
-  alias Blast.{Bucket, Hooks, Request}
-  alias Blast.Worker.{Config, State}
+  alias Blast.{Bucket, Config, Hooks, Request}
+  alias Blast.Worker.State
   alias Blast.Results.Error
   require Logger
 
@@ -64,7 +64,7 @@ defmodule Blast.Worker do
   defp get_millis(), do: System.monotonic_time(:millisecond)
 
   defmodule State do
-    alias Blast.{Hooks, Request, Worker.Config}
+    alias Blast.{Hooks, Request, Config}
 
     @moduledoc """
     This is used to track the current state of the worker

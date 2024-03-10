@@ -8,12 +8,13 @@ defmodule Blast.CLI.Parser do
   Options:
     -s/--specfile      File path to blast file.
                        (default: looks for blast.y[a]ml in current working directory)
-    -w/--workers N     Number of concurrent workers to run.
-                       (default: #{@workers})
-    -f/--frequency N   Sets the frequency of requests per worker. To limit the total
-                       request frequency use `--workers 1 --frequency N`.
-                       A value of 0 means no limit. (default: #{@frequency})
     --hooks FILE       Load an elixir file (.ex) as hooks module.
+    -w/--workers N     Number of concurrent workers to run. This option is only viable
+                       when no control has been configured in the settings in the spec.
+                       (default: #{@workers})
+    -f/--frequency N   Sets the frequency of requests (req/s) per worker. 
+                       This will override any value configured in the settings in the spec.
+                       A value of 0 means no limit. (default: #{@frequency})
     --help             Display this help message.
   """
 

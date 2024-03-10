@@ -16,18 +16,34 @@ defmodule Blast.WorkerSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def add_workers(config) do
-    for _ <- 1..config.workers do
-      res = DynamicSupervisor.start_child(@me, {Blast.Worker, config})
+  @doc """
+  Adds as a worker that uses the `config`.
+  """
+  @spec add_worker(Blast.Config.t()) :: :ok
+  def add_worker(config) do
+    res = DynamicSupervisor.start_child(@me, {Blast.Worker, config})
 
-      case res do
-        {:ok, pid} ->
-          Logger.info("Started new worker: #{inspect(pid)}")
+    case res do
+      {:ok, pid} ->
+        Logger.info("Started new worker: #{inspect(pid)}")
 
-        {:error, error} ->
-          Logger.error("Error starting worker: #{error}")
-      end
+      {:error, error} ->
+        Logger.error("Error starting worker: #{error}")
     end
+
+    :ok
+  end
+
+  @doc """
+  Adds as many workers as specified in the `config`.
+  """
+  @spec add_workers(integer(), Blast.Config.t()) :: :ok
+  def add_workers(count, config) do
+    for _ <- 1..count do
+      add_worker(config)
+    end
+
+    :ok
   end
 
   def stop_workers() do

@@ -5,8 +5,7 @@ defmodule BlastTest.Bucket do
   @url "https://localhost/path"
 
   setup(_context) do
-    {:ok, pid} = Bucket.start_link(:test)
-    on_exit(fn -> Process.exit(pid, :kill) end)
+    pid = start_supervised!({Bucket, :test})
     [pid: pid]
   end
 

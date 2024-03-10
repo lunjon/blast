@@ -8,7 +8,7 @@ defmodule Blast.MixProject do
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      escript: [main_module: Blast.CLI],
+      escript: [main_module: Blast.Main],
       releases: [
         blast: [
           include_executables_for: [:unix],
@@ -17,13 +17,11 @@ defmodule Blast.MixProject do
       ],
       dialyzer: [
         plt_add_deps: :apps_direct,
-        # plt_add_apps: [:wx],
         plt_ignore_apps: [:mnesia]
       ]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -31,7 +29,6 @@ defmodule Blast.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:logger_backends, "~> 1.0"},

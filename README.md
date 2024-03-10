@@ -70,5 +70,5 @@ $ mix deps.get # Fetch dependencies
 
 You can start blast using:
 ```sh
-$ mix run --no-halt -- [ARGS]
+$ mix run --no-halt main.exs [ARGS]
 ```

@@ -1,22 +1,26 @@
 defmodule Blast.Spec do
   @moduledoc """
-  A blast file defines what the load tests should target.
-  It is loaded from a YAML file (or string) and consists
-  of at least on root element that defines the endpoints
-  to target in the requests.
+  A spec defines what the load tests should target, such as
+  base URL and other options.
+
+  A spec can be loaded from a file or string i YAML format.
   """
 
-  alias __MODULE__
+  alias Blast.Spec.Settings
   alias Blast.Request
 
   @type t :: %__MODULE__{
+    settings: nil | Settings.t(),
     base_url: binary(),
     requests: [Request.t()],
     default_headers: [{binary(), binary()}],
   }
 
   @enforce_keys [:base_url, :requests]
-  defstruct [base_url: "", requests: "", default_headers: []]
+  defstruct settings: nil,
+            base_url: "",
+            requests: "",
+            default_headers: []
 
   @doc """
   Loads a spec from a `filepath`.
@@ -37,13 +41,15 @@ defmodule Blast.Spec do
   @spec load_string(binary()) :: {:ok, t()} | {:error, binary()}
   def load_string(string) when is_binary(string) do
     with {:ok, yaml} <- YamlElixir.read_from_string(string),
+         {:ok, settings} <- Settings.parse(yaml["settings"]),
          {:ok, base_url} <- get_required("base-url", yaml["base-url"]),
          {:ok, default_headers} <- parse_headers(yaml["default-headers"]),
          {:ok, requests} <- parse_requests(default_headers, base_url, yaml["requests"]) do
         requests = Enum.flat_map(requests, & &1)
         spec = %Blast.Spec{
+          settings: settings,
           base_url: base_url,
-          requests: requests,
+          requests: Enum.shuffle(requests),
           default_headers: default_headers
         }
 
@@ -51,15 +57,6 @@ defmodule Blast.Spec do
     else
       err -> err
     end
-  end
-
-  @doc """
-  Parse the spec and build a list of requests from it.
-  """
-  @spec get_requests(t()) :: [Request.t()]
-  def get_requests(%Spec{requests: requests} = _spec) do
-    requests
-    |> Enum.shuffle()
   end
 
   defp parse_requests(_, _, nil), do: {:error, "missing required field: requests"}
