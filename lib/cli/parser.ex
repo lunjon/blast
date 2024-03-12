@@ -49,7 +49,7 @@ defmodule Blast.CLI.Parser do
           spec: spec,
           hook_file: hook_file,
           workers: Keyword.get(args, :workers, @workers),
-          frequency: Keyword.get(args, :frequency, @frequency),
+          frequency: Keyword.get(args, :frequency),
           repl: Keyword.get(args, :repl, false)
         }
 

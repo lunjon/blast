@@ -46,7 +46,7 @@ defmodule Blast.Spec.Settings do
     {:error, "invalid frequency: #{freq}"}
   end
 
-  defp parse_control(nil), do: {:ok, %{kind: :default, props: nil}}
+  defp parse_control(nil), do: {:ok, :default,  nil}
 
   defp parse_control(%{"kind" => kind, "properties" => props}) do
     {:ok, kind, props}
@@ -54,6 +54,10 @@ defmodule Blast.Spec.Settings do
 
   defp parse_control(control) do
     {:error, "invalid control setting: #{inspect(control)}"}
+  end
+
+  defp parse_control_kind(:default, _props) do
+    {:ok, %{kind: :default, props: nil}}
   end
 
   defp parse_control_kind("rampup", props) do
