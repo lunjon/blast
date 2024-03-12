@@ -76,5 +76,29 @@ defmodule Blast.Util.ParserTest do
       # Act & assert
       {:error, _reason} = Parser.parse_map(from, fields)
     end
+
+    test("min") do
+      # Arrange
+      from = %{large: -1}
+      fields = [
+        {:large, min: 1},
+      ]
+
+      # Act & assert
+      {:error, reason} = Parser.parse_map(from, fields)
+      assert reason =~ "less than"
+    end
+
+    test("max") do
+      # Arrange
+      from = %{large: 1000}
+      fields = [
+        {:large, max: 10},
+      ]
+
+      # Act & assert
+      {:error, reason} = Parser.parse_map(from, fields)
+      assert reason =~ "greater than"
+    end
   end
 end

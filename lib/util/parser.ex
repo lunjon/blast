@@ -1,6 +1,8 @@
 defmodule Blast.Util.Parser do
   @moduledoc """
-  TODO: write docs
+  This module provides a streamlined way of parsing
+  maps with an expected format, e.g. a set of known fields
+  that has certain types, values etc.
   """
 
   @error_key :_parser_error
@@ -22,6 +24,8 @@ defmodule Blast.Util.Parser do
   - `type: field_type()`: validate that the field has the given type.
   - `required: boolean()`: set to true if the field is required.
   - `default: any()`: use as default value if missing.
+  - `min: integer()`: sets a minimal expected value.
+  - `max: integer()`: sets a maximal expected value.
   """
   @spec parse_map(map(), [field()], keyword()) :: {:ok, map()} | {:error, any()}
   def parse_map(from, fields, options \\ []) when is_map(from) do
@@ -66,13 +70,39 @@ defmodule Blast.Util.Parser do
         value ->
           key = Keyword.get(opts, :into, key)
           type = Keyword.get(opts, :type)
-          put_field(acc, key, value, type)
+          max = Keyword.get(opts, :max)
+          min = Keyword.get(opts, :min)
+
+          acc
+          |>validate_max(key, value, max)
+          |>validate_min(key, value, min)
+          |> put_field(key, value, type)
       end
     end)
 
     case Map.get(result, @error_key) do
       nil -> {:ok, result}
       err -> {:error, err}
+    end
+  end
+
+  defp validate_max(acc, _key, _value, nil), do: acc
+
+  defp validate_max(acc, key, value, max) do
+    if value > max do
+      Map.put(acc, @error_key, "#{key} value greater than max: #{value} > #{max}")
+    else
+      acc
+    end
+  end
+
+  defp validate_min(acc, _key, _value, nil), do: acc
+
+  defp validate_min(acc, key, value, min) do
+    if value < min do
+      Map.put(acc, @error_key, "#{key} value less than min: #{value} > #{min}")
+    else
+      acc
     end
   end
 

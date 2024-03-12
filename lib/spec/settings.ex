@@ -57,15 +57,11 @@ defmodule Blast.Spec.Settings do
   end
 
   defp parse_control_kind("rampup", props) do
-    # TODO: add defaults
-    # TODO: add max
-    # TODO: add min
-
     fields = [
-      {"every", into: :every, type: :int},
-      {"add", into: :add, type: :int, default: 1},
-      {"start", into: :start, type: :int},
-      {"target", into: :target, type: :int},
+      {"every", into: :every, type: :int, required: true},
+      {"add", into: :add, type: :int, default: 1, min: 1, max: 100},
+      {"start", into: :start, type: :int, required: true, min: 1, max: 100},
+      {"target", into: :target, type: :int, required: true, min: 5, max: 1000},
     ]
 
     props = Parser.parse_map(props, fields, strict: true)
