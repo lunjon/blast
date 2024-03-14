@@ -1,4 +1,4 @@
-defmodule Blast.Bucket do
+defmodule Blast.Collector do
   @moduledoc """
   Responsible for collecting results and responses.
 

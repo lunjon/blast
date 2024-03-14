@@ -1,2 +1,2 @@
-alias Blast.Bucket
+alias Blast.Collector
 alias Blast.Result

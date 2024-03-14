@@ -12,7 +12,7 @@ defmodule Blast.TUI do
   use GenServer, restart: :transient
   require Logger
   alias IO.ANSI
-  alias Blast.{Bucket, Result}
+  alias Blast.{Collector, Result}
 
   @period 1000
 
@@ -34,7 +34,7 @@ defmodule Blast.TUI do
   end
 
   def handle_info(:run, state) do
-    result = Bucket.get()
+    result = Collector.get()
     {state, reqs_per_sec} = get_request_count(state, result)
 
     render(result, reqs_per_sec)

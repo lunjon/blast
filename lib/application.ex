@@ -22,7 +22,7 @@ defmodule Blast.Application do
 
   defp children(_env) do
     [
-      Blast.Bucket,
+      Blast.Collector,
       Blast.WorkerSupervisor,
       Blast.TUI,
     ]

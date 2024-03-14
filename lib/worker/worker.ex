@@ -1,6 +1,6 @@
 defmodule Blast.Worker do
   use GenServer, restart: :transient
-  alias Blast.{Bucket, Config, Hooks, Request}
+  alias Blast.{Collector, Config, Hooks, Request}
   alias Blast.Worker.State
   alias Blast.Results.Error
   require Logger
@@ -45,8 +45,8 @@ defmodule Blast.Worker do
     Error.handle_error(error)
   end
 
-  defp put_result(duration, response, nil), do: Bucket.put(duration, response)
-  defp put_result(duration, response, pid), do: Bucket.put(duration, response, pid)
+  defp put_result(duration, response, nil), do: Collector.put(duration, response)
+  defp put_result(duration, response, pid), do: Collector.put(duration, response, pid)
 
   defp get_wait_time(_duration, 0), do: 0
 

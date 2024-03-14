@@ -1,11 +1,11 @@
-defmodule BlastTest.Bucket do
+defmodule Blast.Collector.Test do
   use ExUnit.Case
-  alias Blast.Bucket
+  alias Blast.Collector
 
   @url "https://localhost/path"
 
   setup(_context) do
-    pid = start_supervised!({Bucket, :test})
+    pid = start_supervised!({Collector, :test})
     [pid: pid]
   end
 
@@ -14,11 +14,11 @@ defmodule BlastTest.Bucket do
     res = build_res()
 
     for ii <- 1..10 do
-      :ok = Bucket.put(ii, res, pid)
+      :ok = Collector.put(ii, res, pid)
     end
 
     # Assert
-    results = Bucket.get(pid)
+    results = Collector.get(pid)
     assert results.responses[@url] > 0
   end
 

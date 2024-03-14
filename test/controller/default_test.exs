@@ -1,9 +1,9 @@
 defmodule Blast.Controller.Default.Test do
   use ExUnit.Case
-  alias Blast.{Bucket, Config, Spec}
+  alias Blast.{Collector, Config, Spec}
 
   setup do
-    bucket = start_supervised!({Bucket, :test})
+    bucket = start_supervised!({Collector, :test})
 
     {:ok, spec} = Spec.load_file("test/blast.yml")
     config = %Config{
@@ -20,11 +20,11 @@ defmodule Blast.Controller.Default.Test do
   test("server starts workers", %{bucket: bucket}) do
     # Wait for initial results
     Process.sleep(2)
-    prev = Bucket.get(bucket)
+    prev = Collector.get(bucket)
 
     # Wait a little more
     Process.sleep(2)
-    next = Bucket.get(bucket)
+    next = Collector.get(bucket)
     assert next.count > prev.count
   end
 end
