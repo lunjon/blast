@@ -2,10 +2,6 @@
 
 Load test framework, written in Elixir, that targets HTTP APIs.
 
-It is currently only able to run from the command line,
-but I have plans to integrate it into a web-based interface 
-built in [Phoenix](https://www.phoenixframework.org/) (inspired by [Locust](https://locust.io)).
-
 ## Installation
 
 ### Script
@@ -20,7 +16,22 @@ If you're using nix checkout the [flake](./flake.nix)!
 
 ## Running
 
-As mentiod above, it is currently only supported running from your shell.
+It is currently only supported running from your shell.
+You have the following options.
+
+**escript**
+Build the escript using `just build`, then use the artifact like so:
+```sh
+./blast -h
+```
+
+**nix**
+With nix installed you can run:
+```sh
+nix run "." -- <args>
+```
+
+This will use the escript available.
 
 When started a simple non-interactive TUI will appear that renders the status
 of the application: requests per second, which requests are sent, etc.
@@ -55,6 +66,9 @@ This will load a filepath as an elixir file, expecting a single module that expo
 zero or more hooks.
 
 You can read more about it in the [docs](./docs/hooks.md).
+
+## Logs
+`blast` creates and writes logs to the file `blast.log` in cwd.
 
 ## Development
 

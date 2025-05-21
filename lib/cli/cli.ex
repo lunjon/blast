@@ -47,6 +47,8 @@ defmodule Blast.CLI do
       hooks: hooks
     }
 
+    Logger.info("Config: #{inspect(config)}")
+
     get_controller(args, config, spec.settings)
   end
 

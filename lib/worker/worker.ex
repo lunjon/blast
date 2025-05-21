@@ -89,7 +89,10 @@ defmodule Blast.Worker do
     @spec from_config(Config.t()) :: State.t()
     def from_config(%Config{frequency: f, requests: reqs, bucket: b, hooks: hs}) do
       %State{
-        frequency: f,
+        frequency: case f do
+          nil -> 2
+          n -> n
+        end,
         requests: reqs,
         bucket: b,
         hooks: hs
