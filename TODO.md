@@ -1,5 +1,6 @@
 # TODOs
 
+- Startup probe: check if the base URL/endpoint is reachable
 - Rules: support rules that apply for some circumstances that affects\
   when running load tests:
   - 5XX status: add option for controlling how to handle these
