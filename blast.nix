@@ -13,7 +13,7 @@ in mixRelease rec {
     inherit version;
 
     src = ./.;
-    sha256 = "sha256-0hOiBf9wrJ92DmrJJvW3vYRSvRCSI99ykAzOyu7HAp0=";
+    sha256 = "sha256-FwSZ386jLNdDwvGf184MGMsXVxxus/ZHdiqyfQFOfvA=";
   };
 
   installPhase = ''
