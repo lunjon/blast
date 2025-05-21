@@ -2,18 +2,6 @@
 
 Load test framework, written in Elixir, that targets HTTP APIs.
 
-## Installation
-
-### Script
-If you have Elixir 1.15+ installed you can install `blast` as an escript:
-
-```sh
-$ mix do escript.build + escript.install
-```
-
-### Nix
-If you're using nix checkout the [flake](./flake.nix)!
-
 ## Running
 
 It is currently only supported running from your shell.
