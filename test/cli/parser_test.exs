@@ -17,7 +17,7 @@ defmodule Cli.ParserTest do
       args = get_args()
       {:ok, args} = Parser.parse_args(args)
       assert(args.workers == 2)
-      assert(args.frequency == nil) # Default value is set from settings
+      assert(args.frequency == 10)
     end
 
     test "frequency" do

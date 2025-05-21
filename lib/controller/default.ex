@@ -11,5 +11,5 @@ defmodule Blast.Controller.Default do
   def stop(state), do: state
 
   @impl true
-  def handle_message(_msg, state), do: {:ok, state}
+  def handle_message(_msg, state), do: state
 end

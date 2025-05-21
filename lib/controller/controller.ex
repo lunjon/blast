@@ -39,7 +39,7 @@ defmodule Blast.Controller do
   @doc """
   This callback is used for any message that is sent to the server.
   """
-  @callback handle_message(any(), map()) :: {:ok, map()} | {:error, any()}
+  @callback handle_message(any(), map()) :: map()
 
   defmacro __using__(_opts) do
     quote do
@@ -79,14 +79,7 @@ defmodule Blast.Controller do
 
       @impl GenServer
       def handle_info(msg, state) do
-        state =
-          case handle_message(msg, state) do
-            {:ok, new_state} -> new_state
-            {:error, err} ->
-              Logger.error("Error handling message: #{err}")
-              state
-          end
-
+        state = handle_message(msg, state)
       	{:noreply, state}
       end
 

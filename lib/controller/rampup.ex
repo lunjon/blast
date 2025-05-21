@@ -46,6 +46,6 @@ defmodule Blast.Controller.Rampup do
       Logger.info("Controller.Rampup reached target number of workers: #{workers}")
     end
 
-  	{:ok, Map.put(state, :workers, workers)}
+  	Map.put(state, :workers, workers)
   end
 end
