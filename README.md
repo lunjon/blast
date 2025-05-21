@@ -4,19 +4,24 @@ Load test framework, written in Elixir, that targets HTTP APIs.
 
 ## Running
 
-It is currently only supported running from your shell.
-You have the following options.
+It is currently only supported running from your shell. You have the following options.
 
-**escript**
+#### mix
+This is what `blast.exs` is for:
+```sh
+mix run blast.exs -h
+```
+
+#### escript
 Build the escript using `just build`, then use the artifact like so:
 ```sh
 ./blast -h
 ```
 
-**nix**
+#### nix
 With nix installed you can run:
 ```sh
-nix run "." -- <args>
+nix run "." -- -h
 ```
 
 This will use the escript available.
