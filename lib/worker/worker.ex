@@ -32,7 +32,6 @@ defmodule Blast.Worker do
   end
 
   def handle_response({:ok, response}, state, starttime) do
-
     request_duration = get_millis() - starttime
     put_result(request_duration, response, state.bucket)
 

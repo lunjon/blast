@@ -9,15 +9,14 @@ end
 
 defmodule Blast.HttpRequester do
   @moduledoc """
-  The default implementation of Blast.Requester behaviour
-  for sending HTTP requests.
+  The default implementation of Blast.Requester behaviour for sending HTTP requests.
   """
   @behaviour Blast.Requester
 
   alias Blast.Request, as: Req
 
   @impl Blast.Requester
-  def send(%Req{} = req) do
+  def send(req) do
     %Req{
       method: m,
       url: u,
@@ -29,7 +28,10 @@ defmodule Blast.HttpRequester do
       method: m,
       url: u,
       headers: h,
-      body: b
+      body: b,
+      options: [
+        recv_timeout: 10_000,
+      ]
     }
 
     HTTPoison.request(request)

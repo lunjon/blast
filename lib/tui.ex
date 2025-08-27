@@ -48,14 +48,15 @@ defmodule Blast.TUI do
     curr = System.monotonic_time(:millisecond)
     diff = (curr - ts) / 1000
 
-    requests_per_sec = ((res.count - count) / diff) |> ceil()
+    # Requests per second
+    rate = ((res.count - count) / diff) |> ceil()
 
     state =
       state
       |> Map.put(:prev_time, curr)
       |> Map.put(:prev_count, res.count)
 
-    {state, requests_per_sec}
+    {state, rate}
   end
 
   defp render(result, reqs_per_sec) do
@@ -69,7 +70,6 @@ defmodule Blast.TUI do
     |> add_line("Number of requests sent:   #{result.count}")
     |> add_line("Number of requests/second: #{reqs_per_sec}")
     |> add_line()
-    # |> add_line("Average response time:     #{Float.round(result.average, 1)} ms")
     |> add_line("Average response time:     #{result.average} ms")
     |> add_line("Minimum response time:     #{result.min} ms")
     |> add_line("Maximum response time:     #{result.max} ms")

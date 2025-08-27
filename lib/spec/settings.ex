@@ -40,7 +40,10 @@ defmodule Blast.Spec.Settings do
   end
 
   defp parse_frequency(nil), do: {:ok, 10}
-  defp parse_frequency(n) when is_integer(n) and n >= 0, do: {:ok, n}
+
+  defp parse_frequency(n) when is_integer(n) and n >= 0 do
+    {:ok, n}
+  end
 
   defp parse_frequency(freq) do
     {:error, "invalid frequency: #{freq}"}

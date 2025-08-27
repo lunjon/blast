@@ -13,6 +13,7 @@ defmodule Blast.Results.Error do
 
       _ ->
         IO.puts(:stderr, "unexpected error: #{inspect(error)}")
+        System.halt(1)
     end
   end
 end

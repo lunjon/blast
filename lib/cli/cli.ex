@@ -37,6 +37,8 @@ defmodule Blast.CLI do
     %{spec: spec, hook_file: hook_file} = args
 
     hooks = load_hooks(hook_file)
+    probe(spec.base_url)
+
     settings = spec.settings
 
     frequency = Map.get(args, :frequency, settings.frequency)
@@ -57,6 +59,21 @@ defmodule Blast.CLI do
   defp load_hooks(filepath) do
     {:ok, hooks} = Hooks.load_hooks(filepath)
     hooks
+  end
+
+  # Check if we can connect to the host+port with TCP.
+  defp probe(url) do
+    %URI{host: host, port: port} = URI.parse(url)
+
+    host = String.to_charlist(host)
+    case :gen_tcp.connect(host, port, []) do
+      {:ok, socket} ->
+        Logger.debug("Successfully connected to #{host}:#{port}")
+        :gen_tcp.close(socket)
+      {:error, reason} ->
+        Logger.error("Failed to connect to #{host}:#{port}: #{inspect(reason)}")
+        abort()
+    end
   end
 
   @spec get_controller(map(), Config.t(), Settings.t()) :: {module(), any()}
