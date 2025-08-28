@@ -4,7 +4,8 @@ Load test framework, written in Elixir, that targets HTTP APIs.
 
 ## Running
 
-It is currently only supported running from your shell. You have the following options.
+It is currently only supported running from your shell.
+You have the following options.
 
 #### mix
 This is what `blast.exs` is for:
@@ -24,7 +25,13 @@ With nix installed you can run:
 nix run "." -- -h
 ```
 
-This will use the escript available.
+or
+
+```sh
+nix develop
+just build
+./blast -h # escript
+```
 
 When started a simple non-interactive TUI will appear that renders the status
 of the application: requests per second, which requests are sent, etc.
@@ -40,6 +47,7 @@ but you can point to another file with the `--specfile` option.
 **Example**:
 ```yaml
 base-url: http://localhost:8080
+
 requests:
   - path: "/test"
   - path: "/withbody"
@@ -68,14 +76,8 @@ You can read more about it in the [docs](./docs/hooks.md).
 I recommend using the nix flake, like so:
 
 ```sh
-$ nix develop # It takes a while the first time
+nix develop # It takes a while the first time
 ...
-$ mix deps.get # Fetch dependencies
-```
 
-### Running as application
-
-You can start blast using:
-```sh
-$ mix run --no-halt main.exs [ARGS]
+mix deps.get # Fetch dependencies
 ```

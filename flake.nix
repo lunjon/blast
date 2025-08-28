@@ -27,7 +27,7 @@
           erlang.erlang
           elixir
 
-          # Language servers
+          pkgs.just
           pkgs.nil
           pkgs.elixir-ls
         ];
