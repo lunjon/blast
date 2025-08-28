@@ -29,3 +29,5 @@ local.hooks.ex
 # Temporary files
 tmp/
 *.txt
+*.svg
+*.png

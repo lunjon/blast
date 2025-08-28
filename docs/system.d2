@@ -1,0 +1,44 @@
+direction: down
+
+classes: {
+  module: {
+    style: {
+      border-radius: 5
+    }
+  }
+}
+
+application: Application (Supervised) {
+  style: {
+    border-radius: 10
+  }
+
+  worker-supervisor: Worker Supervisor {
+    class: module
+  }
+
+  worker: Worker {
+    class: module
+    style: {
+      multiple: true
+    }
+  }
+
+  controller: Controller {
+    class: module
+  }
+
+  collector: Collector {
+    class: module
+  }
+
+  tui: Text Interface {
+    class: module
+  }
+
+  controller -> worker-supervisor: Starts workers
+  worker-supervisor -> worker: Starts
+  worker -> collector: Publish results
+  tui <- collector: Poll results
+}
+
