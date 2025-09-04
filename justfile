@@ -10,10 +10,6 @@ fmt:
 test *args="":
     mix test {{ args }}
 
-# Start locally with "mix run"
-start *args="":
-    mix run --no-halt main.exs {{ args }}
-
 
 release env="prod": test
     # NOTE: you have to bump the version in mix.exs

@@ -1,12 +1,10 @@
 defmodule Blast.WorkerSupervisor do
+  @moduledoc false
+
   use DynamicSupervisor
   require Logger
 
   @me WorkerSupervisor
-
-  @moduledoc """
-  Used for processes that are started on the fly.
-  """
 
   def start_link(_) do
     DynamicSupervisor.start_link(__MODULE__, nil, name: @me)

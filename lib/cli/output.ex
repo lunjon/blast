@@ -1,4 +1,6 @@
 defmodule Blast.CLI.Output do
+  @moduledoc false
+
   alias Blast.Result
   alias IO.ANSI
 

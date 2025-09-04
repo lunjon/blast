@@ -6,15 +6,14 @@ defmodule Blast.Config do
   """
 
   @type t :: %__MODULE__{
-    frequency: integer(),
-    requests: [Request.t()],
-    bucket: pid(),
-    hooks: Hooks.t(),
-  }
+          frequency: integer(),
+          requests: [Request.t()],
+          bucket: pid(),
+          hooks: Hooks.t()
+        }
 
   defstruct frequency: 0,
             requests: [],
             bucket: nil,
             hooks: %Hooks{}
 end
-

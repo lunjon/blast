@@ -10,4 +10,3 @@ defmodule Blast.Main do
     Process.sleep(:infinity)
   end
 end
-

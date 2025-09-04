@@ -1,19 +1,15 @@
 defmodule Blast.Requester do
-  @moduledoc """
-  Behaviour for sending requests.
-  """
+  @moduledoc false
 
   @callback send(Blast.Request.t()) ::
               {:ok, HTTPoison.Response.t()} | {:error, any()}
 end
 
 defmodule Blast.HttpRequester do
-  @moduledoc """
-  The default implementation of Blast.Requester behaviour for sending HTTP requests.
-  """
-  @behaviour Blast.Requester
-
+  @moduledoc false
   alias Blast.Request, as: Req
+
+  @behaviour Blast.Requester
 
   @impl Blast.Requester
   def send(req) do
@@ -24,16 +20,27 @@ defmodule Blast.HttpRequester do
       body: b
     } = req
 
+    {body, headers} = get_body(b, h)
+
     request = %HTTPoison.Request{
       method: m,
       url: u,
-      headers: h,
-      body: b,
+      headers: headers,
+      body: body,
       options: [
-        recv_timeout: 10_000,
+        recv_timeout: 10_000
       ]
     }
 
     HTTPoison.request(request)
+  end
+
+  defp get_body(body, headers) when is_binary(body) do
+    {body, headers}
+  end
+
+  defp get_body(body, headers) when is_list(body) or is_map(body) do
+    body = JSON.encode!(body)
+    {body, Map.put_new(headers, "Content-Type", "application/json")}
   end
 end

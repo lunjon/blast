@@ -2,11 +2,11 @@ defmodule Blast.Controller.Rampup do
   use Blast.Controller
 
   @type props :: %{
-    add: integer(),
-    every: integer(),
-    start: integer(),
-    target: integer(),
-  }
+          add: integer(),
+          every: integer(),
+          start: integer(),
+          target: integer()
+        }
 
   @impl Blast.Controller
   def stop(state), do: state
@@ -28,8 +28,8 @@ defmodule Blast.Controller.Rampup do
   @impl Blast.Controller
   def handle_message(:tick, %{config: config, props: props} = state) do
     {workers, to_add} =
-      if state.workers+props.add < props.target do
-        {state.workers+props.add, props.add}
+      if state.workers + props.add < props.target do
+        {state.workers + props.add, props.add}
       else
         to_add = props.target - state.workers
         {props.target, to_add}
@@ -46,6 +46,6 @@ defmodule Blast.Controller.Rampup do
       Logger.info("Controller.Rampup reached target number of workers: #{workers}")
     end
 
-  	Map.put(state, :workers, workers)
+    Map.put(state, :workers, workers)
   end
 end

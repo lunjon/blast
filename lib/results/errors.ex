@@ -1,4 +1,6 @@
 defmodule Blast.Results.Error do
+  @moduledoc false
+
   def handle_error(nil), do: :ok
 
   def handle_error(error) do

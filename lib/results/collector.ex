@@ -1,10 +1,8 @@
 defmodule Blast.Collector do
-  @moduledoc """
-  Responsible for collecting results and responses.
-
-  This server uses the state the Result struct
-  to track result and state of the running load tests.
-  """
+  # Responsible for collecting results and responses.
+  # This server uses the state the Result struct
+  # to track result and state of the running load tests.
+  @moduledoc false
 
   use GenServer
   require Logger

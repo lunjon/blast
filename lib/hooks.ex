@@ -3,95 +3,86 @@ defmodule Blast.Hooks do
   alias Blast.Request
 
   @typedoc """
-  A `context` is a map created ...
+  A `context` can be created by the optional `init` function in the Blast module.
+  It's an empty map by default.
   """
-  @type context :: map()
+  @type context :: dynamic()
 
-  @type init_func :: (-> {:ok, context} | {:error, binary})
-  @type on_start_func :: (context -> context)
-  @type on_request_func :: (context, Request.t -> context)
-  
+  @type init_func :: (-> {:ok, context()} | {:error, binary()})
+  @type start_func :: (context -> context)
+  @type pre_request_func :: (context, Request.t() -> {context(), Request.t()})
+
   @type t :: %{
-    cx: context(),
-    on_start: on_start_func(),
-    on_request: on_request_func(),
-  }
+          cx: context(),
+          start: start_func(),
+          pre_request: pre_request_func()
+        }
 
   defstruct cx: %{},
-            on_start: nil,
-            on_request: nil
+            start: nil,
+            pre_request: nil
 
   @doc """
-  Loads hooks from an Elixir file.
+  Try loading the optional hooks/callbacks for the blast (Elixir) module.
+
+  If it exists, the `init()` function is invoked immediately and `cx` is set
+  as the return value.
   """
-  @spec load_hooks(binary()) :: Hooks.t()
-  def load_hooks(filepath) do
-    [{module, _}] = Code.require_file(filepath, ".")
-
-    hooks =
-      if Kernel.function_exported?(module, :init, 0) do
-        cx = apply(module, :init, []) |> get_context()
-        %Hooks{cx: cx}
-      else
-        %Hooks{cx: %{}}
+  @spec load(module()) :: {:ok, Hooks.t()}
+  def load(module) do
+    cx =
+      case Util.Mods.invoke(module, :init, 0) do
+        {:ok, ret} -> get_context(ret)
+        {:error, _} -> %{}
       end
 
-    hooks =
-      if Kernel.function_exported?(module, :on_request, 2) do
-        Map.put(hooks, :on_request, fn cx, req ->
-          apply(module, :on_request, [cx, req])
-        end)
-      else
-        hooks
+    start =
+      case function_exported?(module, :start, 1) do
+        true -> fn cx -> apply(module, :start, [cx]) end
+        _ -> nil
       end
 
-    hooks =
-      if Kernel.function_exported?(module, :on_start, 1) do
-        Map.put(hooks, :on_start, fn cx ->
-          apply(module, :on_start, [cx])
-        end)
-      else
-        hooks
+    pre_request =
+      case function_exported?(module, :pre_request, 2) do
+        true -> fn cx, req -> apply(module, :pre_request, [cx, req]) end
+        _ -> nil
       end
 
+    hooks = %Hooks{cx: cx, start: start, pre_request: pre_request}
     {:ok, hooks}
   end
 
   defp get_context(:ok), do: %{}
-  defp get_context({:ok, cx}) when is_map(cx), do: cx
+  defp get_context({:ok, cx}), do: cx
   defp get_context({:error, _} = err), do: err
+
   defp get_context(res) do
     {:error, "unrecognizable return from init: #{inspect(res)}"}
   end
 
   @doc """
-  Calls the on_start hook (if any) and updates the context.
+  Calls the start hook (if any) and updates the context.
   """
-  def on_start(%Hooks{cx: cx} = hooks) do
-    case hooks.on_start do
-      nil -> hooks
-      func ->
-        cx = func.(cx) |> handle_on_start(cx)
-        update_context(hooks, cx)
-    end
+  def start(%Hooks{start: nil} = hooks), do: hooks
+
+  def start(%Hooks{cx: cx, start: func} = hooks) do
+    cx = func.(cx) |> handle_start(cx)
+    update_context(hooks, cx)
   end
 
   @doc """
-  Calls the on_request hook.
+  Calls the pre_request hook if it exists
   """
-  def on_request(%Hooks{cx: cx} = hooks, %Request{} = req) do
-    case hooks.on_request do
-      nil -> 
-        {hooks, req}
-      func ->
-        {cx, req} = func.(cx, req)
-        {update_context(hooks, cx), req}
-    end
+  def pre_request(%Hooks{pre_request: nil} = hooks, req), do: {hooks, req}
+
+  def pre_request(%Hooks{cx: cx, pre_request: func} = hooks, %Request{} = req) do
+    {cx, req} = func.(cx, req)
+    {update_context(hooks, cx), req}
   end
 
-  # Handles the result from the on_start hook.
-  defp handle_on_start({:ok, cx}, _old), do: cx
-  defp handle_on_start(:ok, cx), do: cx
+  # Handles the result from the start hook.
+  defp handle_start({:ok, cx}, _old), do: cx
+  defp handle_start(:ok, cx), do: cx
 
   defp update_context(hooks, cx) do
     Map.put(hooks, :cx, cx)

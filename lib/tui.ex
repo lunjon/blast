@@ -65,13 +65,19 @@ defmodule Blast.TUI do
     |> flush()
 
     write_format([:green_background, :black, "             Stats             "])
-   
+
+    min =
+      case result.min do
+        nil -> "-"
+        n -> "#{n} ms"
+      end
+
     move([], 3, 0)
     |> add_line("Number of requests sent:   #{result.count}")
     |> add_line("Number of requests/second: #{reqs_per_sec}")
     |> add_line()
     |> add_line("Average response time:     #{result.average} ms")
-    |> add_line("Minimum response time:     #{result.min} ms")
+    |> add_line("Minimum response time:     #{min}")
     |> add_line("Maximum response time:     #{result.max} ms")
     |> add_line()
     |> flush()

@@ -1,4 +1,6 @@
 defmodule Blast.Worker do
+  @moduledoc false
+
   use GenServer, restart: :transient
   alias Blast.{Collector, Config, Hooks, Request}
   alias Blast.Worker.State
@@ -13,7 +15,7 @@ defmodule Blast.Worker do
   def init(config) do
     state =
       State.from_config(config)
-      |> State.on_start()
+      |> State.start()
 
     Process.send_after(self(), :run, 0)
     {:ok, state}
@@ -88,30 +90,31 @@ defmodule Blast.Worker do
     @spec from_config(Config.t()) :: State.t()
     def from_config(%Config{frequency: f, requests: reqs, bucket: b, hooks: hs}) do
       %State{
-        frequency: case f do
-          nil -> 2
-          n -> n
-        end,
+        frequency:
+          case f do
+            nil -> 2
+            n -> n
+          end,
         requests: reqs,
         bucket: b,
         hooks: hs
       }
     end
 
-    @spec on_start(t()) :: t()
-    def on_start(state) do
-      hooks = Hooks.on_start(state.hooks)
+    @spec start(t()) :: t()
+    def start(state) do
+      hooks = Hooks.start(state.hooks)
       update(state, :hooks, hooks)
     end
 
     @doc """
-    Gets a random request and calls the on_request hook.
+    Gets a random request and calls the pre_request hook.
     """
     @spec get_request(t()) :: {t(), Request.t()}
     def get_request(%State{hooks: hooks, requests: reqs} = state) do
       req = Enum.random(reqs)
 
-      {hooks, req} = Hooks.on_request(hooks, req)
+      {hooks, req} = Hooks.pre_request(hooks, req)
       {update(state, :hooks, hooks), req}
     end
 

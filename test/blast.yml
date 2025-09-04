@@ -1,3 +1,0 @@
-base-url: http://locahost:8080
-requests:
-  - path: /test

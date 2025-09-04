@@ -1,17 +1,13 @@
 defmodule Blast.Format do
+  @moduledoc false
+
   @type format :: :json | :plain
 
   @spec format_result(Blast.Result.t(), format()) :: binary()
   def format_result(result, :json) do
-    {:ok, json} =
-      Jason.encode(
-        %{
-          responses: result.responses
-        },
-        pretty: true
-      )
-
-    json
+    JSON.encode!(%{
+      responses: result.responses
+    })
   end
 
   def format_result(_result, :plain) do

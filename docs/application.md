@@ -2,7 +2,7 @@
 
 The structure of the application/runtime looks something like
 
-![](./system.png)
+![](./application.png)
 
 The components, which corresponds to the Elixir modules in the code, are:
 - **Worker**: this is responsible for sending the requests and registering the results.\

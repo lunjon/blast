@@ -10,7 +10,7 @@ defmodule Blast.Util.Parser do
   @type field_type :: :string | :int | :map
 
   @type field :: {any(), keyword()}
-  
+
   @doc """
   Parses a map into another map and uses the `fields`
   as a specification for the keys and values to extract.
@@ -46,8 +46,8 @@ defmodule Blast.Util.Parser do
       |> MapSet.new()
 
     unknown =
-        Map.keys(from)
-        |> Enum.find(fn key -> not MapSet.member?(field_names, key) end)
+      Map.keys(from)
+      |> Enum.find(fn key -> not MapSet.member?(field_names, key) end)
 
     case unknown do
       nil -> :ok
@@ -56,29 +56,32 @@ defmodule Blast.Util.Parser do
   end
 
   defp reduce_map(from, fields) do
-    result = Enum.reduce_while(fields, %{}, fn {key, opts}, acc ->
-      required = Keyword.get(opts, :required)
-      default = Keyword.get(opts, :default, nil)
+    result =
+      Enum.reduce_while(fields, %{}, fn {key, opts}, acc ->
+        required = Keyword.get(opts, :required)
+        default = Keyword.get(opts, :default, nil)
 
-      case Map.get(from, key) do
-        nil -> if required do
-            err = "missing required key: #{key}"
-            {:halt, Map.put(acc, @error_key, err)}
-          else
-            {:cont, Map.put(acc, key, default)}
-          end
-        value ->
-          key = Keyword.get(opts, :into, key)
-          type = Keyword.get(opts, :type)
-          max = Keyword.get(opts, :max)
-          min = Keyword.get(opts, :min)
+        case Map.get(from, key) do
+          nil ->
+            if required do
+              err = "missing required key: #{key}"
+              {:halt, Map.put(acc, @error_key, err)}
+            else
+              {:cont, Map.put(acc, key, default)}
+            end
 
-          acc
-          |>validate_max(key, value, max)
-          |>validate_min(key, value, min)
-          |> put_field(key, value, type)
-      end
-    end)
+          value ->
+            key = Keyword.get(opts, :into, key)
+            type = Keyword.get(opts, :type)
+            max = Keyword.get(opts, :max)
+            min = Keyword.get(opts, :min)
+
+            acc
+            |> validate_max(key, value, max)
+            |> validate_min(key, value, min)
+            |> put_field(key, value, type)
+        end
+      end)
 
     case Map.get(result, @error_key) do
       nil -> {:ok, result}
@@ -127,4 +130,3 @@ defmodule Blast.Util.Parser do
     {:halt, Map.put(acc, @error_key, err)}
   end
 end
-
