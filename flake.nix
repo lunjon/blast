@@ -1,7 +1,7 @@
 {
   description = "A melted flake from the blast";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
   };
 
   outputs =
@@ -9,13 +9,13 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      erlang = pkgs.beam.packages.erlang_26;
-      elixir = pkgs.beam.packages.erlang_26.elixir_1_16;
+      erlang = pkgs.beamMinimal27Packages.erlang;
+      elixir = pkgs.beamMinimal27Packages.elixir;
     in
     {
       formatter.${system} = pkgs.nixfmt;
 
-      packages.${system}.default = erlang.callPackage ./blast.nix { inherit elixir; };
+      packages.${system}.default = pkgs.beamMinimal27Packages.callPackage ./blast.nix { inherit elixir; };
 
       devShells.${system}.default = pkgs.mkShell {
         name = "blast";
@@ -24,9 +24,8 @@
         '';
 
         packages = [
-          erlang.erlang
+          erlang
           elixir
-
           pkgs.just
           pkgs.nil
           pkgs.elixir-ls

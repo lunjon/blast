@@ -15,7 +15,7 @@ defmodule Blast.Result do
           # Average response time in milliseconds
           average: float(),
           # Minimum response time in milliseconds
-          min: integer(),
+          min: nil | integer(),
           # Maximum response time in milliseconds
           max: integer(),
           # Tracks stats for the different endpoints (method + url)
@@ -24,7 +24,7 @@ defmodule Blast.Result do
 
   defstruct count: 0,
             average: 0,
-            min: 0,
+            min: nil,
             max: 0,
             responses: %{}
 
@@ -62,10 +62,16 @@ defmodule Blast.Result do
   #   - min, max and average response times
   defp update_stats(%Result{min: min, max: max} = result, duration) do
     result =
-      if duration < min do
-        Map.put(result, :min, duration)
-      else
-        result
+      case min do
+        nil ->
+          Map.put(result, :min, duration)
+
+        min ->
+          if duration < min do
+            Map.put(result, :min, duration)
+          else
+            result
+          end
       end
 
     if duration > max do

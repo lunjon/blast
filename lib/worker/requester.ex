@@ -30,7 +30,7 @@ defmodule Blast.HttpRequester do
       headers: h,
       body: b,
       options: [
-        recv_timeout: 10_000,
+        recv_timeout: 10_000
       ]
     }
 

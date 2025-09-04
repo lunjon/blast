@@ -6,7 +6,7 @@ defmodule Blast.Util.ParserTest do
     from = %{
       "any" => :a,
       "int" => 1,
-      string: "sttrrr",
+      string: "sttrrr"
     }
 
     [from: from]
@@ -19,7 +19,7 @@ defmodule Blast.Util.ParserTest do
         {"any", []},
         {"int", type: :int},
         {:string, into: :str, type: :string},
-        {:test, default: "hest"},
+        {:test, default: "hest"}
       ]
 
       # Act & assert
@@ -35,7 +35,7 @@ defmodule Blast.Util.ParserTest do
       fields = [
         {"any", []},
         {"integer", type: :int},
-        {:string, into: :str, type: :string},
+        {:string, into: :str, type: :string}
       ]
 
       # Act & assert
@@ -49,7 +49,7 @@ defmodule Blast.Util.ParserTest do
     test("strict: true", %{from: from}) do
       # Arrange
       fields = [
-        {"integer", type: :int},
+        {"integer", type: :int}
       ]
 
       # Act & assert
@@ -60,7 +60,7 @@ defmodule Blast.Util.ParserTest do
       # Arrange
       fields = [
         {"any", type: :int},
-        {:string, []},
+        {:string, []}
       ]
 
       # Act & assert
@@ -70,7 +70,7 @@ defmodule Blast.Util.ParserTest do
     test("required", %{from: from}) do
       # Arrange
       fields = [
-        {:missing, required: true},
+        {:missing, required: true}
       ]
 
       # Act & assert
@@ -80,8 +80,9 @@ defmodule Blast.Util.ParserTest do
     test("min") do
       # Arrange
       from = %{large: -1}
+
       fields = [
-        {:large, min: 1},
+        {:large, min: 1}
       ]
 
       # Act & assert
@@ -92,8 +93,9 @@ defmodule Blast.Util.ParserTest do
     test("max") do
       # Arrange
       from = %{large: 1000}
+
       fields = [
-        {:large, max: 10},
+        {:large, max: 10}
       ]
 
       # Act & assert

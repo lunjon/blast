@@ -4,13 +4,12 @@ Load test framework, written in Elixir, that targets HTTP APIs.
 
 ## Running
 
-It is currently only supported running from your shell.
-You have the following options.
+You will need to install Elixir v1.18+ in order to run blast.
 
 #### mix
-This is what `blast.exs` is for:
+This is what `main.exs` is for:
 ```sh
-mix run blast.exs -h
+mix run main.exs -h
 ```
 
 #### escript
@@ -21,6 +20,7 @@ Build the escript using `just build`, then use the artifact like so:
 
 #### nix
 With nix installed you can run:
+
 ```sh
 nix run "." -- -h
 ```
@@ -36,37 +36,101 @@ just build
 When started a simple non-interactive TUI will appear that renders the status
 of the application: requests per second, which requests are sent, etc.
 
-However, to be able to start `blast` you need a _spec file_.
+However, to be able to start `blast` you need to configure it.
 
-### Spec file
+## Configuration
 
-The _spec file_ defines which requests to send and is written in YAML.
-By default blast will lock for `blast.y[a]ml` in the current working directory,
-but you can point to another file with the `--specfile` option.
+The configuration is done through an Elixir module in a file you specify.
+A minimal example looks something like this:
 
-**Example**:
-```yaml
-base-url: http://localhost:8080
+```elixir
+defmodule Blast do
+  # This is the first required function.
+  # It must return a valid URL to be used as the base for the requests.
+  def base_url() do
+    "https://myapi.example"
+  end
 
-requests:
-  - path: "/test"
-  - path: "/withbody"
-    method: post
-    body: "{\"test\": true}"
-    headers:
-      - name: content-type
-        value: application/json
+  # This is the second required function.
+  # It must return a non-empty list of maps that specifies the requests to send.
+  def requests() do
+    [
+      %{
+        method: "get",
+        path: "/resource" # all paths are relative to the base URL.
+      }
+    ]
+  end
+end
 ```
 
-You can read more about it in the [docs](./docs/specfile.md).
+> [!NOTE]
+> Don't know Elixir? Don't worry! The syntax is very simple.
 
-### Hooks
-Blast support _hooks_ via external Elixir modules using the `--hooks FILEPATH` option.
 
-This will load a filepath as an elixir file, expecting a single module that exports
-zero or more hooks.
+By default blast will look for a `blast.ex[s]` file in the current working directory,
+but you can specify a location with the `-f/--blastfile` option.
 
-You can read more about it in the [docs](./docs/hooks.md).
+You can read more about it in the [docs](./docs/blast.md).
+
+### Options
+
+Here a small breakdown of the most important options that you need
+in order to run blast. The module, and sometimes function definitions
+will be omitted for brewity.
+
+#### Base URL
+All requests are specified by atleast method and path, where path is relative to the base URL:
+```elixir
+def base_url() do
+  "http://myapi.cool"
+end
+```
+
+#### Method and path
+Requests are given by the `requests()` function:
+```elixir
+def requests() do
+  [
+    %{method: "get", path: "/resource/path"},
+    %{method: "get", path: "/testing?fail=true"},
+  ]
+end
+```
+
+The `%{}` syntax is a _map_ in Elixir, and each request requires atleast:
+- `method`: HTTP method, lower case or upper case.
+- `path`: Relative path of the request URL.
+
+
+#### Headers
+HTTP Headers can be specified per request using the `headers` key:
+```elixir
+%{
+  method: "get",
+  path: "/testing",
+  headers: [
+    # These are called tuples.
+    {"name1", "value1"},
+    {"name2", "value2"},
+  ]
+}
+```
+
+#### Default headers
+HTTP Headers to include for every request can be specified with the `default_headers()` function:
+```elixir
+# This should return a list of two-element tuples.
+def default_headers() do
+  [
+    # These are called tuples
+    {"name1", "value1"},
+    {"name2", "value2"},
+  ]
+end
+```
+
+For a full specification of the blast module see the [docs](./docs/blast.md).
 
 ## Logs
 `blast` creates and writes logs to the file `blast.log` in cwd.

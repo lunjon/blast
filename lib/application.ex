@@ -2,29 +2,21 @@ defmodule Blast.Application do
   use Application
   require Logger
 
-  @env Mix.env()
-
   @impl true
   def start(_type, _args) do
     LoggerBackends.remove(:console)
 
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
-    children(@env)
+    children()
     |> Supervisor.start_link(opts)
   end
 
-  defp children(:test) do
-    [
-      Blast.WorkerSupervisor,
-    ]
-  end
-
-  defp children(_env) do
+  defp children() do
     [
       Blast.Collector,
       Blast.WorkerSupervisor,
-      Blast.TUI,
+      Blast.TUI
     ]
   end
 end

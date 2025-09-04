@@ -11,6 +11,7 @@ defmodule MockRequester do
       headers: req.headers,
       body: req.body
     }
+
     res = %Response{
       status_code: 200,
       request_url: "",

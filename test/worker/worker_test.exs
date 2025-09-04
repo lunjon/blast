@@ -1,3 +1,20 @@
+defmodule BlastTest.Worker.SampleSpec do
+  def base_url(), do: "https://cats.meow"
+
+  def requests() do
+    [
+      %{
+        method: "get",
+        path: "/facts"
+      },
+      %{
+        method: "post",
+        path: "/cats"
+      }
+    ]
+  end
+end
+
 defmodule BlastTest.Worker do
   use ExUnit.Case
   alias Blast.{Collector, Config, Spec, Worker, Hooks}
@@ -11,7 +28,7 @@ defmodule BlastTest.Worker do
   end
 
   def start_worker(%{bucket: bucket}) do
-    {:ok, spec} = Spec.load_file("test/blast.yml")
+    {:ok, spec} = Spec.load(BlastTest.Worker.SampleSpec)
 
     config = %Config{
       frequency: 0,

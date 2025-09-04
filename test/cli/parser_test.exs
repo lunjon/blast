@@ -2,11 +2,6 @@ defmodule Cli.ParserTest do
   use ExUnit.Case
   alias Blast.CLI.Parser
 
-  defp get_args(args \\ []) do
-    ["--specfile", "test/blast.yml"] ++ args
-    |> Enum.uniq()
-  end
-
   describe "defaults" do
     test "help" do
       {:help, _msg} = Parser.parse_args(["--help"])
@@ -30,20 +25,8 @@ defmodule Cli.ParserTest do
     end
   end
 
-  describe "--hooks <module> should" do
-    test "accept arg given valid file" do
-      args = get_args([ "--hooks", "mix.exs" ])
-      {:ok, _} = Parser.parse_args(args)
-    end
-
-    test "return error given unknown file" do
-      {:error, _} =
-        get_args([
-          "--hooks",
-          "non-existing-file.txt"
-        ])
-        |>Parser.parse_args()
-    end
+  defp get_args(args \\ []) do
+    (["--blastfile", "test/blast.ex"] ++ args)
+    |> Enum.uniq()
   end
-
 end

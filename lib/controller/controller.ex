@@ -57,7 +57,9 @@ defmodule Blast.Controller do
       @impl GenServer
       def init(args) do
         case args do
-          nil -> {:ok, %{status: :idle, config: nil}}
+          nil ->
+            {:ok, %{status: :idle, config: nil}}
+
           args ->
             {:ok, state} = start(args)
             {:ok, Map.put(state, :status, :running)}
@@ -68,11 +70,13 @@ defmodule Blast.Controller do
       def handle_call(:stop, _from, %{status: status} = state) do
         state =
           case status do
-          :idle -> state
-          :running ->
-            WorkerSupervisor.stop_workers()
-            stop(state) |> Map.put(:status, :idle)
-        end
+            :idle ->
+              state
+
+            :running ->
+              WorkerSupervisor.stop_workers()
+              stop(state) |> Map.put(:status, :idle)
+          end
 
         {:reply, :ok, state}
       end
@@ -80,7 +84,7 @@ defmodule Blast.Controller do
       @impl GenServer
       def handle_info(msg, state) do
         state = handle_message(msg, state)
-      	{:noreply, state}
+        {:noreply, state}
       end
 
       # Use this to send a message to self with a delay.

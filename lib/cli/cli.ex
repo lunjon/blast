@@ -1,6 +1,6 @@
 defmodule Blast.CLI do
   alias Blast.CLI.{Parser, Output}
-  alias Blast.{Config, Hooks}
+  alias Blast.{Config, Hooks, Spec}
   alias Blast.Spec.Settings
   require Logger
 
@@ -34,13 +34,25 @@ defmodule Blast.CLI do
   end
 
   defp handle({:ok, args}) do
-    %{spec: spec, hook_file: hook_file} = args
+    %{blastfile: filepath} = args
+    module = load_blast_module(filepath)
 
-    hooks = load_hooks(hook_file)
+    spec =
+      case Spec.load(module) do
+        {:ok, spec} ->
+          spec
+
+        {:error, err} ->
+          Logger.error("Error loading module: #{err}")
+          Output.error("failed to load module: #{err}")
+          abort()
+      end
+
+    {:ok, hooks} = Hooks.load(module)
+
     probe(spec.base_url)
 
     settings = spec.settings
-
     frequency = Map.get(args, :frequency, settings.frequency)
 
     config = %Config{
@@ -50,15 +62,21 @@ defmodule Blast.CLI do
     }
 
     Logger.info("Config: #{inspect(config)}")
-
     get_controller(args, config, spec.settings)
   end
 
-  defp load_hooks(nil), do: %Hooks{}
+  defp load_blast_module(filepath) do
+    case Code.require_file(filepath, ".") do
+      [{module, _}] ->
+        module
 
-  defp load_hooks(filepath) do
-    {:ok, hooks} = Hooks.load_hooks(filepath)
-    hooks
+      mods ->
+        Output.error(
+          "The blastfile must contain exactly one Elixir module - found #{length(mods)}"
+        )
+
+        abort()
+    end
   end
 
   # Check if we can connect to the host+port with TCP.
@@ -66,11 +84,14 @@ defmodule Blast.CLI do
     %URI{host: host, port: port} = URI.parse(url)
 
     host = String.to_charlist(host)
+
     case :gen_tcp.connect(host, port, []) do
       {:ok, socket} ->
         Logger.debug("Successfully connected to #{host}:#{port}")
         :gen_tcp.close(socket)
+
       {:error, reason} ->
+        Output.error("failed to connect to #{host}:#{port}: #{inspect(reason)}")
         Logger.error("Failed to connect to #{host}:#{port}: #{inspect(reason)}")
         abort()
     end

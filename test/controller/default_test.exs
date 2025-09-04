@@ -1,15 +1,31 @@
-defmodule Blast.Controller.Default.Test do
+defmodule BlastTest.Controller.Default do
   use ExUnit.Case
   alias Blast.{Collector, Config, Spec}
+
+  def base_url(), do: "https://cats.meow"
+
+  def requests() do
+    [
+      %{
+        method: "get",
+        path: "/facts"
+      },
+      %{
+        method: "post",
+        path: "/cats"
+      }
+    ]
+  end
 
   setup do
     bucket = start_supervised!({Collector, :test})
 
-    {:ok, spec} = Spec.load_file("test/blast.yml")
+    {:ok, spec} = Spec.load(__MODULE__)
+
     config = %Config{
       frequency: 0,
       requests: spec.requests,
-      bucket: bucket,
+      bucket: bucket
     }
 
     _pid = start_supervised!({Blast.Controller.Default, {10, config}})

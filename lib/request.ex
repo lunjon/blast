@@ -1,4 +1,8 @@
 defmodule Blast.Request do
+  @moduledoc """
+  Request defines a request model for Blast.
+  """
+
   @type t :: %__MODULE__{
           method: atom(),
           url: String.t(),

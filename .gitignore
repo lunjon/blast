@@ -7,16 +7,13 @@ erl_crash.dump
 *.ez
 blazt-*.tar
 
-# Output from nix
-result
-
 # Builds
 blast
+result
 
 # Blast files
 blast.yml
 blast.yaml
-!test/blast.yml
 
 blast.log
 local.hooks.ex
@@ -25,6 +22,7 @@ local.hooks.ex
 .elixir_ls/
 .lexical/
 .elixir-tools/
+.expert/
 
 # Temporary files
 tmp/

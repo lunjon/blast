@@ -6,9 +6,8 @@ defmodule Blast.CLI.Parser do
   blast - load test HTTP APIs
 
   Options:
-    -s/--specfile      File path to blast file.
+    -b/--blastfile     File path to blast file.
                        (default: looks for blast.y[a]ml in current working directory)
-    --hooks FILE       Load an elixir file (.ex) as hooks module.
     -w/--workers N     Number of concurrent workers to run. This option is only viable
                        when no control has been configured in the settings in the spec.
                        (default: #{@workers})
@@ -21,16 +20,15 @@ defmodule Blast.CLI.Parser do
   def parse_args(args) do
     OptionParser.parse(args,
       strict: [
-        specfile: :string,
+        blastfile: :string,
         workers: :integer,
         frequency: :integer,
         duration: :integer,
-        hooks: :string,
         repl: :boolean,
         help: :boolean
       ],
       aliases: [
-        s: :specfile,
+        b: :blastfile,
         w: :workers,
         f: :frequency,
         h: :help
@@ -43,11 +41,9 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, spec} <- parse_specfile(Keyword.get(args, :specfile)),
-           {:ok, hook_file} <- parse_hook_file(Keyword.get(args, :hooks)) do
+      with {:ok, filepath} <- get_blastfile(Keyword.get(args, :blastfile)) do
         args = %{
-          spec: spec,
-          hook_file: hook_file,
+          blastfile: filepath,
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, @frequency),
           repl: Keyword.get(args, :repl, false)
@@ -69,23 +65,20 @@ defmodule Blast.CLI.Parser do
     {:error, "invalid arguments: #{invalid}"}
   end
 
-  defp parse_specfile(nil) do
+  defp get_blastfile(nil) do
     cond do
-      File.exists?("./blast.yaml") -> parse_specfile("./blast.yaml")
-      File.exists?("./blast.yml") -> parse_specfile("./blast.yml")
-      File.exists?("./test/blast.yml") -> parse_specfile("./test/blast.yml")
+      File.exists?("./blast.ex") -> {:ok, "./blast.ex"}
+      File.exists?("./blast.exs") -> {:ok, "./blast.exs"}
+      File.exists?("./test/blast.ex") -> {:ok, "./test/blast.ex"}
       true -> {:error, "spec file not found"}
     end
   end
 
-  defp parse_specfile(filepath) when is_binary(filepath), do: Blast.Spec.load_file(filepath)
-
-  defp parse_hook_file(nil), do: {:ok, nil}
-
-  defp parse_hook_file(filepath) do
-    case File.exists?(filepath) do
-      false -> {:error, "file not found: #{filepath}"}
-      true -> {:ok, filepath}
+  defp get_blastfile(filepath) do
+    if File.exists?(filepath) do
+      {:ok, filepath}
+    else
+      {:ok, "specified file not found: #{filepath}"}
     end
   end
 end
