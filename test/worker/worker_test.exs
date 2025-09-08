@@ -19,32 +19,24 @@ defmodule BlastTest.Worker do
   use ExUnit.Case
   alias Blast.{Collector, Config, Spec, Worker, Hooks}
 
-  setup :start_results_bucket
-  setup :start_worker
-
-  def start_results_bucket(_context) do
+  setup(_) do
     bucket = start_supervised!({Collector, :test})
-    [bucket: bucket]
-  end
-
-  def start_worker(%{bucket: bucket}) do
     {:ok, spec} = Spec.load(BlastTest.Worker.SampleSpec)
 
     config = %Config{
-      frequency: 0,
       requests: spec.requests,
       bucket: bucket,
-      hooks: %Hooks{}
+      hooks: %Hooks{},
+      settings: spec.settings
     }
 
-    {:ok, _} = start_supervised({Worker, config})
-
-    :ok
+    _ = start_supervised!({Worker, config})
+    [bucket: bucket]
   end
 
   test("puts result", %{bucket: bucket}) do
     # Act: wait for some requests
-    Process.sleep(2)
+    Process.sleep(50)
     results = Collector.get(bucket)
 
     # Assert
@@ -52,8 +44,10 @@ defmodule BlastTest.Worker do
     prev_count = results.count
 
     # Act: wait a little more
-    Process.sleep(4)
+    Process.sleep(50)
     results = Collector.get(bucket)
+
+    # Assert
     assert results.count > prev_count
   end
 end

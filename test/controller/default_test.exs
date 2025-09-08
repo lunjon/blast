@@ -1,6 +1,6 @@
 defmodule BlastTest.Controller.Default do
   use ExUnit.Case
-  alias Blast.{Collector, Config, Spec}
+  alias Blast.{Collector, Config, Hooks, Spec, Settings}
 
   def base_url(), do: "https://cats.meow"
 
@@ -23,9 +23,10 @@ defmodule BlastTest.Controller.Default do
     {:ok, spec} = Spec.load(__MODULE__)
 
     config = %Config{
-      frequency: 0,
       requests: spec.requests,
-      bucket: bucket
+      hooks: %Hooks{},
+      bucket: bucket,
+      settings: %Settings{}
     }
 
     _pid = start_supervised!({Blast.Controller.Default, {10, config}})

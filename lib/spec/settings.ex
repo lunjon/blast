@@ -1,4 +1,4 @@
-defmodule Blast.Spec.Settings do
+defmodule Blast.Settings do
   @moduledoc """
   Settings defines more specifing options for the Spec.
   """
@@ -39,6 +39,13 @@ defmodule Blast.Spec.Settings do
   end
 
   def parse(_settings), do: {:error, "invalid type for settings: expected map"}
+
+  def override(settings, options) do
+    case Keyword.get(options, :frequency) do
+      n when is_integer(n) and n > 0 and n != 10 -> update_in(settings, [:frequency], n)
+      _ -> settings
+    end
+  end
 
   defp parse_frequency(nil), do: {:ok, 10}
 

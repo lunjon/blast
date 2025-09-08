@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Blast</title>
+    <style>
+      body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    #data {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      min-height: 2rem;
+    }
+    </style>
+  </head>
+  <body>
+    <h1>Blast</h1>
+
+    <h3>Status: <%= status %></h3>
+
+    <div id="data">Loading...</div>
+    <div id="error"></div>
+
+    <script>
+      async function pollStatus() {
+      try {
+        const response = await fetch("http://localhost:4040/data");
+        if (!response.ok) throw new Error("Request was not ok");
+
+        <!-- const data = await response.json(); -->
+        <!-- document.getElementById("data").textContent = JSON.stringify(data); -->
+        document.getElementById("data").textContent = await response.text();
+      } catch (error) {
+        document.getElementById("data").textContent = "Error: " + error.message;
+      }
+    }
+
+    // Fetch immediately when the page loads.
+    pollStatus();
+
+    // Update every 5 seconds.
+    setInterval(pollStatus, 5000);
+    </script>
+
+  </body>
+</html>

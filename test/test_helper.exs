@@ -5,6 +5,8 @@ defmodule MockRequester do
 
   @impl Blast.Requester
   def send(%Request{} = req) do
+    Process.sleep(5)
+
     request = %HTTPoison.Request{
       method: req.method,
       url: req.url,

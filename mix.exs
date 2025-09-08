@@ -9,10 +9,9 @@ defmodule Blast.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [
-        # main: ""
         extras: ["README.md"]
       ],
-      escript: [main_module: Blast.Main],
+      escript: [main_module: Blast.CLI],
       releases: [
         blast: [
           include_executables_for: [:unix],
@@ -35,9 +34,8 @@ defmodule Blast.MixProject do
 
   defp deps do
     [
-      {:logger_backends, "~> 1.0"},
-      {:logger_file_backend, "~> 0.0"},
       {:httpoison, "~> 2.2"},
+      {:plug_cowboy, "~> 2.0"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.38.3", only: :dev, runtime: false}
     ]

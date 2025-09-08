@@ -7,17 +7,15 @@ defmodule Blast.Worker do
   alias Blast.Results.Error
   require Logger
 
-  @spec start_link(Config.t()) :: {:ok, pid()} | {:error, String.t()}
+  @spec start_link(Config.t()) :: {:ok, pid()} | {:error, dynamic()}
   def start_link(config) do
     GenServer.start_link(__MODULE__, config)
   end
 
   def init(config) do
-    state =
-      State.from_config(config)
-      |> State.start()
-
+    state = State.init(config)
     Process.send_after(self(), :run, 0)
+
     {:ok, state}
   end
 
@@ -87,24 +85,16 @@ defmodule Blast.Worker do
               bucket: nil,
               hooks: %Hooks{}
 
-    @spec from_config(Config.t()) :: State.t()
-    def from_config(%Config{frequency: f, requests: reqs, bucket: b, hooks: hs}) do
-      %State{
-        frequency:
-          case f do
-            nil -> 2
-            n -> n
-          end,
-        requests: reqs,
-        bucket: b,
-        hooks: hs
-      }
-    end
+    @spec init(Config.t()) :: State.t()
+    def init(%Config{} = config) do
+      hooks = Hooks.start(config.hooks)
 
-    @spec start(t()) :: t()
-    def start(state) do
-      hooks = Hooks.start(state.hooks)
-      update(state, :hooks, hooks)
+      %State{
+        frequency: config.settings.frequency,
+        requests: Config.normalized_requests(config),
+        bucket: config.bucket,
+        hooks: hooks
+      }
     end
 
     @doc """
@@ -115,12 +105,11 @@ defmodule Blast.Worker do
       req = Enum.random(reqs)
 
       {hooks, req} = Hooks.pre_request(hooks, req)
-      {update(state, :hooks, hooks), req}
+      {update_hooks(state, hooks), req}
     end
 
-    @spec update(any(), atom(), t()) :: t()
-    defp update(state, field, value) do
-      put_in(state, [Access.key!(field)], value)
+    defp update_hooks(state, hooks) do
+      put_in(state, [Access.key!(:hooks)], hooks)
     end
   end
 end

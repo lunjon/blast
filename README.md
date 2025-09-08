@@ -144,4 +144,6 @@ nix develop # It takes a while the first time
 ...
 
 mix deps.get # Fetch dependencies
+
+iex -S mix   # Start the application in IEx
 ```

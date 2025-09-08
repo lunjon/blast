@@ -7,36 +7,36 @@ defmodule Blast.Spec do
   specified in a file by the user.
   """
 
-  alias Blast.Spec.Settings
+  alias Blast.Settings
   alias Blast.Request
   alias Util.Mods
 
   @type t :: %__MODULE__{
           base_url: binary(),
           requests: [Request.t()],
-          settings: nil | Settings.t()
+          settings: Settings.t()
         }
 
   @enforce_keys [:base_url, :requests]
   defstruct base_url: "",
             requests: [],
-            settings: nil
+            settings: %Settings{}
 
   @doc """
   Loads a spec from the Elixir module by invoking the expected functions.
   See documentation for full specification.
   """
-  @spec load(module()) :: {:ok, t()} | {:error, binary()}
-  def load(module) do
+  @spec load(module(), keyword() | []) :: {:ok, t()} | {:error, binary()}
+  def load(module, opts \\ []) do
     with {:ok, base_url} <- load_base_url(module),
          {:ok, default_headers} <- load_default_headers(module),
          {:ok, settings} <- load_settings(module),
          {:ok, requests} <- load_requests(module, base_url, default_headers) do
-      requests = Enum.flat_map(requests, & &1)
+      settings = Settings.override(settings, opts)
 
       spec = %Blast.Spec{
         base_url: base_url,
-        requests: Enum.shuffle(requests),
+        requests: requests,
         settings: settings
       }
 
@@ -93,16 +93,16 @@ defmodule Blast.Spec do
          {:ok, body} <-
            parse_body_fields(request[:body], request[:file], request[:form]) do
       headers = (headers ++ default_headers) |> Enum.dedup()
-      weight = Map.get(request, :weight, 1)
 
       req = %Request{
         url: URI.parse(base_url) |> URI.append_path(path) |> URI.to_string(),
         method: String.to_atom(method),
         headers: Map.new(headers),
-        body: body
+        body: body,
+        weight: Map.get(request, :weight, 1)
       }
 
-      {:ok, Enum.map(1..weight, fn _ -> req end)}
+      {:ok, req}
     else
       err -> err
     end

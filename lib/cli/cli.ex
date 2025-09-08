@@ -1,7 +1,6 @@
 defmodule Blast.CLI do
   alias Blast.CLI.{Parser, Output}
   alias Blast.{Config, Hooks, Spec}
-  alias Blast.Spec.Settings
   require Logger
 
   @supervisor Blast.Supervisor
@@ -16,6 +15,9 @@ defmodule Blast.CLI do
     Parser.parse_args(args)
     |> handle()
     |> start()
+
+    # Hang the process otherwise it will exit from the main process.
+    Process.sleep(:infinity)
   end
 
   defp start(child) do
@@ -38,7 +40,7 @@ defmodule Blast.CLI do
     module = load_blast_module(filepath)
 
     spec =
-      case Spec.load(module) do
+      case Spec.load(module, frequency: Map.get(args, :frequency)) do
         {:ok, spec} ->
           spec
 
@@ -52,17 +54,18 @@ defmodule Blast.CLI do
 
     probe(spec.base_url)
 
-    settings = spec.settings
-    frequency = Map.get(args, :frequency, settings.frequency)
-
+    # Initialize the controller
     config = %Config{
-      frequency: frequency,
+      settings: spec.settings,
       requests: spec.requests,
-      hooks: hooks
+      hooks: hooks,
+      bucket: nil
     }
 
-    Logger.info("Config: #{inspect(config)}")
-    get_controller(args, config, spec.settings)
+    # Register dynamic configuration
+
+    controller = get_controller(args, spec, config)
+    {:ok, _} = Supervisor.start_child(@supervisor, controller)
   end
 
   defp load_blast_module(filepath) do
@@ -87,7 +90,7 @@ defmodule Blast.CLI do
 
     case :gen_tcp.connect(host, port, []) do
       {:ok, socket} ->
-        Logger.debug("Successfully connected to #{host}:#{port}")
+        Logger.info("Successfully connected to #{host}:#{port}")
         :gen_tcp.close(socket)
 
       {:error, reason} ->
@@ -97,13 +100,13 @@ defmodule Blast.CLI do
     end
   end
 
-  @spec get_controller(map(), Config.t(), Settings.t()) :: {module(), any()}
-  defp get_controller(args, config, %Settings{control: control}) do
-    %{kind: kind, props: props} = control
+  @spec get_controller(map(), Spec.t(), Config.t()) :: {module(), any()}
+  defp get_controller(args, spec, config) do
+    %{kind: kind, props: props} = spec.settings
 
     case kind do
       :default -> {Blast.Controller.Default, {args.workers, config}}
-      :rampup -> {Blast.Controller.Rampup, {config, props}}
+      :rampup -> {Blast.Controller.Rampup, {props, config}}
     end
   end
 
