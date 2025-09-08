@@ -1,0 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between; /* Push elements to far ends */
+  align-items: center;
+}
+
+table.config {
+  th, td {
+    text-align: left;
+    padding: 10px;
+  }
+}
+
+table.data {
+  th, td {
+    text-align: left;
+    padding: 10px;
+    margin-left: 10px;
+  }
+}
+
+#data {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-height: 2rem;
+}
+
+#button {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  border-radius: 10px;
+  padding: 15px 32px;
+  text-align: center;
+  color: white;
+  font-size: 16px;
+}

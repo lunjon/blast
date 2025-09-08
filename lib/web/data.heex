@@ -1,0 +1,18 @@
+<table class="data">
+  <thead style="text-align:left">
+    <tr>
+      <th>Endpoint</th>
+      <th>Hit count</th>
+      <th>Average response time (ms)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for {endpoint, stats} <- responses do %>
+      <tr>
+        <td><%= endpoint %></td>
+        <td><%= stats.count %></td>
+        <td><%= :erlang.float_to_binary(stats.average, [decimals: 2]) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table> 

@@ -1,15 +1,20 @@
 defmodule Blast.Controller.Default do
   use Blast.Controller
+  require Logger
 
   @impl Blast.Controller
-  def start({workers, config}) do
-    WorkerSupervisor.add_workers(workers, config)
-    {:ok, %{config: config}}
+  def initialize(config) do
+    Logger.debug("Blast.Controller.Default - initialized")
+    {:ok, config}
   end
 
   @impl Blast.Controller
-  def stop(state), do: state
+  def start(config) do
+    Logger.debug("Blast.Controller.Default - started")
+    WorkerSupervisor.add_workers(config.workers, config)
+    {:ok, config}
+  end
 
-  @impl true
+  @impl Blast.Controller
   def handle_message(_msg, state), do: state
 end

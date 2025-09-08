@@ -6,8 +6,6 @@ defmodule Blast.Application do
 
   @impl true
   def start(_type, _args) do
-    LoggerBackends.remove(:console)
-
     opts = [strategy: :one_for_one, name: Blast.Supervisor]
 
     children()
@@ -16,9 +14,8 @@ defmodule Blast.Application do
 
   defp children() do
     [
-      Blast.Collector,
       Blast.WorkerSupervisor,
-      Blast.TUI
+      {Plug.Cowboy, scheme: :http, plug: Blast.WebApp, port: 4000}
     ]
   end
 end

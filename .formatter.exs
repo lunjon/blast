@@ -1,7 +1,7 @@
 # Used by "mix format"
 [
   inputs: [
-    "{mix,.formatter}.exs",
+    "{mix,.formatter,.iex}.exs",
     "{config,lib,test,examples}/**/*.{ex,exs}"
   ]
 ]

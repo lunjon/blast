@@ -1,6 +1,6 @@
-defmodule Blast.Spec.Settings do
+defmodule Blast.Settings do
   @moduledoc """
-  Settings defines more specifing options for the Spec.
+  Settings defines more specifing options for the configuration.
   """
 
   alias __MODULE__, as: Self
@@ -14,41 +14,23 @@ defmodule Blast.Spec.Settings do
         }
 
   @type t :: %__MODULE__{
-          frequency: nil | non_neg_integer(),
           control: nil | control()
         }
 
-  defstruct frequency: 10,
-            control: %{kind: :default, props: nil}
+  defstruct control: %{kind: :default, props: nil}
 
   def parse(nil), do: {:ok, %Self{}}
 
   def parse(settings) when is_map(settings) do
-    with {:ok, freq} <- parse_frequency(Map.get(settings, :frequency)),
-         {:ok, kind, props} <- parse_control(settings[:control]),
+    with {:ok, kind, props} <- parse_control(settings[:control]),
          {:ok, control} <- parse_control_kind(kind, props) do
-      settings = %Self{
-        frequency: freq,
-        control: control
-      }
-
-      {:ok, settings}
+      {:ok, %Self{control: control}}
     else
       {:error, err} -> {:error, err}
     end
   end
 
   def parse(_settings), do: {:error, "invalid type for settings: expected map"}
-
-  defp parse_frequency(nil), do: {:ok, 10}
-
-  defp parse_frequency(n) when is_integer(n) and n >= 0 do
-    {:ok, n}
-  end
-
-  defp parse_frequency(freq) do
-    {:error, "invalid frequency: #{freq}"}
-  end
 
   defp parse_control(nil), do: {:ok, :default, nil}
 

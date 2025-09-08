@@ -29,6 +29,7 @@
           pkgs.just
           pkgs.nil
           pkgs.elixir-ls
+          pkgs.typescript-language-server
         ];
       };
     };

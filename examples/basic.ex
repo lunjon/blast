@@ -7,7 +7,13 @@ defmodule Blast do
     [
       %{
         method: "get",
-        path: "/testing"
+        path: "/testing",
+        # Make this request more likely to be sent
+        weight: 5
+      },
+      %{
+        method: "post",
+        path: "/resource"
       }
     ]
   end

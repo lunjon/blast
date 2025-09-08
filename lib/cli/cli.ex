@@ -1,7 +1,7 @@
 defmodule Blast.CLI do
+  alias Blast.Orchestrator
   alias Blast.CLI.{Parser, Output}
-  alias Blast.{Config, Hooks, Spec}
-  alias Blast.Spec.Settings
+  alias Blast.Config
   require Logger
 
   @supervisor Blast.Supervisor
@@ -13,14 +13,26 @@ defmodule Blast.CLI do
   containing the specfile, hooks, etc.
   """
   def main(args) do
-    Parser.parse_args(args)
-    |> handle()
-    |> start()
-  end
+    ret = Parser.parse_args(args)
+    handle(ret)
 
-  defp start(child) do
-    Logger.info("====== STARTING NEW BLAST ======")
-    {:ok, _} = Supervisor.start_child(@supervisor, child)
+    {:ok, args} = ret
+    IO.puts("Succesfully initialized #{Output.italic("blast")}.")
+
+    unless args.headless do
+      IO.puts("Open #{Output.green("http://localhost:4000")} to the interface in your browser.")
+    else
+      Process.sleep(100)
+      Orchestrator.start()
+    end
+
+    IO.puts("""
+
+    Press ctrl-c twice at anytime to exit the process.
+    """)
+
+    # Hang the process otherwise it will exit from the main process.
+    Process.sleep(:infinity)
   end
 
   defp handle({:error, msg}) do
@@ -33,14 +45,18 @@ defmodule Blast.CLI do
     abort()
   end
 
+  # TODO: refactor most of this function to another module.
+  # It could be useful for instance when testing and starting `iex -S mix`.
   defp handle({:ok, args}) do
     %{blastfile: filepath} = args
     module = load_blast_module(filepath)
 
-    spec =
-      case Spec.load(module) do
-        {:ok, spec} ->
-          spec
+    configure_logging(args.log)
+
+    config =
+      case Config.load(module, args) do
+        {:ok, config} ->
+          config
 
         {:error, err} ->
           Logger.error("Error loading module: #{err}")
@@ -48,21 +64,13 @@ defmodule Blast.CLI do
           abort()
       end
 
-    {:ok, hooks} = Hooks.load(module)
+    {:ok, _} = Supervisor.start_child(@supervisor, {Blast.ConfigStore, config})
 
-    probe(spec.base_url)
+    # Start the Orchestrator and Controller
+    {:ok, _} = Supervisor.start_child(@supervisor, {Orchestrator, config})
 
-    settings = spec.settings
-    frequency = Map.get(args, :frequency, settings.frequency)
-
-    config = %Config{
-      frequency: frequency,
-      requests: spec.requests,
-      hooks: hooks
-    }
-
-    Logger.info("Config: #{inspect(config)}")
-    get_controller(args, config, spec.settings)
+    controller = get_controller(config)
+    {:ok, _} = Supervisor.start_child(@supervisor, controller)
   end
 
   defp load_blast_module(filepath) do
@@ -79,31 +87,21 @@ defmodule Blast.CLI do
     end
   end
 
-  # Check if we can connect to the host+port with TCP.
-  defp probe(url) do
-    %URI{host: host, port: port} = URI.parse(url)
+  defp configure_logging(:warn), do: :ok
 
-    host = String.to_charlist(host)
-
-    case :gen_tcp.connect(host, port, []) do
-      {:ok, socket} ->
-        Logger.debug("Successfully connected to #{host}:#{port}")
-        :gen_tcp.close(socket)
-
-      {:error, reason} ->
-        Output.error("failed to connect to #{host}:#{port}: #{inspect(reason)}")
-        Logger.error("Failed to connect to #{host}:#{port}: #{inspect(reason)}")
-        abort()
-    end
+  defp configure_logging(level) do
+    Logger.configure(level: level)
+    :ok
   end
 
-  @spec get_controller(map(), Config.t(), Settings.t()) :: {module(), any()}
-  defp get_controller(args, config, %Settings{control: control}) do
-    %{kind: kind, props: props} = control
+  @spec get_controller(Config.t()) :: {module(), any()}
+  defp get_controller(config) do
+    case config.settings.control.kind do
+      :default ->
+        {Blast.Controller.Default, config}
 
-    case kind do
-      :default -> {Blast.Controller.Default, {args.workers, config}}
-      :rampup -> {Blast.Controller.Rampup, {config, props}}
+      :rampup ->
+        {Blast.Controller.Rampup, config}
     end
   end
 

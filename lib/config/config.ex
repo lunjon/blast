@@ -1,46 +1,64 @@
-defmodule Blast.Spec do
-  @moduledoc """
-  A spec defines what the load tests should target, such as
-  base URL and other options.
+defmodule Blast.Config do
+  @moduledoc false
 
-  The blast spec is loaded from a standalone Elixir module
-  specified in a file by the user.
-  """
-
-  alias Blast.Spec.Settings
-  alias Blast.Request
+  alias Blast.{Hooks, Request, Settings}
   alias Util.Mods
+  alias __MODULE__, as: Self
 
-  @type t :: %__MODULE__{
-          base_url: binary(),
+  @type t() :: %Self{
+          frequency: non_neg_integer(),
+          workers: non_neg_integer(),
+          base_url: String.t(),
           requests: [Request.t()],
-          settings: nil | Settings.t()
+          hooks: Hooks.t(),
+          settings: Settings.t()
         }
 
-  @enforce_keys [:base_url, :requests]
-  defstruct base_url: "",
+  @enforce_keys [:frequency, :workers, :base_url, :requests, :hooks, :settings]
+  defstruct frequency: 10,
+            workers: 1,
+            base_url: "",
             requests: [],
-            settings: nil
+            hooks: %Hooks{},
+            settings: %Settings{}
+
+  @doc """
+  Returns the expanded list of requests with respect to their weights.
+  """
+  @spec normalized_requests(t()) :: [Request.t()]
+  def normalized_requests(%Self{requests: requests}) do
+    requests
+    |> Enum.map(fn req ->
+      case req.weight do
+        nil -> [req]
+        n -> List.duplicate(req, n)
+      end
+    end)
+    |> Enum.flat_map(& &1)
+    |> Enum.shuffle()
+  end
 
   @doc """
   Loads a spec from the Elixir module by invoking the expected functions.
   See documentation for full specification.
   """
-  @spec load(module()) :: {:ok, t()} | {:error, binary()}
-  def load(module) do
+  @spec load(module(), keyword() | []) :: {:ok, t()} | {:error, binary()}
+  def load(module, args \\ %{}) do
     with {:ok, base_url} <- load_base_url(module),
          {:ok, default_headers} <- load_default_headers(module),
          {:ok, settings} <- load_settings(module),
-         {:ok, requests} <- load_requests(module, base_url, default_headers) do
-      requests = Enum.flat_map(requests, & &1)
-
-      spec = %Blast.Spec{
+         {:ok, requests} <- load_requests(module, base_url, default_headers),
+         {:ok, hooks} = Hooks.load(module) do
+      config = %Self{
+        frequency: Map.get(args, :frequency, 10),
+        workers: Map.get(args, :workers, 10),
         base_url: base_url,
-        requests: Enum.shuffle(requests),
-        settings: settings
+        requests: requests,
+        settings: settings,
+        hooks: hooks
       }
 
-      {:ok, spec}
+      {:ok, config}
     else
       err -> err
     end
@@ -93,22 +111,22 @@ defmodule Blast.Spec do
          {:ok, body} <-
            parse_body_fields(request[:body], request[:file], request[:form]) do
       headers = (headers ++ default_headers) |> Enum.dedup()
-      weight = Map.get(request, :weight, 1)
 
       req = %Request{
         url: URI.parse(base_url) |> URI.append_path(path) |> URI.to_string(),
         method: String.to_atom(method),
         headers: Map.new(headers),
-        body: body
+        body: body,
+        weight: Map.get(request, :weight, 1)
       }
 
-      {:ok, Enum.map(1..weight, fn _ -> req end)}
+      {:ok, req}
     else
       err -> err
     end
   end
 
-  @request_attributes [:method, :path, :headers, :body, :file, :form]
+  @request_attributes [:method, :path, :headers, :body, :file, :form, :weight]
   defp check_request_attributes(request) do
     invalid_keys =
       Map.keys(request)

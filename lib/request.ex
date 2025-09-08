@@ -7,11 +7,12 @@ defmodule Blast.Request do
           method: atom(),
           url: String.t(),
           headers: map(),
-          body: any()
+          body: any(),
+          weight: non_neg_integer()
         }
 
   @enforce_keys [:method, :url, :headers]
-  defstruct [:method, :url, :headers, :body]
+  defstruct [:method, :url, :headers, :body, :weight]
 
   alias __MODULE__
 
@@ -20,7 +21,8 @@ defmodule Blast.Request do
       method: method,
       url: url,
       headers: headers,
-      body: body
+      body: body,
+      weight: 1
     }
   end
 

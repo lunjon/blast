@@ -9,20 +9,33 @@ defmodule Blast.Controller.Rampup do
         }
 
   @impl Blast.Controller
-  def stop(state), do: state
+  def stop(state) do
+    {:ok, Map.put(state, :running, false)}
+  end
 
   @impl Blast.Controller
-  def start({config, props}) do
+  def initialize(%Config{settings: settings} = config) do
+    state = %{running: false, config: config, props: settings.control.props, workers: 0}
+    {:ok, state}
+  end
+
+  @impl Blast.Controller
+  def start(%{props: props, config: config} = state) do
     send_self(:tick, props.every * 1000)
+    :ok = WorkerSupervisor.add_workers(props.start, config)
 
-    starting_workers = props.start
-
-    :ok = WorkerSupervisor.add_workers(starting_workers, config)
-    state = %{config: config, props: props, workers: starting_workers}
+    state
+    |> Map.put(:running, true)
+    |> Map.put(:workers, props.start)
 
     Logger.info("Starting Rampup controller with properties: #{inspect(props)}")
 
     {:ok, state}
+  end
+
+  @impl Blast.Controller
+  def handle_message(:tick, %{running: false} = state) do
+    state
   end
 
   @impl Blast.Controller

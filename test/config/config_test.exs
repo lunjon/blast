@@ -1,14 +1,14 @@
-defmodule BlastTest.Spec do
+defmodule Blast.Config.Test do
   use ExUnit.Case
-  alias Blast.Spec
+  alias Blast.Config
 
   describe("valid module") do
     test("should return spec when loaded") do
       # Act
-      {:ok, spec} = Spec.load(Blast.SpecTest.Valid)
+      {:ok, spec} = Config.load(ConfigTest.Valid)
 
       # Assert
-      expected_base_url = Blast.SpecTest.Valid.base_url()
+      expected_base_url = ConfigTest.Valid.base_url()
       assert spec.base_url === expected_base_url
       assert length(spec.requests) == 2
 
@@ -26,28 +26,28 @@ defmodule BlastTest.Spec do
 
   describe("invalid spec") do
     test("missing required callbacks") do
-      {:error, err} = Spec.load(Blast.SpecTest.MissingRequired)
+      {:error, err} = Config.load(ConfigTest.MissingRequired)
       assert err
     end
 
     test("empty requests") do
-      {:error, err} = Spec.load(Blast.SpecTest.EmptyRequests)
+      {:error, err} = Config.load(ConfigTest.EmptyRequests)
       assert "requests must not be empty" =~ err
     end
 
     test("invalid base_url() type") do
-      {:error, err} = Spec.load(Blast.SpecTest.InvalidBaseUrl)
+      {:error, err} = Config.load(ConfigTest.InvalidBaseUrl)
       assert "unrecognizable return from base_url: 1234" === err
     end
 
     test("invalid body definition: body and body-file") do
-      {:error, err} = Spec.load(Blast.SpecTest.InvalidBodys)
+      {:error, err} = Config.load(ConfigTest.InvalidBodys)
       assert err
     end
   end
 end
 
-defmodule Blast.SpecTest.Valid do
+defmodule ConfigTest.Valid do
   def base_url(), do: "https://cats.meow"
 
   def requests() do
@@ -71,22 +71,22 @@ defmodule Blast.SpecTest.Valid do
   end
 end
 
-defmodule Blast.SpecTest.MissingRequired do
+defmodule ConfigTest.MissingRequired do
 end
 
-defmodule Blast.SpecTest.EmptyRequests do
+defmodule ConfigTest.EmptyRequests do
   def base_url(), do: "http://localhost:1234"
 
   def requests(), do: []
 end
 
-defmodule Blast.SpecTest.InvalidBaseUrl do
+defmodule ConfigTest.InvalidBaseUrl do
   def base_url(), do: 1234
 
   def requests(), do: []
 end
 
-defmodule Blast.SpecTest.InvalidBodys do
+defmodule ConfigTest.InvalidBodys do
   def base_url(), do: "http://localhost:1234"
 
   def requests(),

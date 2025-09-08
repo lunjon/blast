@@ -45,9 +45,13 @@ defmodule Blast.WorkerSupervisor do
   end
 
   def stop_workers() do
-    DynamicSupervisor.which_children(@me)
-    |> Enum.each(fn {:undefined, pid, _, _} ->
-      DynamicSupervisor.terminate_child(@me, pid)
-    end)
+    count =
+      DynamicSupervisor.which_children(@me)
+      |> Enum.map(fn {:undefined, pid, _, _} ->
+        DynamicSupervisor.terminate_child(@me, pid)
+      end)
+      |> Enum.count()
+
+    Logger.info("Stopped #{count} workers")
   end
 end

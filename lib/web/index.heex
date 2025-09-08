@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Blast</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="/static/index.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Blast</h1>
+
+      <button id="button" onclick="toggleBlast()">START</button>
+    </div>
+
+    <table class="config">
+      <tr>
+        <td>Base URL:</td>
+        <td><%= base_url %></td>
+      </tr>
+      <tr>
+        <td>Workers:</td>
+        <td><%= workers %></td>
+      </tr>
+      <tr>
+        <td>Rate (per worker):</td>
+        <td><%= frequency %></td>
+      </tr>
+    </table>
+
+    <br>
+    <div id="data"></div>
+
+    <br>
+    <div id="error" style="visibility: hidden"></div>
+
+  </body>
+</html>

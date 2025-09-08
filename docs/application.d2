@@ -8,6 +8,10 @@ classes: {
   }
 }
 
+internet: Endpoint {
+  icon: https://icons.terrastruct.com/essentials%2F140-internet.svg
+}
+
 application: Application (Supervised) {
   style: {
     border-radius: 10
@@ -28,17 +32,25 @@ application: Application (Supervised) {
     class: module
   }
 
-  collector: Collector {
+  orch: Orchestrator {
     class: module
   }
 
-  tui: Text Interface {
+  web: Web Interface {
     class: module
   }
 
   controller -> worker-supervisor: Starts workers
   worker-supervisor -> worker: Starts
-  worker -> collector: Publish results
-  tui <- collector: Poll results
+  worker -> orch: Publish results
+  orch -> controller: Start blasting
+  web -> orch: Manage application state
 }
+
+  you: You {
+    icon: https://icons.terrastruct.com/essentials%2F365-user.svg
+  }
+
+application.worker -> internet: Send requests
+you -> application.web: Interacts with blast
 

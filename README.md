@@ -33,9 +33,7 @@ just build
 ./blast -h # escript
 ```
 
-When started a simple non-interactive TUI will appear that renders the status
-of the application: requests per second, which requests are sent, etc.
-
+When started a simple web interface is started on [localhost:4000](http://localhost:4000).
 However, to be able to start `blast` you need to configure it.
 
 ## Configuration
@@ -144,4 +142,6 @@ nix develop # It takes a while the first time
 ...
 
 mix deps.get # Fetch dependencies
+
+iex -S mix   # Start the application in IEx
 ```
