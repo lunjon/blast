@@ -3,7 +3,8 @@ defmodule Blast.Worker do
 
   use GenServer, restart: :transient
   alias Blast.{Collector, Config, Hooks, Request}
-  alias Blast.Worker.State
+  alias Blast.AppState
+  alias Blast.Worker.WorkerState
   alias Blast.Results.Error
   require Logger
 
@@ -13,7 +14,7 @@ defmodule Blast.Worker do
   end
 
   def init(config) do
-    state = State.init(config)
+    state = WorkerState.init(config)
     Process.send_after(self(), :run, 0)
 
     {:ok, state}
@@ -23,7 +24,7 @@ defmodule Blast.Worker do
     requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
 
     starttime = get_millis()
-    {state, req} = State.get_request(state)
+    {state, req} = WorkerState.get_request(state)
 
     requester.send(req)
     |> handle_response(state, starttime)
@@ -33,7 +34,7 @@ defmodule Blast.Worker do
 
   def handle_response({:ok, response}, state, starttime) do
     request_duration = get_millis() - starttime
-    put_result(request_duration, response, state.bucket)
+    put_result(request_duration, response)
 
     wait_time = get_wait_time(request_duration, state.frequency)
     Process.send_after(self(), :run, wait_time)
@@ -44,8 +45,7 @@ defmodule Blast.Worker do
     Error.handle_error(error)
   end
 
-  defp put_result(duration, response, nil), do: Collector.put(duration, response)
-  defp put_result(duration, response, pid), do: Collector.put(duration, response, pid)
+  defp put_result(duration, response), do: AppState.put_response(response, duration)
 
   defp get_wait_time(_duration, 0), do: 0
 
@@ -62,7 +62,7 @@ defmodule Blast.Worker do
 
   defp get_millis(), do: System.monotonic_time(:millisecond)
 
-  defmodule State do
+  defmodule WorkerState do
     alias Blast.{Hooks, Request, Config}
 
     @moduledoc """
@@ -76,23 +76,20 @@ defmodule Blast.Worker do
     @type t :: %__MODULE__{
             hooks: Hooks.t(),
             requests: [Request.t()],
-            frequency: integer(),
-            bucket: pid()
+            frequency: integer()
           }
 
     defstruct frequency: 0,
               requests: [],
-              bucket: nil,
               hooks: %Hooks{}
 
-    @spec init(Config.t()) :: State.t()
+    @spec init(Config.t()) :: t()
     def init(%Config{} = config) do
       hooks = Hooks.start(config.hooks)
 
-      %State{
+      %WorkerState{
         frequency: config.settings.frequency,
         requests: Config.normalized_requests(config),
-        bucket: config.bucket,
         hooks: hooks
       }
     end
@@ -101,7 +98,7 @@ defmodule Blast.Worker do
     Gets a random request and calls the pre_request hook.
     """
     @spec get_request(t()) :: {t(), Request.t()}
-    def get_request(%State{hooks: hooks, requests: reqs} = state) do
+    def get_request(%WorkerState{hooks: hooks, requests: reqs} = state) do
       req = Enum.random(reqs)
 
       {hooks, req} = Hooks.pre_request(hooks, req)

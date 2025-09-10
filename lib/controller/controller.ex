@@ -1,21 +1,14 @@
 defmodule Blast.Controller do
   @moduledoc """
   A Controller is used to define how workers are started
-  when running the load tests.
+  when running the load tests. Workers are started using `WorkerSupervisor`.
 
   An implementation is derived from this be implementating
   the Blast.Controller behaviour.
 
   ## Usage
   First you must use this: `use Blast.Controller`
-
   Then you have to implement the Blast.Controller callbacks.
-
-  ## Implementations
-  Todo:
-  - square
-  - triangle
-  - sawtooth
   """
 
   @doc """
