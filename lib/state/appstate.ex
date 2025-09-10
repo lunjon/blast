@@ -42,7 +42,18 @@ defmodule Blast.AppState do
   def start() do
     # There `should` be a Blast.Controller running with a registered pid.
     # Use that to signal a start by sending a message to the server.
-    GenServer.call(@controller, {:start})
+    GenServer.call(@controller, :start)
+  end
+
+  def stop() do
+    # There `should` be a Blast.Controller running with a registered pid.
+    # Use that to signal a start by sending a message to the server.
+    GenServer.call(@controller, :stop)
+  end
+
+  def get_stats() do
+    %{stats: stats} = GenServer.call(@me, :state)
+    stats
   end
 
   @spec put_response(non_neg_integer(), HTTPoison.Response.t()) :: :ok
@@ -59,7 +70,7 @@ defmodule Blast.AppState do
   end
 
   @impl GenServer
-  def handle_call(:get, _from, state) do
+  def handle_call(:state, _from, state) do
     {:reply, state, state}
   end
 end

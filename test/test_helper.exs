@@ -5,7 +5,7 @@ defmodule MockRequester do
 
   @impl Blast.Requester
   def send(%Request{} = req) do
-    Process.sleep(5)
+    Process.sleep(1)
 
     request = %HTTPoison.Request{
       method: req.method,
@@ -16,9 +16,11 @@ defmodule MockRequester do
 
     res = %Response{
       status_code: 200,
-      request_url: "",
+      request_url: req.url,
       request: request
     }
+
+    IO.puts("REQUESTST")
 
     {:ok, res}
   end

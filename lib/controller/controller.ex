@@ -54,11 +54,12 @@ defmodule Blast.Controller do
       @impl GenServer
       def init(args) do
         {:ok, state} = initialize(args)
-        {:ok, Map.put(state, :status, :running)}
+        {:ok, Map.put(state, :status, :idle)}
       end
 
       @impl GenServer
       def handle_call(:start, _from, %{status: status} = state) do
+        # Only start if state is idle.
         state =
           case status do
             :running ->

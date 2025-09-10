@@ -36,6 +36,7 @@ defmodule Blast.Stats do
     )
     |> update_status_counts(status_code)
     |> update_endpoint(endpoint, duration)
+    |> IO.inspect()
   end
 
   defp update_status_counts(stats, status_code) do
