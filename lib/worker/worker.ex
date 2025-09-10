@@ -2,7 +2,7 @@ defmodule Blast.Worker do
   @moduledoc false
 
   use GenServer, restart: :transient
-  alias Blast.{Collector, Config, Hooks, Request}
+  alias Blast.{Config, Hooks, Request}
   alias Blast.AppState
   alias Blast.Worker.WorkerState
   alias Blast.Results.Error

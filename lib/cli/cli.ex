@@ -54,15 +54,14 @@ defmodule Blast.CLI do
 
     probe(spec.base_url)
 
-    # Initialize the controller
     config = %Config{
       settings: spec.settings,
       requests: spec.requests,
-      hooks: hooks,
-      bucket: nil
+      hooks: hooks
     }
 
-    # Register dynamic configuration
+    # Start the AppState server and Controller
+    {:ok, _} = Supervisor.start_child(@supervisor, {Blast.AppState, spec})
 
     controller = get_controller(args, spec, config)
     {:ok, _} = Supervisor.start_child(@supervisor, controller)

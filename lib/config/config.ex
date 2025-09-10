@@ -1,5 +1,4 @@
 defmodule Blast.Config do
-  use Agent
   alias Blast.{Hooks, Request, Settings}
 
   alias __MODULE__, as: Self
@@ -7,14 +6,13 @@ defmodule Blast.Config do
   @type t() :: %Self{
           requests: [Request.t()],
           hooks: Hooks.t(),
-          bucket: nil | pid(),
           settings: Settings.t()
         }
 
   @moduledoc false
 
   @enforce_keys [:requests, :hooks, :settings]
-  defstruct [:requests, :hooks, :bucket, :settings]
+  defstruct [:requests, :hooks, :settings]
 
   @doc """
   Returns the expanded list of requests with respect to their weights.

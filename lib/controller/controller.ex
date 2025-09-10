@@ -12,6 +12,10 @@ defmodule Blast.Controller do
   """
 
   @doc """
+  """
+  @callback initialize(any()) :: {:ok, map()}
+
+  @doc """
   Start the controller.
 
   The first argument is the arguments passed to the `start_link` function.
@@ -49,14 +53,23 @@ defmodule Blast.Controller do
 
       @impl GenServer
       def init(args) do
-        case args do
-          nil ->
-            {:ok, %{status: :idle, config: nil}}
+        {:ok, state} = initialize(args)
+        {:ok, Map.put(state, :status, :running)}
+      end
 
-          args ->
-            {:ok, state} = start(args)
-            {:ok, Map.put(state, :status, :running)}
-        end
+      @impl GenServer
+      def handle_call(:start, _from, %{status: status} = state) do
+        state =
+          case status do
+            :running ->
+              state
+
+            :idle ->
+              {:ok, state} = start(state)
+              state
+          end
+
+        {:reply, :ok, state}
       end
 
       @impl GenServer

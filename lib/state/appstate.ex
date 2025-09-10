@@ -6,27 +6,43 @@ defmodule Blast.AppState do
 
   use GenServer
   require Logger
+  alias Blast.Spec
   alias Blast.Stats
 
   @me __MODULE__
 
+  # See Blast.Controller
+  @controller Controller
+
+  @type state() :: %{
+          state: :idle | :running,
+          base_url: String.t(),
+          stats: Stats.t()
+        }
+
   # External API
   # ============
 
-  def start_link() do
-    GenServer.start_link(@me, [], name: @me)
+  def start_link(spec) do
+    GenServer.start_link(@me, spec, name: @me)
   end
 
-  @impl true
-  def init(_) do
-    # The server keeps the following state:
+  @impl GenServer
+  def init(%Spec{base_url: base_url}) do
+    # See typedef for state above.
     state = %{
-      # idle | running
       state: :idle,
+      base_url: base_url,
       stats: %Stats{}
     }
 
     {:ok, state}
+  end
+
+  def start() do
+    # There `should` be a Blast.Controller running with a registered pid.
+    # Use that to signal a start by sending a message to the server.
+    GenServer.call(@controller, {:start})
   end
 
   @spec put_response(non_neg_integer(), HTTPoison.Response.t()) :: :ok
@@ -34,20 +50,15 @@ defmodule Blast.AppState do
     GenServer.cast(@me, {:put_response, response, duration})
   end
 
-  # # @spec get(pid()) :: Result.t()
-  # def get_base_url() do
-  #   GenServer.call(pid, :get)
-  # end
-
   # Internal API
   # ============
 
-  @impl true
+  @impl GenServer
   def handle_cast({:put_response, response, duration}, state) do
     {:noreply, Stats.add_response(state, response, duration)}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call(:get, _from, state) do
     {:reply, state, state}
   end
