@@ -13,6 +13,9 @@
 - [ ] Show base URL
 - [ ] Show requests
 
+### Docs
+- [ ] Redraw application/system image and update description
+
 ## HTTP controller
 - Rules: support rules that apply for some circumstances that affects when running load tests:
   - 5XX status: add option for controlling how to handle these
