@@ -17,8 +17,8 @@ defmodule Blast.Stats do
             status_counts: %{},
             endpoints: %{}
 
-  @spec add_response(t(), integer(), Response.t()) :: t()
-  def add_response(stats, duration, %Response{} = res) do
+  @spec add_response(t(), Response.t(), integer()) :: t()
+  def add_response(stats,  %Response{} = res, duration) do
     %Response{
       request: request,
       request_url: url,
@@ -29,14 +29,9 @@ defmodule Blast.Stats do
     method = to_string(request.method) |> String.upcase()
     endpoint = "#{method} #{path}"
 
-    update_in(
-      stats,
-      [Access.key!(:total)],
-      &(&1 + 1)
-    )
+    Map.update(stats, :total, 1, &(&1 + 1))
     |> update_status_counts(status_code)
     |> update_endpoint(endpoint, duration)
-    |> IO.inspect()
   end
 
   defp update_status_counts(stats, status_code) do

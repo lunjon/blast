@@ -5,8 +5,8 @@
 ### Module/server for application state
 - This should hold the current state of the application; started, stopped, etc.
 - Should this also hold the responsibility of the Collector?
-- [ ] GenServer that's started as part of the application
-- [ ] Register runtime configuration: base url, requests
+- [x] GenServer that's started as part of the application
+- [x] Register runtime configuration: base url, requests
 
 ### Web server
 - [ ] Show current state: running/stopped

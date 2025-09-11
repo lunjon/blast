@@ -23,8 +23,9 @@ defmodule Blast.IntegrationTest do
       settings: spec.settings
     }
 
+    worker_count = 2
     _ = start_supervised!({Blast.AppState, spec})
-    _ = start_supervised!({Blast.Controller.Default, {5, config}})
+    _ = start_supervised!({Blast.Controller.Default, {worker_count, config}})
 
     :ok
   end
@@ -32,15 +33,26 @@ defmodule Blast.IntegrationTest do
   test("server starts workers", _context) do
     # Arrange: start blast and wait for initial results
     AppState.start()
-    Process.sleep(10)
+    Process.sleep(20)
 
     # Act: get stats
     stats = AppState.get_stats()
+    count_before = stats.total
 
     # Wait a little more
     Process.sleep(20)
-    stats = AppState.get_stats() |> IO.inspect()
-    assert stats
+    stats = AppState.get_stats()
+    assert stats.total > count_before
+
+    # Act: stop and get current stats
+    :ok = AppState.stop()
+    stats = AppState.get_stats()
+    count_stopped = stats.total
+
+    # Assert that no requests are being sent after app controller was stopped
+    Process.sleep(20)
+    stats = AppState.get_stats()
+    assert stats.total === count_stopped
   end
 end
 
@@ -50,4 +62,6 @@ defmodule Blast.IntegrationTest.Blastfile do
   def requests() do
     [%{method: "get", path: "/"}]
   end
+
+  def settings(), do: %{frequency: 100}
 end

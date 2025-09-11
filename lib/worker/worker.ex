@@ -13,7 +13,18 @@ defmodule Blast.Worker do
     GenServer.start_link(__MODULE__, config)
   end
 
+  @type state() :: %{
+    frequency: integer(),
+    requests: [Request.t()],
+    hooks: Hooks.t()
+  }
+
   def init(config) do
+    # FIXME: keep state in a simple map instead.
+    # See typespec above for state().
+    
+    # IO.inspect(config, mod: "worker")
+
     state = WorkerState.init(config)
     Process.send_after(self(), :run, 0)
 

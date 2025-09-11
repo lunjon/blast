@@ -20,8 +20,6 @@ defmodule MockRequester do
       request: request
     }
 
-    IO.puts("REQUESTST")
-
     {:ok, res}
   end
 end
