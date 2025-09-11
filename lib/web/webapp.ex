@@ -1,8 +1,8 @@
 defmodule Blast.WebApp do
   use Plug.Router
   require EEx
+  alias Blast.Orchestrator
 
-  # This module 
   @moduledoc false
 
   EEx.function_from_file(:defp, :render_index, "lib/web/index.heex", [:status])
@@ -13,7 +13,8 @@ defmodule Blast.WebApp do
   plug(:dispatch)
 
   get "/" do
-    content = render_index("OK") |> IO.inspect()
+    status = Orchestrator.get_status() |> to_string() |> String.capitalize()
+    content = render_index(status)
     send_resp(conn, 200, content)
   end
 
@@ -24,13 +25,13 @@ defmodule Blast.WebApp do
   end
 
   defp get_data() do
-    alias Blast.Collector
+    # result = Orchestrator.get_stats()
 
-    result = Collector.get()
+    # result.responses
+    # |> Enum.map(fn {url, _status_counts} ->
+    #   url
+    # end)
 
-    result.responses
-    |> Enum.map(fn {url, _status_counts} ->
-      url
-    end)
+    %{}
   end
 end

@@ -14,7 +14,6 @@ defmodule Blast.Application do
 
   defp children() do
     [
-      Blast.ConfigStore,
       Blast.WorkerSupervisor,
       {Plug.Cowboy, scheme: :http, plug: Blast.WebApp, port: 4040}
     ]

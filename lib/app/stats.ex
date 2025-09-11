@@ -18,7 +18,7 @@ defmodule Blast.Stats do
             endpoints: %{}
 
   @spec add_response(t(), Response.t(), integer()) :: t()
-  def add_response(stats,  %Response{} = res, duration) do
+  def add_response(stats, %Response{} = res, duration) do
     %Response{
       request: request,
       request_url: url,

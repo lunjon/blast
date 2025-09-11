@@ -1,24 +1,19 @@
 defmodule Blast.ConfigStore do
   @moduledoc false
-  # Used by the webapp to retrieve runtime configuration
-  # such as base URL and requests from the spec.
+  # Used by the server to get runtime configuration
+  # such as base URL and requests.
 
   use Agent
+  alias Blast.Config
 
   @me __MODULE__
 
-  def start_link(_) do
-    Agent.start(fn -> %{} end, name: @me)
+  def start_link(config) do
+    Agent.start(fn -> config end, name: @me)
   end
 
-  def put(key, value) do
-    Agent.update(@me, fn store ->
-      Map.put(store, key, value)
-    end)
-  end
-
-  @spec get(atom()) :: dynamic() | nil
-  def get(key) do
-    Agent.get(@me, fn store -> Map.get(store, key) end)
+  @spec get() :: Config.t()
+  def get() do
+    Agent.get(@me, fn config -> config end)
   end
 end

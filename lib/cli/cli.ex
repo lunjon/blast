@@ -1,6 +1,7 @@
 defmodule Blast.CLI do
+  alias Blast.Orchestrator
   alias Blast.CLI.{Parser, Output}
-  alias Blast.{Config, Hooks, Spec}
+  alias Blast.Config
   require Logger
 
   @supervisor Blast.Supervisor
@@ -14,15 +15,9 @@ defmodule Blast.CLI do
   def main(args) do
     Parser.parse_args(args)
     |> handle()
-    |> start()
 
     # Hang the process otherwise it will exit from the main process.
     Process.sleep(:infinity)
-  end
-
-  defp start(child) do
-    Logger.info("====== STARTING NEW BLAST ======")
-    {:ok, _} = Supervisor.start_child(@supervisor, child)
   end
 
   defp handle({:error, msg}) do
@@ -39,10 +34,10 @@ defmodule Blast.CLI do
     %{blastfile: filepath} = args
     module = load_blast_module(filepath)
 
-    spec =
-      case Spec.load(module, frequency: Map.get(args, :frequency)) do
-        {:ok, spec} ->
-          spec
+    config =
+      case Config.load(module, args) do
+        {:ok, config} ->
+          config
 
         {:error, err} ->
           Logger.error("Error loading module: #{err}")
@@ -50,20 +45,12 @@ defmodule Blast.CLI do
           abort()
       end
 
-    {:ok, hooks} = Hooks.load(module)
+    {:ok, _} = Supervisor.start_child(@supervisor, {Blast.ConfigStore, config})
 
-    probe(spec.base_url)
+    # Start the Orchestrator and Controller
+    {:ok, _} = Supervisor.start_child(@supervisor, {Orchestrator, config})
 
-    config = %Config{
-      settings: spec.settings,
-      requests: spec.requests,
-      hooks: hooks
-    }
-
-    # Start the AppState server and Controller
-    {:ok, _} = Supervisor.start_child(@supervisor, {Blast.AppState, spec})
-
-    controller = get_controller(args, spec, config)
+    controller = get_controller(config)
     {:ok, _} = Supervisor.start_child(@supervisor, controller)
   end
 
@@ -81,31 +68,14 @@ defmodule Blast.CLI do
     end
   end
 
-  # Check if we can connect to the host+port with TCP.
-  defp probe(url) do
-    %URI{host: host, port: port} = URI.parse(url)
+  @spec get_controller(Config.t()) :: {module(), any()}
+  defp get_controller(config) do
+    case config.settings.control.kind do
+      :default ->
+        {Blast.Controller.Default, config}
 
-    host = String.to_charlist(host)
-
-    case :gen_tcp.connect(host, port, []) do
-      {:ok, socket} ->
-        Logger.info("Successfully connected to #{host}:#{port}")
-        :gen_tcp.close(socket)
-
-      {:error, reason} ->
-        Output.error("failed to connect to #{host}:#{port}: #{inspect(reason)}")
-        Logger.error("Failed to connect to #{host}:#{port}: #{inspect(reason)}")
-        abort()
-    end
-  end
-
-  @spec get_controller(map(), Spec.t(), Config.t()) :: {module(), any()}
-  defp get_controller(args, spec, config) do
-    %{kind: kind, props: props} = spec.settings
-
-    case kind do
-      :default -> {Blast.Controller.Default, {args.workers, config}}
-      :rampup -> {Blast.Controller.Rampup, {props, config}}
+      :rampup ->
+        {Blast.Controller.Rampup, config}
     end
   end
 

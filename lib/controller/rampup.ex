@@ -12,8 +12,8 @@ defmodule Blast.Controller.Rampup do
   def stop(state), do: state
 
   @impl Blast.Controller
-  def initialize({config, props}) do
-    state = %{running: false, config: config, props: props, workers: 0}
+  def initialize(%Config{settings: settings} = config) do
+    state = %{running: false, config: config, props: settings.control.props, workers: 0}
     {:ok, state}
   end
 

@@ -1,4 +1,4 @@
-defmodule MockRequester do
+defmodule Requester.Mock do
   @behaviour Blast.Requester
   alias Blast.Request
   alias HTTPoison.Response
@@ -24,8 +24,16 @@ defmodule MockRequester do
   end
 end
 
-# Register the mock as requester implementation
-Application.put_env(:blast, :requester, MockRequester)
+defmodule Probe.Mock do
+  @behaviour Blast.Probe
+
+  @impl Blast.Probe
+  def probe(_url), do: :ok
+end
+
+# Register the mocks.
+Application.put_env(:blast, :requester, Requester.Mock)
+Application.put_env(:blast, :probe, Probe.Mock)
 
 require Logger
 Logger.configure(level: :none)

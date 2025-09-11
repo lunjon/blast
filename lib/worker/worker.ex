@@ -3,7 +3,7 @@ defmodule Blast.Worker do
 
   use GenServer, restart: :transient
   alias Blast.{Config, Hooks, Request}
-  alias Blast.AppState
+  alias Blast.Orchestrator
   alias Blast.Results.Error
   require Logger
 
@@ -21,7 +21,7 @@ defmodule Blast.Worker do
   def init(config) do
     # See typespec above for state.
     state = %{
-      frequency: config.settings.frequency,
+      frequency: config.frequency,
       requests: Config.normalized_requests(config),
       hooks: Hooks.start(config.hooks)
     }
@@ -55,7 +55,7 @@ defmodule Blast.Worker do
     Error.handle_error(error)
   end
 
-  defp put_result(duration, response), do: AppState.put_response(response, duration)
+  defp put_result(duration, response), do: Orchestrator.put_response(response, duration)
 
   defp get_wait_time(_duration, 0), do: 0
 

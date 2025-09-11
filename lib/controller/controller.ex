@@ -12,31 +12,30 @@ defmodule Blast.Controller do
   """
 
   @doc """
+  The first argument is the arguments passed to the `start_link` function.
+  It is expected to use that to create the state (a map) and return it
+  in an `{:ok, map()}` tuple.
   """
-  @callback initialize(any()) :: {:ok, map()}
+  @callback initialize(any()) :: {:ok, any()}
 
   @doc """
   Start the controller.
 
-  The first argument is the arguments passed to the `start_link` function.
-  It is expected to use that to create the state (a map) and return it
-  in an `{:ok, map()}` tuple.
-
   If anything goes wrong it can return `{:error, any()}`.
   """
-  @callback start(any()) :: {:ok, map()} | {:error, any()}
+  @callback start(any()) :: {:ok, any()} | {:error, any()}
 
   @doc """
   This is called when stopping all workers.
   The stopping of workers is handled already so this only
   have to update the state.
   """
-  @callback stop(map()) :: map()
+  @callback stop(any()) :: any()
 
   @doc """
   This callback is used for any message that is sent to the server.
   """
-  @callback handle_message(any(), map()) :: map()
+  @callback handle_message(any(), any()) :: any()
 
   defmacro __using__(_opts) do
     quote do
@@ -51,47 +50,53 @@ defmodule Blast.Controller do
         GenServer.start_link(__MODULE__, args, name: @me)
       end
 
+      @type state() :: %{
+              status: :idle | :running,
+              context: any()
+            }
+
       @impl GenServer
       def init(args) do
-        {:ok, state} = initialize(args)
-        {:ok, [status: :idle, state: state]}
+        {:ok, cx} = initialize(args)
+        {:ok, %{status: :idle, context: cx}}
       end
 
       @impl GenServer
-      def handle_call(:start, _from, [status: status, state: state]) do
+      def handle_call(:start, _from, %{status: status, context: cx}) do
         # Only start if state is idle.
-        state =
+        {status, cx} =
           case status do
             :running ->
-              state
+              {status, cx}
 
             :idle ->
-              {:ok, state} = start(state)
-              state
+              {:ok, cx} = start(cx)
+              {:running, cx}
           end
 
-        {:reply, :ok, [status: :running, state: state]}
+        {:reply, :ok, %{status: status, context: cx}}
       end
 
       @impl GenServer
-      def handle_call(:stop, _from, [status: status, state: state]) do
-        state =
+      def handle_call(:stop, _from, %{status: status, context: cx}) do
+        {status, cx} =
           case status do
             :idle ->
-              state
+              # Already stopped.
+              {status, cx}
 
             :running ->
               WorkerSupervisor.stop_workers()
-              stop(state) |> Map.put(:status, :idle)
+              {:idle, stop(cx)}
           end
 
-        {:reply, :ok, [status: status, state: state]}
+        {:reply, :ok, %{status: status, context: cx}}
       end
 
       @impl GenServer
-      def handle_info(msg, [status: status, state: state]) do
-        state = handle_message(msg, state)
-        {:noreply, [status: status, state: state]}
+      def handle_info(msg, %{status: status, context: cx}) do
+        cx = handle_message(msg, cx)
+        {:noreply, %{status: status, context: cx}}
       end
 
       # Use this to send a message to self with a delay.

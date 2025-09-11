@@ -1,10 +1,3 @@
-defmodule Blast.Requester do
-  @moduledoc false
-
-  @callback send(Blast.Request.t()) ::
-              {:ok, HTTPoison.Response.t()} | {:error, any()}
-end
-
 defmodule Blast.HttpRequester do
   @moduledoc false
   alias Blast.Request, as: Req
