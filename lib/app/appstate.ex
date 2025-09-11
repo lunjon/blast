@@ -29,6 +29,7 @@ defmodule Blast.AppState do
 
   @impl GenServer
   def init(%Spec{base_url: base_url}) do
+
     # See typedef for state above.
     state = %{
       state: :idle,

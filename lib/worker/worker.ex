@@ -4,7 +4,6 @@ defmodule Blast.Worker do
   use GenServer, restart: :transient
   alias Blast.{Config, Hooks, Request}
   alias Blast.AppState
-  alias Blast.Worker.WorkerState
   alias Blast.Results.Error
   require Logger
 
@@ -14,28 +13,28 @@ defmodule Blast.Worker do
   end
 
   @type state() :: %{
-    frequency: integer(),
-    requests: [Request.t()],
-    hooks: Hooks.t()
-  }
+          frequency: integer(),
+          requests: [Request.t()],
+          hooks: Hooks.t()
+        }
 
   def init(config) do
-    # FIXME: keep state in a simple map instead.
-    # See typespec above for state().
-    
-    # IO.inspect(config, mod: "worker")
+    # See typespec above for state.
+    state = %{
+      frequency: config.settings.frequency,
+      requests: Config.normalized_requests(config),
+      hooks: Hooks.start(config.hooks)
+    }
 
-    state = WorkerState.init(config)
     Process.send_after(self(), :run, 0)
-
     {:ok, state}
   end
 
   def handle_info(:run, state) do
-    requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
-
     starttime = get_millis()
-    {state, req} = WorkerState.get_request(state)
+    {state, req} = get_request(state)
+
+    requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
 
     requester.send(req)
     |> handle_response(state, starttime)
@@ -73,51 +72,11 @@ defmodule Blast.Worker do
 
   defp get_millis(), do: System.monotonic_time(:millisecond)
 
-  defmodule WorkerState do
-    alias Blast.{Hooks, Request, Config}
+  @spec get_request(state()) :: {state(), Request.t()}
+  defp get_request(%{hooks: hooks, requests: reqs} = state) do
+    req = Enum.random(reqs)
 
-    @moduledoc """
-    This is used to track the current state of the worker
-    and it provides convenient functions for updating
-    and getting the state.
-
-    It also handles the callbacks/hooks and updates the state accordingly.
-    """
-
-    @type t :: %__MODULE__{
-            hooks: Hooks.t(),
-            requests: [Request.t()],
-            frequency: integer()
-          }
-
-    defstruct frequency: 0,
-              requests: [],
-              hooks: %Hooks{}
-
-    @spec init(Config.t()) :: t()
-    def init(%Config{} = config) do
-      hooks = Hooks.start(config.hooks)
-
-      %WorkerState{
-        frequency: config.settings.frequency,
-        requests: Config.normalized_requests(config),
-        hooks: hooks
-      }
-    end
-
-    @doc """
-    Gets a random request and calls the pre_request hook.
-    """
-    @spec get_request(t()) :: {t(), Request.t()}
-    def get_request(%WorkerState{hooks: hooks, requests: reqs} = state) do
-      req = Enum.random(reqs)
-
-      {hooks, req} = Hooks.pre_request(hooks, req)
-      {update_hooks(state, hooks), req}
-    end
-
-    defp update_hooks(state, hooks) do
-      put_in(state, [Access.key!(:hooks)], hooks)
-    end
+    {hooks, req} = Hooks.pre_request(hooks, req)
+    {Map.put(state, :hooks, hooks), req}
   end
 end
