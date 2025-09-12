@@ -2,7 +2,7 @@ alias Blast.Orchestrator
 
 # Spawn in a new process since `main` hangs the process.
 spawn(fn ->
-  Blast.CLI.main(["--blastfile", "examples/basic.ex"])
+  Blast.CLI.main(["--blastfile", "examples/basic.ex", "-f", "10", "-w", "5"])
 end)
 
 start_blast = fn ->

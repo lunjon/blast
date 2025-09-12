@@ -103,9 +103,7 @@
         if (response.status === 200) {
           setText("data", "Starting...");
 
-          // Update every 5 seconds.
-          pollId = setInterval(pollData, 5000);
-
+          pollId = setInterval(pollData, 2000);
           running = true;
         }
       }
