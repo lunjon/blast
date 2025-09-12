@@ -3,46 +3,98 @@
   <head>
     <meta charset="UTF-8">
     <title>Blast</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <style>
       body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-    }
-    #data {
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      min-height: 2rem;
-    }
+        font-family: Arial, sans-serif;
+        margin: 2rem;
+      }
+
+      #data {
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        min-height: 2rem;
+      }
     </style>
   </head>
   <body>
     <h1>Blast</h1>
 
-    <h3>Status: <%= status %></h3>
+    <p>
+      <strong>Status: </strong> <span id="status">Idle</span>
+    </p>
 
-    <div id="data">Loading...</div>
+    <p>
+      <strong>Target base URL: </strong> <%= base_url %>
+    </p>
+
+    <button onclick="startBlast()">Start</button>
+    <button onclick="stopBlast()">Stop</button>
+
+    <br>
+    <div id="data"></div>
+
+    <br>
     <div id="error"></div>
 
     <script>
-      async function pollStatus() {
-      try {
-        const response = await fetch("http://localhost:4040/data");
-        if (!response.ok) throw new Error("Request was not ok");
+      // Used to track polling by set/clear interval.
+      let pollId = undefined;
 
-        <!-- const data = await response.json(); -->
-        <!-- document.getElementById("data").textContent = JSON.stringify(data); -->
-        document.getElementById("data").textContent = await response.text();
-      } catch (error) {
-        document.getElementById("data").textContent = "Error: " + error.message;
+      function setStatus(status) {
+        document.getElementById("status").textContent = status;
       }
-    }
 
-    // Fetch immediately when the page loads.
-    pollStatus();
+      function setError(message) {
+        document.getElementById("error").textContent = "Error: " + message;
+      }
 
-    // Update every 5 seconds.
-    setInterval(pollStatus, 5000);
+      async function send(path) {
+        const p = path.replace(/\//, "");
+        const response = await fetch(`http://localhost:4000/${p}`);
+          if (!response.ok) {
+            console.log(`Error sending request: GET ${path} - status ${response.status}`);
+            throw new Error("Request was not OK");
+          }
+        
+        return response;
+      }
+
+      async function pollData() {
+        try {
+          const response = await send("/data");
+
+          // Replace data's inner HTML with the response.
+          document.getElementById("data").innerHTML = await response.text();
+        } catch (error) {
+          setError(error.message)
+        }
+      }
+
+      async function startBlast() {
+        const response = await send("/start");
+        if (response.status === 200) {
+          setStatus("Running");
+
+          // Fetch immediately when the page loads.
+          pollData();
+
+          // Update every 5 seconds.
+          pollId = setInterval(pollData, 5000);
+        }
+      }
+
+      async function stopBlast() {
+        const response = await send("/stop");
+        if (response.status === 200) {
+          setStatus("Idle");
+          clearInterval(pollId);
+
+          // TODO: render some stuff or leave be.
+        }
+      }
+
     </script>
 
   </body>

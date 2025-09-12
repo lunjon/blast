@@ -1,5 +1,5 @@
 <ul>
-<%= for url <- responses do %>
-  <li><%= url %></li>
+<%= for {url, stats} <- responses do %>
+  <li><%= url %> - <%= stats.count %> </li>
 <% end %>
 </ul>

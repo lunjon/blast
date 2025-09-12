@@ -63,6 +63,7 @@ defmodule Blast.Orchestrator do
     status
   end
 
+  @spec get_state() :: State.t()
   def get_state() do
     GenServer.call(@me, :state)
   end

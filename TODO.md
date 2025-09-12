@@ -12,6 +12,9 @@
 - [ ] Show current state: running/stopped
 - [ ] Show base URL
 - [ ] Show requests
+- [ ] Serve static content (`lib/web/statis`) using Plug.Static
+    - [ ] favicon
+    - [ ] styling
 
 ### Docs
 - [ ] Redraw application/system image and update description

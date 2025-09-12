@@ -89,6 +89,8 @@ defmodule Blast.Controller do
               {status, cx}
 
             :running ->
+              Logger.info("Controller stopping workers...")
+
               WorkerSupervisor.stop_workers()
               {:idle, stop(cx)}
           end
