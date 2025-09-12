@@ -13,8 +13,23 @@ defmodule Blast.CLI do
   containing the specfile, hooks, etc.
   """
   def main(args) do
-    Parser.parse_args(args)
-    |> handle()
+    ret = Parser.parse_args(args)
+    handle(ret)
+
+    {:ok, args} = ret
+    IO.puts("Succesfully initialized #{Output.italic("blast")}.")
+
+    unless args.headless do
+      IO.puts("Open #{Output.green("http://localhost:4000")} to the interface in your browser.")
+    else
+      Process.sleep(100)
+      Orchestrator.start()
+    end
+
+    IO.puts("""
+
+    Press ctrl-c twice at anytime to exit the process.
+    """)
 
     # Hang the process otherwise it will exit from the main process.
     Process.sleep(:infinity)

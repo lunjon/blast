@@ -15,6 +15,7 @@ defmodule Blast.CLI.Parser do
                        This will override any value configured in the settings in the spec.
                        A value of 0 means no limit. (default: #{@frequency})
     --log LEVEL        Configure log level (default: warn, allowed: debug, info, warn, error)
+    --headless         Do not start web interface and start blasting right away.
     --help             Display this help message.
   """
 
@@ -25,7 +26,8 @@ defmodule Blast.CLI.Parser do
         workers: :integer,
         frequency: :integer,
         duration: :integer,
-        log: :boolean,
+        log: :string,
+        headless: :boolean,
         help: :boolean
       ],
       aliases: [
@@ -48,7 +50,8 @@ defmodule Blast.CLI.Parser do
           blastfile: filepath,
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, @frequency),
-          log: level
+          log: level,
+          headless: Keyword.get(args, :headless, false)
         }
 
         {:ok, args}
@@ -76,7 +79,7 @@ defmodule Blast.CLI.Parser do
         case String.downcase(level) do
           "debug" -> {:ok, :debug}
           "info" -> {:ok, :info}
-          "warn" -> {:ok, :warn}
+          "warn" -> {:ok, :warning}
           "error" -> {:ok, :error}
           _ -> {:error, "invalid log level: #{level}"}
         end
