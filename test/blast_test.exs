@@ -26,28 +26,28 @@ defmodule Blast.IntegrationTest do
   end
 
   test("server starts workers", _context) do
-    # Arrange: start blast and wait for initial results
+    # Arrange: start blast and wait for initial results.
     Orchestrator.start()
     Process.sleep(20)
 
-    # Act: get stats
-    stats = Orchestrator.get_stats()
-    count_before = stats.total
+    # Act: get state
+    state = Orchestrator.get_state()
+    count_before = state.total
 
     # Wait a little more
     Process.sleep(20)
-    stats = Orchestrator.get_stats()
-    assert stats.total > count_before
+    state = Orchestrator.get_state()
+    assert state.total > count_before
 
-    # Act: stop and get current stats
+    # Act: stop and get current state
     :ok = Orchestrator.stop()
-    stats = Orchestrator.get_stats()
-    count_stopped = stats.total
+    state = Orchestrator.get_state()
+    count_stopped = state.total
 
     # Assert that no requests are being sent after app controller was stopped
     Process.sleep(20)
-    stats = Orchestrator.get_stats()
-    assert stats.total === count_stopped
+    state = Orchestrator.get_state()
+    assert state.total === count_stopped
   end
 end
 

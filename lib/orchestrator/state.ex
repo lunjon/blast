@@ -1,4 +1,4 @@
-defmodule Blast.Stats do
+defmodule Blast.State do
   @moduledoc """
   This module contains statistics for a current running blast.
   """
@@ -6,16 +6,24 @@ defmodule Blast.Stats do
   alias Blast.EndpointStats
   alias HTTPoison.Response
 
+  @type status() :: :idle | :running
+
   @type t :: %__MODULE__{
+          status: status(),
           # Total request count.
           total: integer(),
           status_counts: %{integer() => integer()},
           endpoints: %{String.t() => EndpointStats.t()}
         }
 
-  defstruct total: 0,
+  defstruct status: :idle,
+            total: 0,
             status_counts: %{},
             endpoints: %{}
+
+  def set_status(state, status) when is_struct(state) do
+    put_in(state, [Access.key!(:status)], status)
+  end
 
   @spec add_response(t(), Response.t(), integer()) :: t()
   def add_response(stats, %Response{} = res, duration) do

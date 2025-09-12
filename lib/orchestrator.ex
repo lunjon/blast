@@ -6,20 +6,14 @@ defmodule Blast.Orchestrator do
 
   use GenServer
   require Logger
-  alias Blast.Stats
+  alias Blast.ConfigStore
+  alias Blast.State
 
   @me __MODULE__
 
   # There `should` be a Blast.Controller running with a registered pid.
   # Use that to signal a start by sending a message to the server.
   @controller Controller
-
-  @type status() :: :idle | :running
-
-  @type state() :: %{
-          state: status(),
-          stats: Stats.t()
-        }
 
   # External API
   # ============
@@ -29,14 +23,8 @@ defmodule Blast.Orchestrator do
   end
 
   @impl GenServer
-  def init(config) do
-    state = %{
-      base_url: config.base_url,
-      state: :idle,
-      stats: %Stats{}
-    }
-
-    {:ok, state}
+  def init(_config) do
+    {:ok, %State{}}
   end
 
   @doc """
@@ -45,10 +33,10 @@ defmodule Blast.Orchestrator do
   """
   @spec start() :: :ok | {:error, any()}
   def start() do
-    state = get_state()
+    config = ConfigStore.get()
     probe = Application.get_env(:blast, :probe, Blast.TcpProbe)
 
-    with :ok <- probe.probe(state.base_url),
+    with :ok <- probe.probe(config.base_url),
          :ok = GenServer.call(@controller, :start) do
       GenServer.call(@me, {:set_status, :running})
 
@@ -58,6 +46,10 @@ defmodule Blast.Orchestrator do
     end
   end
 
+  @doc """
+  Stop all blasting.
+  """
+  @spec stop() :: :ok
   def stop() do
     :ok = GenServer.call(@controller, :stop)
     GenServer.call(@me, {:set_status, :idle})
@@ -65,19 +57,13 @@ defmodule Blast.Orchestrator do
     :ok
   end
 
-  @spec get_status() :: status()
+  @spec get_status() :: State.status()
   def get_status() do
     %{status: status} = get_state()
     status
   end
 
-  @spec get_stats() :: Stats.t()
-  def get_stats() do
-    %{stats: stats} = get_state()
-    stats
-  end
-
-  defp get_state() do
+  def get_state() do
     GenServer.call(@me, :state)
   end
 
@@ -90,9 +76,9 @@ defmodule Blast.Orchestrator do
   # ============
 
   @impl GenServer
-  def handle_cast({:put_response, response, duration}, %{stats: stats} = state) do
-    stats = Stats.add_response(stats, response, duration)
-    {:noreply, Map.put(state, :stats, stats)}
+  def handle_cast({:put_response, response, duration}, state) do
+    state = State.add_response(state, response, duration)
+    {:noreply, state}
   end
 
   @impl GenServer
@@ -102,6 +88,7 @@ defmodule Blast.Orchestrator do
 
   @impl GenServer
   def handle_call({:set_status, status}, _from, state) do
-    {:reply, :ok, Map.put(state, :status, status)}
+    state = State.set_status(state, status)
+    {:reply, :ok, state}
   end
 end
