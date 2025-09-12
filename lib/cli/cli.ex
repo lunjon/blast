@@ -36,6 +36,8 @@ defmodule Blast.CLI do
     %{blastfile: filepath} = args
     module = load_blast_module(filepath)
 
+    configure_logging(args.log)
+
     config =
       case Config.load(module, args) do
         {:ok, config} ->
@@ -68,6 +70,13 @@ defmodule Blast.CLI do
 
         abort()
     end
+  end
+
+  defp configure_logging(:warn), do: :ok
+
+  defp configure_logging(level) do
+    Logger.configure(level: level)
+    :ok
   end
 
   @spec get_controller(Config.t()) :: {module(), any()}
