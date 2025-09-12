@@ -44,8 +44,6 @@ defmodule Blast.WebApp do
 
   get "/data" do
     state = Orchestrator.get_state()
-    # endpoints = state.endpoints
-    #   |> Enum.map(fn {url, _} -> url end)
     content = render_data(state.endpoints)
     send_resp(conn, 200, content)
   end
@@ -59,5 +57,24 @@ defmodule Blast.WebApp do
 
     content = JSON.encode!(%{running: running})
     send_resp(conn, 200, content)
+  end
+
+  # Static files.
+  # 
+  # These could be served with caching, but since this
+  # is running locally we do not need to consider efficiency
+  # that much.
+
+  @favicon File.read!("lib/web/static/favicon.ico")
+  get("/static/favicon.ico") do
+    conn
+    |> put_resp_header("content-type", "image/x-icon")
+    |> put_resp_header("cache-control", "private; max-age: 3600")
+    |> send_resp(200, @favicon)
+  end
+
+  @css File.read!("lib/web/static/style.css")
+  get("/static/style.css") do
+    send_resp(conn, 200, @css)
   end
 end
