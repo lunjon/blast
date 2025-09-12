@@ -1,17 +1,20 @@
 alias Blast.Orchestrator
 
-defmodule Starter do
-  @doc """
-  Starts the rest of the servers required by the runtime.
-  This is sort of a hack since it uses the CLI directly.
+# Spawn in a new process since `main` hangs the process.
+spawn(fn ->
+  Blast.CLI.main(["--blastfile", "examples/basic.ex"])
+end)
 
-  Make sure that you're running a local server at the correct port.
-  """
-  def start() do
-    spawn(fn ->
-      Blast.CLI.main(["--blastfile", "examples/basic.ex"])
-      IO.puts("Use Orchestrator.start() to start the blasting.")
-      IO.puts("Use Orchestrator.stop() to stop the blasting.")
-    end)
-  end
+start_blast = fn ->
+  Process.sleep(50)
+  Orchestrator.start()
 end
+
+stop_blast = fn ->
+  Orchestrator.stop()
+end
+
+IO.puts("
+=== Blast ===
+Use start_blast.() or stop_blast.() to start or stop.
+")

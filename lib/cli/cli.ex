@@ -30,6 +30,8 @@ defmodule Blast.CLI do
     abort()
   end
 
+  # TODO: refactor most of this function to another module.
+  # It could be useful for instance when testing and starting `iex -S mix`.
   defp handle({:ok, args}) do
     %{blastfile: filepath} = args
     module = load_blast_module(filepath)
