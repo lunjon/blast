@@ -13,15 +13,20 @@
       <button id="button" onclick="toggleBlast()">START</button>
     </div>
 
-    <p>
-      <strong>Target base URL: </strong> <%= base_url %>
-    </p>
-    <p>
-      <strong>Workers: </strong> <%= workers %>
-    </p>
-    <p>
-      <strong>Rate (per worker): </strong> <%= frequency %> requests/s
-    </p>
+    <table class="config">
+      <tr>
+        <td>Base URL:</td>
+        <td><%= base_url %></td>
+      </tr>
+      <tr>
+        <td>Workers:</td>
+        <td><%= workers %></td>
+      </tr>
+      <tr>
+        <td>Rate (per worker):</td>
+        <td><%= frequency %></td>
+      </tr>
+    </table>
 
     <br>
     <div id="data"></div>
