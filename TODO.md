@@ -9,12 +9,11 @@
 - [x] Register runtime configuration: base url, requests
 
 ### Web server
-- [ ] Show current state: running/stopped
-- [ ] Show base URL
-- [ ] Show requests
-- [ ] Serve static content (`lib/web/statis`) using Plug.Static
-    - [ ] favicon
-    - [ ] styling
+- [x] Show current state: running/stopped
+- [x] Show base URL
+- [x] Show requests
+- [x] Serve static content
+- [ ] Styling
 
 ### Docs
 - [ ] Redraw application/system image and update description

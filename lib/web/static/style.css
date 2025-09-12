@@ -8,9 +8,13 @@ body {
   display: flex;
   justify-content: space-between; /* Push elements to far ends */
   align-items: center;
-  margin: 10px;
-  padding: 10px;
-  /* background-color: #f4f4f4; */
+}
+
+th, td {
+  text-align: left;
+  /* border: 1px solid black; */
+  padding: 50px;
+  margin-left: 10px;
 }
 
 #data {
@@ -20,7 +24,12 @@ body {
   min-height: 2rem;
 }
 
-td {
-  text-align: left;
-  padding: 0 15px;
+#button {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  border-radius: 10px;
+  padding: 15px 32px;
+  text-align: center;
+  color: white;
+  font-size: 16px;
 }
