@@ -9,7 +9,9 @@ defmodule Blast.Controller.Rampup do
         }
 
   @impl Blast.Controller
-  def stop(state), do: state
+  def stop(state) do
+    {:ok, Map.put(state, :running, false)}
+  end
 
   @impl Blast.Controller
   def initialize(%Config{settings: settings} = config) do
@@ -29,12 +31,6 @@ defmodule Blast.Controller.Rampup do
     Logger.info("Starting Rampup controller with properties: #{inspect(props)}")
 
     {:ok, state}
-  end
-
-  @impl Blast.Controller
-  def handle_message(:stop, state) do
-    Logger.info("Stopping Controller.Rampup")
-    Map.put(state, :running, false)
   end
 
   @impl Blast.Controller
