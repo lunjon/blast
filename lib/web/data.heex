@@ -1,5 +1,16 @@
-<ul>
-<%= for {url, stats} <- responses do %>
-  <li><%= url %> - <%= stats.count %> </li>
-<% end %>
-</ul>
+<table>
+  <thead style="text-align:left">
+    <tr>
+      <th>Endpoint</th>
+      <th>Hit count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for {endpoint, stats} <- responses do %>
+      <tr>
+        <td><%= endpoint %></td>
+        <td><%= stats.count %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table> 

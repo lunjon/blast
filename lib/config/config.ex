@@ -126,7 +126,7 @@ defmodule Blast.Config do
     end
   end
 
-  @request_attributes [:method, :path, :headers, :body, :file, :form]
+  @request_attributes [:method, :path, :headers, :body, :file, :form, :weight]
   defp check_request_attributes(request) do
     invalid_keys =
       Map.keys(request)

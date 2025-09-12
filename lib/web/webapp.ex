@@ -8,7 +8,12 @@ defmodule Blast.WebApp do
 
   # TODO: https://hexdocs.pm/plug/Plug.Router.html#module-error-handling
 
-  EEx.function_from_file(:defp, :render_index, "lib/web/index.heex", [:base_url])
+  EEx.function_from_file(:defp, :render_index, "lib/web/index.heex", [
+    :base_url,
+    :frequency,
+    :workers
+  ])
+
   EEx.function_from_file(:defp, :render_data, "lib/web/data.heex", [:responses])
 
   plug(Plug.Logger)
@@ -33,9 +38,7 @@ defmodule Blast.WebApp do
   get "/" do
     config = ConfigStore.get()
 
-    # Status must initially be stopped, but you never know.
-    # status = Orchestrator.get_status() |> to_string() |> String.capitalize()
-    content = render_index(config.base_url)
+    content = render_index(config.base_url, config.frequency, config.workers)
     send_resp(conn, 200, content)
   end
 
@@ -44,6 +47,17 @@ defmodule Blast.WebApp do
     # endpoints = state.endpoints
     #   |> Enum.map(fn {url, _} -> url end)
     content = render_data(state.endpoints)
+    send_resp(conn, 200, content)
+  end
+
+  get "/status" do
+    running =
+      case Orchestrator.get_status() do
+        :idle -> false
+        :running -> true
+      end
+
+    content = JSON.encode!(%{running: running})
     send_resp(conn, 200, content)
   end
 end

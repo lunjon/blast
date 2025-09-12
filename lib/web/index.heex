@@ -8,6 +8,16 @@
       body {
         font-family: Arial, sans-serif;
         margin: 2rem;
+        padding: 20px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between; /* Push elements to far ends */
+        align-items: center;
+        margin: 10px;
+        padding: 10px;
+        background-color: #f4f4f4;
       }
 
       #data {
@@ -16,21 +26,29 @@
         border-radius: 8px;
         min-height: 2rem;
       }
+
+      td {
+        text-align: left;
+        padding: 0 15px;
+      }
     </style>
   </head>
   <body>
-    <h1>Blast</h1>
+    <div class="header">
+      <h1>Blast</h1>
 
-    <p>
-      <strong>Status: </strong> <span id="status">Idle</span>
-    </p>
+      <button id="button" onclick="toggleBlast()">START</button>
+    </div>
 
     <p>
       <strong>Target base URL: </strong> <%= base_url %>
     </p>
-
-    <button onclick="startBlast()">Start</button>
-    <button onclick="stopBlast()">Stop</button>
+    <p>
+      <strong>Workers: </strong> <%= workers %>
+    </p>
+    <p>
+      <strong>Rate: </strong> <%= frequency %> requests/s
+    </p>
 
     <br>
     <div id="data"></div>
@@ -39,16 +57,23 @@
     <div id="error"></div>
 
     <script>
-      // Used to track polling by set/clear interval.
+      // Application state.
+      let running = false;
       let pollId = undefined;
 
-      function setStatus(status) {
-        document.getElementById("status").textContent = status;
+      function setText(id, text) {
+        document.getElementById(id).textContent = text;
       }
 
-      function setError(message) {
-        document.getElementById("error").textContent = "Error: " + message;
+      // Requires that `running` is updated accordingly prior calling this.
+      function toggleButtonMode() {
+        // TODO: set button styling when changing mode.
+        const value = running ? "STOP" : "START"
+        document.getElementById("button").innerHTML = value;
       }
+
+      const setStatus = (status) => setText("status", status);
+      const setError = (message) => setText("error", `Error: ${messsage}`);
 
       async function send(path) {
         const p = path.replace(/\//, "");
@@ -66,7 +91,8 @@
           const response = await send("/data");
 
           // Replace data's inner HTML with the response.
-          document.getElementById("data").innerHTML = await response.text();
+          const html = await response.text();
+          document.getElementById("data").innerHTML = html;
         } catch (error) {
           setError(error.message)
         }
@@ -75,26 +101,44 @@
       async function startBlast() {
         const response = await send("/start");
         if (response.status === 200) {
-          setStatus("Running");
-
-          // Fetch immediately when the page loads.
-          pollData();
+          setText("data", "Starting...");
 
           // Update every 5 seconds.
           pollId = setInterval(pollData, 5000);
+
+          running = true;
         }
       }
 
       async function stopBlast() {
         const response = await send("/stop");
         if (response.status === 200) {
-          setStatus("Idle");
           clearInterval(pollId);
-
-          // TODO: render some stuff or leave be.
+          running = false;
         }
       }
 
+      async function toggleBlast() {
+        if (running) {
+          await stopBlast();
+        } else {
+          await startBlast()
+        }
+
+        toggleButtonMode()
+      }
+
+      // Register callback to load. The user may refresh the page,
+      // meaning that we should check current state of the application
+      // so that the state is set correctly.
+      document.addEventListener("DOMContentLoaded", async () => {
+        const res = await send("/status");
+        const { running } = await res.json();
+        if (running) {
+          await startBlast();
+          toggleButtonMode()
+        }
+      });
     </script>
 
   </body>
