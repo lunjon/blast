@@ -1,5 +1,5 @@
 defmodule Blast do
-  alias Blast.Request
+  use Blastfile
 
   def base_url() do
     "http://localhost:1234"
@@ -26,7 +26,7 @@ defmodule Blast do
   # This is by a worker before each request is sent.
   def pre_request(cx, req) do
     cx = update_context(cx)
-    req = Request.put_header(req, "Authorization", "Bearer #{cx.token}")
+    req = put_header(req, "Authorization", "Bearer #{cx.token}")
     {cx, req}
   end
 

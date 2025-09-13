@@ -43,6 +43,9 @@ A minimal example looks something like this:
 
 ```elixir
 defmodule Blast do
+  # The module must always include this.
+  use Blastfile
+
   # This is the first required function.
   # It must return a valid URL to be used as the base for the requests.
   def base_url() do
@@ -68,8 +71,6 @@ end
 
 By default blast will look for a `blast.ex[s]` file in the current working directory,
 but you can specify a location with the `-f/--blastfile` option.
-
-You can read more about it in the [docs](./docs/blast.md).
 
 ### Options
 

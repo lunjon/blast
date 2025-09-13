@@ -6,10 +6,15 @@ It is written in a standalone file that defines an Elixir module.
 For brewity the module definition and, sometimes, function definitions will be omitted for brewity.
 
 This means that all functions lives inside an Elixir module:
+
 ```elixir
 # The name of the module is not important.
 defmodule Blast do
-  # ...
+  # The blastfile must always include this.
+  # More about this later.
+  use Blastfile
+
+  # ... callbacks ...
 end
 ```
 
@@ -25,7 +30,7 @@ end
 
 ### requests()
 
-The `requests()` function is required must return a list of maps that adhere to the following definition:
+The `requests()` function is required and must return a list of maps that adhere to the following definition:
 
 ```elixir
 def requests() do
@@ -39,12 +44,12 @@ def requests() do
       ],
 
       # Only one of the body* fields can be specified. All are optional
-      body: "string",            # string | map | list. A string to send in the request body.
+      body: "string",       # string | map | list. A string to send in the request body.
       file: "filepath"      # string. File path to body to send as request body.
       form: [               # list. List of two-element tuples of name-value pairs.
         {"name1", "value1"},
       ],
-      weight: 2,                 # integer (>= 0, default: 1). Makes a request more likely to occurr.
+      weight: 2,                 # integer (>= 0, default: 1). Makes a request more likely to occur.
     }
   ]
 end
@@ -111,16 +116,16 @@ In the example above, it means:
 
 ## Hooks
 
-Blast also support _hooks_. A hook is a function that gets called on one of the lifecycles of the application and/or requests.
+Blast support additional callbacks that are part of the application lifecycle.
 
 Here's a module that defines the supported hooks.
 
 
 ```elixir
 defmodule Blast do
-  alias Blast.Request
+  use Blastfile
 
-  # Required callbacks omitted.
+  # ... other callbacks omitted ...
 
   # This callback, or hook, is invoked once before all requests are sent.
   # It can be used to setup some initial state, or as blast call it: context.
@@ -152,7 +157,7 @@ defmodule Blast do
   # That is, it must return the context and request.
   def pre_request(cx, req) do
     {cx, token} = update_context(cx)
-    req = Request.put_header(req, "Authorization", "Bearer #{token}")
+    req = put_header(req, "Authorization", "Bearer #{token}")
     {cx, req}
   end
 
@@ -164,6 +169,32 @@ defmodule Blast do
 end
 ```
 
+
+## About that `use Blastfile`
+
+This is an Elixir thing that expands other code (meta programming) during compilation.
+
+However, the important thing is that it accomplishes the following:
+- It adds default implementations for optional hooks such as the `init` or `start` hooks.
+- It adds some helper functions.
+
+### Helpers
+
+Your module gets the following functions from the `use Blastfile` directive.
+
+```elixir
+# It takes a request, then the name and value of the header to add.
+# It returns the modified request, meaning you need to capture it in
+# your callback.
+put_header(request, name, value)
+
+
+# Example usage:
+def pre_request(context, req) do
+  req = put_header(req, "Authorization", "my token")
+  {context, req}
+end
+```
 
 ## Examples
 

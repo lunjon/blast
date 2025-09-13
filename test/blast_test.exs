@@ -52,6 +52,8 @@ defmodule Blast.IntegrationTest do
 end
 
 defmodule Blast.IntegrationTest.Blastfile do
+  use Blastfile
+
   def base_url(), do: ""
 
   def requests() do

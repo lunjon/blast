@@ -1,4 +1,6 @@
 defmodule Blast do
+  use Blastfile
+
   def base_url(), do: "http://localhost:8080"
 
   def requests() do

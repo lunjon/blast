@@ -3,17 +3,17 @@ defmodule Blast.Config.Test do
   alias Blast.Config
 
   describe("valid module") do
-    test("should return spec when loaded") do
+    test("should return config when loaded") do
       # Act
-      {:ok, spec} = Config.load(ConfigTest.Valid)
+      {:ok, config} = Config.load(ConfigTest.Valid)
 
       # Assert
       expected_base_url = ConfigTest.Valid.base_url()
-      assert spec.base_url === expected_base_url
-      assert length(spec.requests) == 2
+      assert config.base_url === expected_base_url
+      assert length(config.requests) == 2
 
-      get = Enum.find(spec.requests, &(&1.method == :get))
-      post = Enum.find(spec.requests, &(&1.method == :post))
+      get = Enum.find(config.requests, &(&1.method == :get))
+      post = Enum.find(config.requests, &(&1.method == :post))
       assert get.method == :get
       assert get.url == "#{expected_base_url}/facts"
       assert map_size(get.headers) == 1
@@ -24,7 +24,7 @@ defmodule Blast.Config.Test do
     end
   end
 
-  describe("invalid spec") do
+  describe("invalid config") do
     test("missing required callbacks") do
       {:error, err} = Config.load(ConfigTest.MissingRequired)
       assert err
@@ -48,6 +48,8 @@ defmodule Blast.Config.Test do
 end
 
 defmodule ConfigTest.Valid do
+  use Blastfile
+
   def base_url(), do: "https://cats.meow"
 
   def requests() do
