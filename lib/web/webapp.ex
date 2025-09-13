@@ -79,7 +79,9 @@ defmodule Blast.WebApp do
 
   @js File.read!("lib/web/static/index.js")
   get("/static/index.js") do
-    send_resp(conn, 200, @js)
+    conn
+    |> put_resp_header("content-type", "text/javascript")
+    |> send_resp(200, @js)
   end
 
   match _ do
