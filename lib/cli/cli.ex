@@ -45,6 +45,42 @@ defmodule Blast.CLI do
     abort()
   end
 
+  defp handle({:ok, %{generate: url} = _args}) when is_binary(url) do
+    """
+    defmodule Blast do
+      use Blastfile
+
+      def base_url() do
+        "#{url}"
+      end
+
+      def requests() do
+        [
+          %{method: "get", path: "/users"},
+          %{
+            method: "post",
+            path: "/groups",
+            body: %{"groupId" => "test"}
+          }
+        ]
+      end
+
+      def default_headers() do
+        [{"api-key", "abcd1234-0000-1111-4321dcba"}]
+      end
+
+      def pre_request(context, request) do
+        # Do something
+        {context, request}
+      end
+    end
+    """
+    |> String.trim_trailing()
+    |> IO.puts()
+
+    abort(0)
+  end
+
   # TODO: refactor most of this function to another module.
   # It could be useful for instance when testing and starting `iex -S mix`.
   defp handle({:ok, args}) do
@@ -74,6 +110,8 @@ defmodule Blast.CLI do
   end
 
   defp load_blast_module(filepath) do
+    filepath = get_blastfile(filepath)
+
     case Code.require_file(filepath, ".") do
       [{module, _}] ->
         module
@@ -94,6 +132,32 @@ defmodule Blast.CLI do
     :ok
   end
 
+  defp get_blastfile(nil) do
+    cond do
+      File.exists?("./blast.ex") ->
+        "./blast.ex"
+
+      File.exists?("./blast.exs") ->
+        "./blast.exs"
+
+      File.exists?("./test/blast.ex") ->
+        "./test/blast.ex"
+
+      true ->
+        Output.error("no blastfile specified or found at ./blast.{ex,exs}")
+        abort()
+    end
+  end
+
+  defp get_blastfile(filepath) do
+    if File.exists?(filepath) do
+      filepath
+    else
+      Output.error("file not found: #{filepath}")
+      abort()
+    end
+  end
+
   @spec get_controller(Config.t()) :: {module(), any()}
   defp get_controller(config) do
     case config.settings.control.kind do
@@ -106,7 +170,7 @@ defmodule Blast.CLI do
   end
 
   @spec abort() :: no_return()
-  defp abort() do
-    System.halt(1)
+  defp abort(code \\ 1) do
+    System.halt(code)
   end
 end

@@ -6,17 +6,19 @@ defmodule Blast.CLI.Parser do
   blast - load test HTTP APIs
 
   Options:
-    -b/--blastfile     File path to blast file.
-                       (default: looks for blast.y[a]ml in current working directory)
-    -w/--workers N     Number of concurrent workers to run. This option is only viable
-                       when no control has been configured in the settings in the spec.
-                       (default: #{@workers})
-    -f/--frequency N   Sets the rate of requests per worker. 
-                       This will override any value configured in the settings in the spec.
-                       A value of 0 means no limit. (default: #{@frequency})
-    --log LEVEL        Configure log level (default: warn, allowed: debug, info, warn, error)
-    --headless         Do not start web interface and start blasting right away.
-    --help             Display this help message.
+    -b/--blastfile FILE  File path to blast file.
+                         (default: looks for blast.{ex,exs} in current working directory)
+    -w/--workers N       Number of concurrent workers to run. This option is only viable
+                         when no control has been configured in the settings in the spec.
+                         (default: #{@workers})
+    -f/--frequency N     Sets the rate of requests per worker. 
+                         This will override any value configured in the settings in the spec.
+                         A value of 0 means no limit. (default: #{@frequency})
+    --log LEVEL          Configure log level (default: warn, allowed: debug, info, warn, error)
+    --headless           Do not start web interface and start blasting right away.
+    --generate BASE_URL  Generate an example blastfile with the given base URL
+                         and writes it to stdout.
+    --help               Display this help message.
   """
 
   def parse_args(args) do
@@ -28,6 +30,7 @@ defmodule Blast.CLI.Parser do
         duration: :integer,
         log: :string,
         headless: :boolean,
+        generate: :string,
         help: :boolean
       ],
       aliases: [
@@ -44,14 +47,14 @@ defmodule Blast.CLI.Parser do
     if Keyword.get(args, :help) do
       {:help, @help}
     else
-      with {:ok, filepath} <- get_blastfile(Keyword.get(args, :blastfile)),
-           {:ok, level} <- get_log_level(args) do
+      with {:ok, level} <- get_log_level(args) do
         args = %{
-          blastfile: filepath,
+          blastfile: Keyword.get(args, :blastfile),
           workers: Keyword.get(args, :workers, @workers),
           frequency: Keyword.get(args, :frequency, @frequency),
           log: level,
-          headless: Keyword.get(args, :headless, false)
+          headless: Keyword.get(args, :headless, false),
+          generate: Keyword.get(args, :generate)
         }
 
         {:ok, args}
@@ -83,23 +86,6 @@ defmodule Blast.CLI.Parser do
           "error" -> {:ok, :error}
           _ -> {:error, "invalid log level: #{level}"}
         end
-    end
-  end
-
-  defp get_blastfile(nil) do
-    cond do
-      File.exists?("./blast.ex") -> {:ok, "./blast.ex"}
-      File.exists?("./blast.exs") -> {:ok, "./blast.exs"}
-      File.exists?("./test/blast.ex") -> {:ok, "./test/blast.ex"}
-      true -> {:error, "spec file not found"}
-    end
-  end
-
-  defp get_blastfile(filepath) do
-    if File.exists?(filepath) do
-      {:ok, filepath}
-    else
-      {:ok, "specified file not found: #{filepath}"}
     end
   end
 end
