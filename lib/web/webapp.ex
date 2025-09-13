@@ -21,13 +21,13 @@ defmodule Blast.WebApp do
   plug(:dispatch)
 
   get "/start" do
-    {status, content} =
+    {status, error} =
       case Orchestrator.start() do
-        :ok -> {200, ""}
+        :ok -> {200, nil}
         {:error, err} -> {500, "Error starting blast - #{err}"}
       end
 
-    send_resp(conn, status, content)
+    json_resp(conn, %{error: error}, status)
   end
 
   get "/stop" do
@@ -55,8 +55,7 @@ defmodule Blast.WebApp do
         :running -> true
       end
 
-    content = JSON.encode!(%{running: running})
-    send_resp(conn, 200, content)
+    json_resp(conn, %{running: running})
   end
 
   # Static files.
@@ -76,5 +75,22 @@ defmodule Blast.WebApp do
   @css File.read!("lib/web/static/style.css")
   get("/static/style.css") do
     send_resp(conn, 200, @css)
+  end
+
+  @js File.read!("lib/web/static/index.js")
+  get("/static/index.js") do
+    send_resp(conn, 200, @js)
+  end
+
+  match _ do
+    send_resp(conn, 404, "Not found")
+  end
+
+  defp json_resp(conn, body, status \\ 200) do
+    content = JSON.encode!(body)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(status, content)
   end
 end

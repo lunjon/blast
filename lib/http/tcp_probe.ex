@@ -12,7 +12,7 @@ defmodule Blast.TcpProbe do
         :gen_tcp.close(socket)
 
       {:error, reason} ->
-        {:error, "failed to connect to #{host}:#{port}: #{inspect(reason)}"}
+        {:error, "error connecting to #{host}:#{port}: #{to_string(reason)}"}
     end
   end
 end

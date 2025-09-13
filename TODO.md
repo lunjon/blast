@@ -2,21 +2,13 @@
 
 ## [WIP] Web UI
 
-### Module/server for application state
-- This should hold the current state of the application; started, stopped, etc.
-- Should this also hold the responsibility of the Collector?
-- [x] GenServer that's started as part of the application
-- [x] Register runtime configuration: base url, requests
+### Styling
+- [ ] Change button color depending on idle/running
 
-### Web server
-- [x] Show current state: running/stopped
-- [x] Show base URL
-- [x] Show requests
-- [x] Serve static content
-- [ ] Styling
+## Blastfile
 
-### Docs
-- [ ] Redraw application/system image and update description
+Require a `use Blastfile` in the blast module that uses `def __macro__` to inject some code.
+- [ ] Function for setting headers: `put_header(req, name, value) -> req`
 
 ## HTTP controller
 - Rules: support rules that apply for some circumstances that affects when running load tests:
