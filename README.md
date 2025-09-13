@@ -130,9 +130,6 @@ end
 
 For a full specification of the blast module see the [docs](./docs/blast.md).
 
-## Logs
-`blast` creates and writes logs to the file `blast.log` in cwd.
-
 ## Development
 
 I recommend using the nix flake, like so:
