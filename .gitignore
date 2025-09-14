@@ -8,19 +8,20 @@ erl_crash.dump
 blazt-*.tar
 doc/
 blast
-result
+result/
 
 
 # Blast files
 blast.{ex,exs}
 blast.log
-local.hooks.ex
+
 
 # Language server
 .elixir_ls/
 .lexical/
 .elixir-tools/
 .expert/
+
 
 # Temporary files
 tmp/

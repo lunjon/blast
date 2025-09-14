@@ -2,15 +2,9 @@
 
 Load test framework, written in Elixir, that targets HTTP APIs.
 
-## Running
+## Running and installation
 
 You will need to install Elixir v1.18+ in order to run blast.
-
-#### mix
-This is what `main.exs` is for:
-```sh
-mix run main.exs -h
-```
 
 #### escript
 Build the escript using `just build`, then use the artifact like so:
@@ -22,7 +16,7 @@ Build the escript using `just build`, then use the artifact like so:
 With nix installed you can run:
 
 ```sh
-nix run "." -- -h
+nix run . -- -h
 ```
 
 or
@@ -31,6 +25,11 @@ or
 nix develop
 just build
 ./blast -h # escript
+```
+
+If you're using nix with flake support you can also install it:
+```sh
+nix profile add .
 ```
 
 When started a simple web interface is started on [localhost:4000](http://localhost:4000).
@@ -136,10 +135,11 @@ For a full specification of the blast module see the [docs](./docs/blast.md).
 I recommend using the nix flake, like so:
 
 ```sh
-nix develop # It takes a while the first time
-...
-
-mix deps.get # Fetch dependencies
-
-iex -S mix   # Start the application in IEx
+nix develop   # It takes a while the first time
+mix deps.get  # Fetch dependencies
+iex -S mix    # Start the application in IEx
 ```
+
+Starting an IEx session will start the server as well.
+Using `recompile` inside iex will restart the whole application,
+and even changes to static files will recompile the code.

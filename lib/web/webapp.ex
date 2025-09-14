@@ -63,8 +63,20 @@ defmodule Blast.WebApp do
   # These could be served with caching, but since this
   # is running locally we do not need to consider efficiency
   # that much.
+  #
+  # The static files are marked as external resources
+  # meaning that changes to them forces recompilation.
+  # This is useful when developing since the content
+  # is embedded in the code.
 
-  @favicon File.read!("lib/web/static/favicon.ico")
+  @static_root "lib/web/static"
+  static_files = Path.wildcard("lib/web/static/*")
+
+  for path <- static_files do
+    @external_resource path
+  end
+
+  @favicon File.read!("#{@static_root}/favicon.ico")
   get("/static/favicon.ico") do
     conn
     |> put_resp_header("content-type", "image/x-icon")
@@ -72,12 +84,12 @@ defmodule Blast.WebApp do
     |> send_resp(200, @favicon)
   end
 
-  @css File.read!("lib/web/static/style.css")
+  @css File.read!("#{@static_root}/style.css")
   get("/static/style.css") do
     send_resp(conn, 200, @css)
   end
 
-  @js File.read!("lib/web/static/index.js")
+  @js File.read!("#{@static_root}/index.js")
   get("/static/index.js") do
     conn
     |> put_resp_header("content-type", "text/javascript")
