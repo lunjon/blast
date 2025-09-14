@@ -195,7 +195,7 @@ defmodule Blast.Config do
 
   defp parse_body_fields(nil, nil, nil), do: {:ok, ""}
 
-  defp parse_body_fields(body, nil, nil) when is_binary(body), do: {:ok, body}
+  defp parse_body_fields(body, nil, nil), do: {:ok, body}
 
   defp parse_body_fields(nil, body_file, nil) do
     case File.read(body_file) do
