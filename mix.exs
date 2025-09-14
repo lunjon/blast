@@ -4,7 +4,7 @@ defmodule Blast.MixProject do
   def project do
     [
       app: :blast,
-      version: "0.5.0",
+      version: "0.10.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),

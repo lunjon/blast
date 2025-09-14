@@ -1,31 +1,34 @@
-{ mixRelease, fetchMixDeps, erlang, elixir, }:
-let name = "blast";
-in mixRelease rec {
-  pname = name;
-  version = "0.5.0";
+{
+  mixRelease,
+  fetchMixDeps,
+  erlang,
+  elixir,
+}:
+mixRelease rec {
+  pname = "blast";
+  version = "0.10.0";
   src = ./.;
 
-  buildInputs = [ elixir erlang ];
+  buildInputs = [
+    elixir
+    erlang
+  ];
   packages = [ erlang ];
 
   mixFodDeps = fetchMixDeps {
-    inherit pname;
-    inherit version;
+    inherit pname version;
 
     src = ./.;
-    sha256 = "sha256-FwSZ386jLNdDwvGf184MGMsXVxxus/ZHdiqyfQFOfvA=";
+    sha256 = "sha256-XD5Ey7Nw2CtDzev/mNK8KkQz4pfuC1ayhShKXeOSIAU=";
   };
 
   installPhase = ''
     runHook preInstall
 
     mix escript.build
-
-    runHook postInstall
-  '';
-
-  preFixup = ''
     mkdir -p "$out/bin"
     mv ./blast "$out/bin"
+
+    runHook postInstall
   '';
 }
