@@ -69,7 +69,7 @@ end
 
 
 By default blast will look for a `blast.ex[s]` file in the current working directory,
-but you can specify a location with the `-f/--blastfile` option.
+but you can specify a location with the `-b/--blastfile` option.
 
 ### Options
 
