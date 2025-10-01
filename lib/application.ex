@@ -1,6 +1,5 @@
 defmodule Blast.Application do
   use Application
-  require Logger
 
   @moduledoc false
 

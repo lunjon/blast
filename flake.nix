@@ -26,11 +26,14 @@
         packages = [
           erlang
           elixir
-          pkgs.just
-          pkgs.nil
-          pkgs.elixir-ls
-          pkgs.typescript-language-server
-        ];
+        ]
+        ++ (with pkgs; [
+          just
+          nil
+          elixir-ls
+          biome
+          typescript-language-server
+        ]);
       };
     };
 }
