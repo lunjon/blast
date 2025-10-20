@@ -8,7 +8,7 @@ erl_crash.dump
 blazt-*.tar
 doc/
 blast
-result/
+result
 
 
 # Blast files

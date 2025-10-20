@@ -3,6 +3,7 @@ default: build fmt test
 build env="prod":
     MIX_ENV={{ env }} mix compile
     MIX_ENV={{ env }} mix escript.build
+    nix build
 
 fmt:
     mix format

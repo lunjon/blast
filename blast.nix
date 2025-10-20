@@ -19,7 +19,7 @@ mixRelease rec {
     inherit pname version;
 
     src = ./.;
-    sha256 = "sha256-XD5Ey7Nw2CtDzev/mNK8KkQz4pfuC1ayhShKXeOSIAU=";
+    sha256 = "sha256-SICRmi8u0NR8n0z0ZQqR1o2KtIANlyPRg4fueZCzanQ=";
   };
 
   installPhase = ''
