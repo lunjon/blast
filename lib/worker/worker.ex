@@ -30,34 +30,35 @@ defmodule Blast.Worker do
   end
 
   def handle_info(:run, state) do
-    starttime = get_millis()
+    start_time = get_millis()
     {state, req} = get_request(state)
 
     requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
 
-    requester.send(req)
-    |> handle_response(state, starttime)
+    case requester.send(req) do
+      {:ok, response} -> handle_response(state, response, start_time)
+      {:error, error} -> handle_error(error, req)
+    end
 
     {:noreply, state}
   end
 
-  def handle_response({:ok, response}, state, starttime) do
-    Logger.info("Status code: #{response.status_code}")
+  defp handle_response(state, response, start_time) do
+    duration = get_millis() - start_time
+    Orchestrator.put_response(response, duration)
 
-    request_duration = get_millis() - starttime
-    put_result(request_duration, response)
-
-    wait_time = get_wait_time(request_duration, state.frequency)
+    wait_time = get_wait_time(duration, state.frequency)
     Process.send_after(self(), :run, wait_time)
   end
 
-  #  %HTTPoison.Error{reason: :timeout, id: nil
-  def handle_response({:error, error}, _state, _starttime) do
+  def handle_error(error, request) do
     Logger.error("Error sending request: #{inspect(error)}")
 
     case error do
       %HTTPoison.Error{reason: :timeout} ->
         Logger.warning("Timeout error - waiting 5 s before retrying")
+
+        Orchestrator.put_error(request, "timeout")
         Process.send_after(self(), :run, 5000)
 
       %HTTPoison.Error{reason: :econnrefused} ->
@@ -73,8 +74,6 @@ defmodule Blast.Worker do
         System.halt(1)
     end
   end
-
-  defp put_result(duration, response), do: Orchestrator.put_response(response, duration)
 
   defp get_wait_time(_duration, 0), do: 0
 

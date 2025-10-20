@@ -20,9 +20,11 @@ defmodule Blast.EndpointStats do
             min: 0,
             max: 0
 
-  # Updates global stats:
-  #   - request count
-  #   - min, max and average response times
+  @doc """
+  Updates global stats:
+    - request count
+    - min, max and average response times
+  """
   def update(%Self{min: min, max: max} = stats, duration) do
     stats =
       if duration < min do

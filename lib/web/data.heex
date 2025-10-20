@@ -4,6 +4,7 @@
       <th>Endpoint</th>
       <th>Hit count</th>
       <th>Average response time (ms)</th>
+      <th>Error</th>
     </tr>
   </thead>
   <tbody>
@@ -12,6 +13,15 @@
         <td><%= endpoint %></td>
         <td><%= stats.count %></td>
         <td><%= :erlang.float_to_binary(stats.average, [decimals: 2]) %></td>
+        <td>-</td>
+      </tr>
+    <% end %>
+    <%= for {endpoint, errs} <- errors do %>
+      <tr>
+        <td><%= endpoint %></td>
+        <td>-</td>
+        <td>-</td>
+        <td><%= Enum.join(MapSet.to_list(errs), ", ") %></td>
       </tr>
     <% end %>
   </tbody>

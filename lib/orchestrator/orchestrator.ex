@@ -73,12 +73,23 @@ defmodule Blast.Orchestrator do
     GenServer.cast(@me, {:put_response, response, duration})
   end
 
+  @spec put_error(Blast.Request.t(), binary()) :: :ok
+  def put_error(request, error) do
+    GenServer.cast(@me, {:put_error, request, error})
+  end
+
   # Internal API
   # ============
 
   @impl GenServer
   def handle_cast({:put_response, response, duration}, state) do
     state = State.add_response(state, response, duration)
+    {:noreply, state}
+  end
+
+  @impl GenServer
+  def handle_cast({:put_error, request, error}, state) do
+    state = State.add_error(state, request, error)
     {:noreply, state}
   end
 

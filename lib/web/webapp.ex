@@ -14,7 +14,7 @@ defmodule Blast.WebApp do
     :workers
   ])
 
-  EEx.function_from_file(:defp, :render_data, "lib/web/data.heex", [:responses])
+  EEx.function_from_file(:defp, :render_data, "lib/web/data.heex", [:responses, :errors])
 
   plug(Plug.Logger)
   plug(:match)
@@ -44,7 +44,7 @@ defmodule Blast.WebApp do
 
   get "/data" do
     state = Orchestrator.get_state()
-    content = render_data(state.endpoints)
+    content = render_data(state.endpoints, state.errors)
     send_resp(conn, 200, content)
   end
 
