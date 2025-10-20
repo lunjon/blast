@@ -68,7 +68,7 @@ defmodule Blast.Orchestrator do
     GenServer.call(@me, :state)
   end
 
-  @spec put_response(non_neg_integer(), HTTPoison.Response.t()) :: :ok
+  @spec put_response(HTTPoison.Response.t(), non_neg_integer()) :: :ok
   def put_response(response, duration) do
     GenServer.cast(@me, {:put_response, response, duration})
   end

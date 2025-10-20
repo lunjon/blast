@@ -21,6 +21,9 @@ defmodule Blast.HttpRequester do
       headers: headers,
       body: body,
       options: [
+        # This is for establishing the TCP (incl. TLS) connection.
+        timeout: 10_000,
+        # The timeout for receiving the HTTP response.
         recv_timeout: 10_000
       ]
     }

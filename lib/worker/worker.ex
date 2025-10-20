@@ -4,7 +4,6 @@ defmodule Blast.Worker do
   use GenServer, restart: :transient
   alias Blast.{Config, Hooks, Request}
   alias Blast.Orchestrator
-  alias Blast.Results.Error
   require Logger
 
   @spec start_link(Config.t()) :: {:ok, pid()} | {:error, dynamic()}
@@ -43,6 +42,8 @@ defmodule Blast.Worker do
   end
 
   def handle_response({:ok, response}, state, starttime) do
+    Logger.info("Status code: #{response.status_code}")
+
     request_duration = get_millis() - starttime
     put_result(request_duration, response)
 
@@ -50,9 +51,27 @@ defmodule Blast.Worker do
     Process.send_after(self(), :run, wait_time)
   end
 
+  #  %HTTPoison.Error{reason: :timeout, id: nil
   def handle_response({:error, error}, _state, _starttime) do
     Logger.error("Error sending request: #{inspect(error)}")
-    Error.handle_error(error)
+
+    case error do
+      %HTTPoison.Error{reason: :timeout} ->
+        Logger.warning("Timeout error - waiting 5 s before retrying")
+        Process.send_after(self(), :run, 5000)
+
+      %HTTPoison.Error{reason: :econnrefused} ->
+        IO.puts(:stderr, "unreachable endpoint configured: exiting")
+        System.halt(1)
+
+      %HTTPoison.Error{reason: :closed} ->
+        IO.puts(:stderr, "target endpoint closed: exiting")
+        System.halt(1)
+
+      _ ->
+        IO.puts(:stderr, "unexpected error: #{inspect(error)}")
+        System.halt(1)
+    end
   end
 
   defp put_result(duration, response), do: Orchestrator.put_response(response, duration)
