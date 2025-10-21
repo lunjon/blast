@@ -15,10 +15,6 @@ test *args="":
 check: build test
     biome check .
 
-release env="prod": test
-    # NOTE: you have to bump the version in mix.exs
-    MIX_ENV={{ env }} mix release
-
 # Remove builds, deps, caches, etc.
 clean:
     mix clean --deps

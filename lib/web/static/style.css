@@ -3,6 +3,9 @@
   --greener: #81ca68;
   --red: #ed8796;
   --reder: #e44e64;
+  --orange: #ff8000;
+  --yellow: #ffe433;
+  --yellower: #e6c700;
 }
 
 body {
@@ -26,7 +29,7 @@ table.config {
   }
 }
 
-table.data {
+table.responses {
   min-height: 10%;
   max-height: 50%;
 
@@ -35,6 +38,22 @@ table.data {
     padding: 10px;
     margin-left: 10px;
   }
+}
+
+table.errors {
+  min-height: 10%;
+  max-height: 50%;
+
+  th, td {
+    text-align: left;
+    padding: 10px;
+    margin-left: 10px;
+  }
+}
+
+span.error {
+  font-weight: bold;
+  color: var(--reder);
 }
 
 #data {
@@ -81,4 +100,8 @@ button {
     background-color: var(--red);
     padding: 10px;
   }
+}
+
+.status {
+  font-weight: bold;
 }

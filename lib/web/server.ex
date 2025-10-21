@@ -1,4 +1,4 @@
-defmodule Blast.WebApp do
+defmodule Blast.Server do
   use Plug.Router
   require EEx
   alias Blast.ConfigStore
@@ -106,5 +106,14 @@ defmodule Blast.WebApp do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(status, content)
+  end
+
+  defp render_status(status, count) when is_integer(status) do
+    cond do
+      status >= 500 ->  "<span style=\"font-weight: bold; color: var(--reder)\">#{status}</span> (#{count})"
+      status >= 400 ->  "<span style=\"font-weight: bold; color: var(--yellower)\">#{status}</span> (#{count})"
+      status >= 200 ->  "<span style=\"font-weight: bold; color: var(--greener)\">#{status}</span> (#{count})"
+      true -> "<span>#{status} (#{count})</span>"
+    end
   end
 end

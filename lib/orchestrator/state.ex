@@ -40,7 +40,7 @@ defmodule Blast.State do
 
     Map.update(state, :total, 1, &(&1 + 1))
     |> update_status_counts(status_code)
-    |> update_endpoint(endpoint, duration)
+    |> update_endpoint(endpoint, duration, status_code)
   end
 
   @spec get_endpoint(atom() | binary(), binary()) :: binary()
@@ -85,15 +85,13 @@ defmodule Blast.State do
     )
   end
 
-  defp update_endpoint(stats, endpoint, duration) do
+  defp update_endpoint(stats, endpoint, duration, status_code) do
     update_in(
       stats,
       [Access.key!(:endpoints), endpoint],
-      fn value ->
-        case value do
-          nil -> %EndpointStats{average: duration, min: duration, max: duration}
-          st -> EndpointStats.update(st, duration)
-        end
+      fn
+        nil -> %EndpointStats{min: duration, max: duration}
+        ep -> EndpointStats.update(ep, duration, status_code)
       end
     )
   end

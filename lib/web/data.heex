@@ -1,28 +1,55 @@
-<table class="data">
+<h3>Responses</h3>
+<table class="responses">
   <thead style="text-align:left">
     <tr>
       <th>Endpoint</th>
-      <th>Hit count</th>
-      <th>Average response time (ms)</th>
-      <th>Error</th>
+      <th>Total count</th>
+      <th>Average (ms)</th>
+      <th>Min (ms)</th>
+      <th>Max (ms)</th>
+      <th>Status (count)</th>
     </tr>
   </thead>
   <tbody>
     <%= for {endpoint, stats} <- responses do %>
       <tr>
-        <td><%= endpoint %></td>
-        <td><%= stats.count %></td>
-        <td><%= :erlang.float_to_binary(stats.average, [decimals: 2]) %></td>
-        <td>-</td>
+        <td rowspan=<%= Enum.count(stats.statuses) + 1 %>><%= endpoint %></td>
+        <td rowspan=<%= Enum.count(stats.statuses) + 1 %>><%= stats.count %></td>
+        <td rowspan=<%= Enum.count(stats.statuses) + 1 %>>
+          <%= :erlang.float_to_binary(stats.average, [decimals: 2]) %>
+        </td>
+        <td rowspan=<%= Enum.count(stats.statuses) + 1 %>><%= stats.min %></td>
+        <td rowspan=<%= Enum.count(stats.statuses) + 1 %>><%= stats.max %></td>
       </tr>
+      <%= for {status, count} <- stats.statuses do %>
+        <tr>
+          <td><%= render_status(status, count) %></td>
+        </tr>
+      <% end %>
     <% end %>
+  </tbody>
+</table> 
+
+<br>
+
+<%= if Enum.count(errors) > 0 do %>
+<h3>Errors</h3>
+<table class="errors">
+  <thead style="text-align:left">
+    <tr>
+      <th>Endpoint</th>
+      <th>Error</th>
+    </tr>
+  </thead>
+  <tbody>
     <%= for {endpoint, errs} <- errors do %>
       <tr>
         <td><%= endpoint %></td>
-        <td>-</td>
-        <td>-</td>
-        <td><%= Enum.join(MapSet.to_list(errs), ", ") %></td>
+        <td>
+          <span class="error"><%= Enum.join(MapSet.to_list(errs), ", ") %></span>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table> 
+<% end %>

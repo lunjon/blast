@@ -140,6 +140,7 @@ mix deps.get  # Fetch dependencies
 iex -S mix    # Start the application in IEx
 ```
 
-Starting an IEx session will start the server as well.
-Using `recompile` inside iex will restart the whole application,
-and even changes to static files will recompile the code.
+Note that when running `iex -S mix`:
+- Starts the server as well
+- Using `recompile` inside iex will recompile and restart the application
+- The `./examples/basic.ex` is loaded as the blastfile

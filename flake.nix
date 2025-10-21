@@ -22,18 +22,19 @@
         shellHook = ''
           exec nu
         '';
-
-        packages = [
-          erlang
-          elixir
-        ]
-        ++ (with pkgs; [
-          just
-          nil
-          elixir-ls
-          biome
-          typescript-language-server
-        ]);
+        packages =
+          builtins.attrValues {
+            inherit (pkgs)
+              just
+              elixir-ls
+              biome
+              typescript-language-server
+              ;
+          }
+          ++ [
+            erlang
+            elixir
+          ];
       };
     };
 }
