@@ -36,15 +36,15 @@ The `requests()` function is required and must return a list of maps that adhere
 def requests() do
   [
     %{
-      method: "get",             #  string (required). HTTP method specified as string.
-      path: "/relative",         #  string (required). URL path relative from the base URL.
+      method: "get",             # string (required). HTTP method specified as string.
+      path: "/relative",         # string (required). URL path relative from the base URL.
       headers: [                 # list (optional). List of two-element tuples of strings.
         {"header1", "value1"},
         {"header2", "value2"},
       ],
 
-      # Only one of the body* fields can be specified. All are optional
-      body: "string",       # string | map | list. A string to send in the request body.
+      # Only one of the body* fields can be specified. All are optional.
+      body: ...,            # string | map | list. Request body to use. If it's a list or map it will be sent as JSON.
       file: "filepath"      # string. File path to body to send as request body.
       form: [               # list. List of two-element tuples of name-value pairs.
         {"name1", "value1"},
@@ -53,7 +53,7 @@ def requests() do
     }
   ]
 end
-    ```
+```
 
 ### default_headers()
 
@@ -86,7 +86,6 @@ def settings() do
   }
 end
 ```
-
 
 By default, i.e when omitting from `settings`, blast will start all workers and send at full capacity right from the start.
 But if you like you could instead configure e.g a rampup, which increases requests over time.
@@ -128,7 +127,7 @@ defmodule Blast do
   # ... other callbacks omitted ...
 
   # This callback, or hook, is invoked once before all requests are sent.
-  # It can be used to setup some initial state, or as blast call it: context.
+  # It can be used to setup initial state, or as blast call it: context.
   # The context is typically a map, but it can be any type you want.
   #
   # If this isn't defined blast will use an empty map as a context.
