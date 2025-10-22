@@ -33,9 +33,7 @@ defmodule Blast.Worker do
     start_time = get_millis()
     {state, req} = get_request(state)
 
-    requester = Application.get_env(:blast, :requester, Blast.HttpRequester)
-
-    case requester.send(req) do
+    case Blast.HttpClient.send(req) do
       {:ok, response} -> handle_response(state, response, start_time)
       {:error, error} -> handle_error(error, req)
     end

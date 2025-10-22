@@ -109,11 +109,14 @@ defmodule Blast.Server do
   end
 
   defp render_status(status, count) when is_integer(status) do
-    cond do
-      status >= 500 ->  "<span style=\"font-weight: bold; color: var(--reder)\">#{status}</span> (#{count})"
-      status >= 400 ->  "<span style=\"font-weight: bold; color: var(--yellower)\">#{status}</span> (#{count})"
-      status >= 200 ->  "<span style=\"font-weight: bold; color: var(--greener)\">#{status}</span> (#{count})"
-      true -> "<span>#{status} (#{count})</span>"
-    end
+    color =
+      cond do
+        status >= 500 -> "var(--reder)"
+        status >= 400 -> "var(--orange)"
+        status >= 200 and status < 300 -> "var(--greener)"
+        true -> "black"
+      end
+
+    "<span style=\"font-weight: bold; color: #{color};\">#{status}</span> (#{count})"
   end
 end

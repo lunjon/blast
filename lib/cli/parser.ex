@@ -16,7 +16,7 @@ defmodule Blast.CLI.Parser do
                          A value of 0 means no limit. (default: #{@frequency})
     --log LEVEL          Configure log level (default: warn, allowed: debug, info, warn, error)
     --headless           Do not start web interface and start blasting right away.
-    --generate BASE_URL  Generate an example blastfile with the given base URL
+    --generate BASE_URL  Generate an example blastfile with the given base URL.
                          and writes it to stdout.
     --help               Display this help message.
   """

@@ -1,10 +1,7 @@
-defmodule Blast.HttpRequester do
+defmodule Blast.HttpClient do
   @moduledoc false
   alias Blast.Request, as: Req
 
-  @behaviour Blast.Requester
-
-  @impl Blast.Requester
   def send(req) do
     %Req{
       method: m,

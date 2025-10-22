@@ -1,4 +1,5 @@
-default: build fmt test
+check: fmt test
+    biome check .
 
 build env="prod":
     MIX_ENV={{ env }} mix compile
@@ -11,9 +12,6 @@ fmt:
 
 test *args="":
     mix test {{ args }}
-
-check: build test
-    biome check .
 
 # Remove builds, deps, caches, etc.
 clean:

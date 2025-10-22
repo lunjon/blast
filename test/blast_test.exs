@@ -10,6 +10,8 @@ defmodule Blast.IntegrationTest do
 
   It tests that, once started, they all communicate properly
   and that requests are sent and responses are registered.
+
+  The requests targets the test server.
   """
 
   alias Blast.Orchestrator
@@ -21,21 +23,22 @@ defmodule Blast.IntegrationTest do
     _ = start_supervised!({Blast.ConfigStore, config})
     _ = start_supervised!({Blast.Orchestrator, config})
     _ = start_supervised!({Blast.Controller.Default, config})
+    _ = start_supervised!({Plug.Cowboy, scheme: :http, plug: BlastTest.TestServer, port: 13001})
 
     :ok
   end
 
-  test("server starts workers", _context) do
+  test("blast runs", _context) do
     # Arrange: start blast and wait for initial results.
     Orchestrator.start()
-    Process.sleep(20)
+    Process.sleep(50)
 
     # Act: get state
     state = Orchestrator.get_state()
     count_before = state.total
 
     # Wait a little more
-    Process.sleep(20)
+    Process.sleep(50)
     state = Orchestrator.get_state()
     assert state.total > count_before
 
@@ -45,7 +48,7 @@ defmodule Blast.IntegrationTest do
     count_stopped = state.total
 
     # Assert that no requests are being sent after app controller was stopped
-    Process.sleep(20)
+    Process.sleep(50)
     state = Orchestrator.get_state()
     assert state.total === count_stopped
   end
@@ -54,9 +57,10 @@ end
 defmodule Blast.IntegrationTest.Blastfile do
   use Blastfile
 
-  def base_url(), do: ""
+  def base_url(), do: "http://localhost:13001"
 
+  # See endpoints below in the test server.
   def requests() do
-    [%{method: "get", path: "/"}]
+    [%{method: "get", path: "/ok"}]
   end
 end

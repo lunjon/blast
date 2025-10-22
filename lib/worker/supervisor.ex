@@ -33,7 +33,7 @@ defmodule Blast.WorkerSupervisor do
   end
 
   @doc """
-  Adds as many workers as specified in the `config`.
+  Adds as many workers as specified.
   """
   @spec add_workers(integer(), Blast.Config.t()) :: :ok
   def add_workers(count, config) do

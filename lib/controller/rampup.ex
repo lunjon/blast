@@ -1,5 +1,8 @@
 defmodule Blast.Controller.Rampup do
+  @moduledoc false
+
   use Blast.Controller
+  alias Blast.ConfigStore
 
   @type props :: %{
           add: integer(),
@@ -14,13 +17,13 @@ defmodule Blast.Controller.Rampup do
   end
 
   @impl Blast.Controller
-  def initialize(%Config{settings: settings} = config) do
-    state = %{running: false, config: config, props: settings.control.props, workers: 0}
+  def initialize(%Config{settings: settings}) do
+    state = %{running: false, props: settings.control.props, workers: 0}
     {:ok, state}
   end
 
   @impl Blast.Controller
-  def start(%{props: props, config: config} = state) do
+  def start(%{props: props} = state, config) do
     send_self(:tick, props.every * 1000)
     :ok = WorkerSupervisor.add_workers(props.start, config)
 
@@ -39,7 +42,7 @@ defmodule Blast.Controller.Rampup do
   end
 
   @impl Blast.Controller
-  def handle_message(:tick, %{config: config, props: props} = state) do
+  def handle_message(:tick, %{props: props} = state) do
     {workers, to_add} =
       if state.workers + props.add < props.target do
         {state.workers + props.add, props.add}
@@ -49,6 +52,7 @@ defmodule Blast.Controller.Rampup do
       end
 
     if to_add > 0 do
+      config = ConfigStore.get()
       WorkerSupervisor.add_workers(props.add, config)
     end
 

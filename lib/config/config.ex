@@ -200,7 +200,7 @@ defmodule Blast.Config do
   defp parse_body_fields(nil, body_file, nil) do
     case File.read(body_file) do
       {:ok, body} -> {:ok, body}
-      {:error, reason} -> "error reading file #{body_file}: #{inspect(reason)}"
+      {:error, reason} -> {:error, "error reading file #{body_file}: #{inspect(reason)}"}
     end
   end
 

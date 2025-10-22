@@ -1,4 +1,7 @@
 defmodule Blast.Controller do
+  alias Blast.Config
+  alias Blast.ConfigStore
+
   @moduledoc """
   A Controller is used to define how workers are started
   when running the load tests. Workers are started using `WorkerSupervisor`.
@@ -20,12 +23,13 @@ defmodule Blast.Controller do
   @callback initialize(any()) :: {:ok, any()}
 
   @doc """
-  Start the controller. The argument received is the value returned from `initialize()` callback.
+  Start the controller. The argument received is the value returned from `initialize()` callback
+  along with the current config.
 
   On success it should return an `{:ok, new_start}` value.
   If anything goes wrong it can return `{:error, any()}`.
   """
-  @callback start(any()) :: {:ok, any()} | {:error, any()}
+  @callback start(any(), Config.t()) :: {:ok, any()} | {:error, any()}
 
   @doc """
   This is called to stop the controller.
@@ -73,7 +77,8 @@ defmodule Blast.Controller do
               {status, cx}
 
             :idle ->
-              {:ok, cx} = start(cx)
+              config = ConfigStore.get()
+              {:ok, cx} = start(cx, config)
               {:running, cx}
           end
 

@@ -8,19 +8,16 @@ defmodule Blast.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: [
-        extras: ["README.md"]
-      ],
       escript: [main_module: Blast.CLI],
+      elixirc_paths: elixirc_paths(Mix.env()),
       releases: [
         blast: [
           include_executables_for: [:unix],
           applications: [blast: :permanent]
         ]
       ],
-      dialyzer: [
-        plt_add_deps: :apps_direct,
-        plt_ignore_apps: [:mnesia]
+      docs: [
+        extras: ["README.md"]
       ]
     ]
   end
@@ -36,8 +33,10 @@ defmodule Blast.MixProject do
     [
       {:httpoison, "~> 2.2"},
       {:plug_cowboy, "~> 2.0"},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.38.3", only: :dev, runtime: false}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/helpers"]
+  defp elixirc_paths(_), do: ["lib"]
 end
