@@ -2,26 +2,15 @@ defmodule Blast do
   use Blastfile
 
   def base_url() do
-    "http://localhost:8080"
+    "http://localhost:13001"
   end
 
   def requests() do
     [
-      %{
-        method: "get",
-        path: "/testing",
-        # Make this request more likely to be sent
-        weight: 5
-      },
-      %{
-        method: "post",
-        path: "/resource"
-      }
+      %{method: "get", path: "/fine"},
+      %{method: "get", path: "/~/status/random"},
+      # %{method: "get", path: "/~/status/500"},
+      %{method: "get", path: "/~/timeout"}
     ]
-  end
-
-  def pre_request(context, req) do
-    req = put_header(req, "Authorization", "name")
-    {context, req}
   end
 end

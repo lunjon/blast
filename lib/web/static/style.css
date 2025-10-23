@@ -1,107 +1,121 @@
 :root {
-  --green: #a6da95;
-  --greener: #81ca68;
-  --red: #ed8796;
-  --reder: #e44e64;
-  --orange: #df8e1d;
-  --yellow: #ffe433;
-  --yellower: #e6c700;
+	--green: #a6da95;
+	--greener: #81ca68;
+	--red: #ed8796;
+	--reder: #e44e64;
+	--orange: #df8e1d;
+	--yellow: #ffe433;
+	--yellower: #e6c700;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  margin: 1rem;
-  padding: 10px;
+	font-family: Arial, sans-serif;
+	margin: 1rem;
+	padding: 10px;
 }
 
 .header {
-  display: flex;
-  justify-content: space-between; /* Push elements to far ends */
-  align-items: center;
-  font-weight: bold;
-  font-size: 2em;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-weight: bold;
+	font-size: 2em;
 }
 
 table.config {
-  th, td {
-    text-align: left;
-    padding: 5px;
-  }
+	th,
+	td {
+		text-align: left;
+		padding: 5px;
+	}
+}
+
+/* This is the div containing the responses and errors. */
+div#data {
+	padding: 1rem;
 }
 
 table.responses {
-  min-height: 10%;
-  max-height: 50%;
+	margin: 0 auto;
+	width: 80%;
+	min-height: 10%;
+	max-height: 50%;
+	border: 1px solid #ccc;
+	border-radius: 8px;
 
-  th, td {
-    text-align: left;
-    padding: 10px;
-    margin-left: 10px;
-  }
+	th,
+	td {
+		text-align: left;
+		padding: 10px;
+		margin-left: 10px;
+	}
+
+	td.rowsep {
+		border-bottom: 1px solid #ccc;
+	}
+
+	tr:last-child td {
+		border-bottom: none;
+	}
 }
 
-table.errors {
-  min-height: 10%;
-  max-height: 50%;
+.errors {
+	table {
+		margin: 0 auto;
+		width: 80%;
+		min-height: 10%;
+		max-height: 50%;
+		border: 1px solid #ccc;
+		border-radius: 8px;
 
-  th, td {
-    text-align: left;
-    padding: 10px;
-    margin-left: 10px;
-  }
+		th,
+		td {
+			text-align: left;
+			padding: 10px;
+			margin-left: 10px;
+		}
+	}
 }
 
 span.error {
-  font-weight: bold;
-  color: var(--reder);
-}
-
-#data {
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  min-height: 2rem;
+	font-weight: bold;
+	color: var(--reder);
 }
 
 button {
-  border: none;
-  border-radius: 10px;
-  padding: 15px 32px;
-  text-align: center;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
+	border: none;
+	border-radius: 10px;
+	padding: 15px 32px;
+	text-align: center;
+	color: white;
+	font-size: 16px;
+	font-weight: bold;
 }
 
 .idle {
-  background-color: var(--green);
+	background-color: var(--green);
 }
 
 .idle:hover {
-  background-color: var(--greener);
+	background-color: var(--greener);
 }
 
 .running {
-  background-color: var(--red);
+	background-color: var(--red);
 }
 
 .running:hover {
-  background-color: var(--reder);
+	background-color: var(--reder);
 }
 
 #error {
-  display: flex;
-  justify-content: center;
+	display: flex;
+	justify-content: center;
 
-  /* Style for the inner div. */
-  div {
-    border: 2px solid var(--reder);
-    border-radius: 8px;
-    background-color: var(--red);
-    padding: 10px;
-  }
-}
-
-.status {
-  font-weight: bold;
+	div {
+		border: 1px solid var(--reder);
+		border-radius: 8px;
+		background-color: var(--red);
+		padding: 10px;
+	}
 }

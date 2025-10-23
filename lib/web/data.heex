@@ -1,4 +1,3 @@
-<h3>Responses</h3>
 <table class="responses">
   <thead style="text-align:left">
     <tr>
@@ -26,6 +25,9 @@
           <td><%= render_status(status, count) %></td>
         </tr>
       <% end %>
+    <tr>
+      <td class="rowsep" colspan=6>&nbsp;</td>
+    </tr>
     <% end %>
   </tbody>
 </table>
@@ -33,23 +35,25 @@
 <br>
 
 <%= if Enum.count(errors) > 0 do %>
-<h3>Errors</h3>
-<table class="errors">
-  <thead style="text-align:left">
-    <tr>
-      <th>Endpoint</th>
-      <th>Error</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for {endpoint, errs} <- errors do %>
+<div class="errors">
+  <h3>Errors</h3>
+  <table class="errors">
+    <thead style="text-align:left">
       <tr>
-        <td><%= endpoint %></td>
-        <td>
-          <span class="error"><%= Enum.join(MapSet.to_list(errs), ", ") %></span>
-        </td>
+        <th>Endpoint</th>
+        <th>Error</th>
       </tr>
-    <% end %>
-  </tbody>
-</table> 
+    </thead>
+    <tbody>
+      <%= for {endpoint, errs} <- errors do %>
+        <tr>
+          <td><%= endpoint %></td>
+          <td>
+            <span class="error"><%= Enum.join(MapSet.to_list(errs), ", ") %></span>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table> 
+</div>
 <% end %>
