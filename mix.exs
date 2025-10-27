@@ -33,7 +33,7 @@ defmodule Blast.MixProject do
     [
       {:httpoison, "~> 2.2"},
       {:plug_cowboy, "~> 2.0"},
-      {:ex_doc, "~> 0.38.3", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.39.1", only: :dev, runtime: false}
     ]
   end
 
