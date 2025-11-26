@@ -1,4 +1,4 @@
-name: Check
+name: pr-check
 
 on:
   push:
@@ -12,15 +12,15 @@ permissions:
 jobs:
   build:
     name: Build and test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
     - name: Set up Elixir
       uses: erlef/setup-beam@2f0cc07b4b9bea248ae098aba9e1a8a1de5ec24c # 1.17.5
       with:
-        elixir-version: '1.18.4' # [Required] Define the Elixir version
-        otp-version: '27.0'      # [Required] Define the Erlang/OTP version
+        elixir-version: '1.18.4'
+        otp-version: '27.0'
 
     - name: Install dependencies
       run: mix deps.get
